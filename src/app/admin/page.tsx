@@ -1,0 +1,11 @@
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+export default function AdminHome() {
+  const router = useRouter(); const [status, setStatus] = useState("جارٍ التحقق من الصلاحيات..."); const [email, setEmail] = useState("");
+  useEffect(() => { let active = true; (async () => { const supabase = createClient(); if (!supabase) { if (active) setStatus("إعدادات Supabase ناقصة."); return; } const { data: { user } } = await supabase.auth.getUser(); if (!user) { router.replace("/admin/login"); return; } const { data: role } = await supabase.from("admin_roles").select("role,is_active").eq("user_id", user.id).maybeSingle(); if (!role?.is_active) { await supabase.auth.signOut(); router.replace("/admin/login"); return; } if (active) { setEmail(user.email ?? ""); setStatus(`تم التحقق من الصلاحيات: ${role.role}`); } })(); return () => { active = false; }; }, [router]);
+  async function signOut() { const supabase = createClient(); await supabase?.auth.signOut(); router.replace("/admin/login"); router.refresh(); }
+  return <main className="subpage"><header className="subpage-header"><Link className="brand" href="/"><span className="brand-mark">B</span><span>Bein <b>Store</b></span></Link><div className="admin-head-actions"><span>{email}</span><button className="text-button" onClick={signOut}>تسجيل الخروج</button></div></header><section className="section-wrap"><span className="eyebrow">BEIN STORE CONTROL PANEL</span><h1 className="page-title">لوحة الإدارة</h1><p className="muted">{status}</p><div className="admin-grid"><Link className="admin-tile" href="/admin/products"><span>01</span><h2>المنتجات والأسعار</h2><p>إضافة وتعديل المنتجات وتفعيل عرضها في المتجر.</p><b>إدارة المنتجات ←</b></Link><Link className="admin-tile" href="/admin/orders"><span>02</span><h2>الطلبات</h2><p>عرض بيانات العملاء وتحديث حالة كل طلب.</p><b>إدارة الطلبات ←</b></Link><Link className="admin-tile" href="/"><span>03</span><h2>عرض المتجر</h2><p>افتح المتجر كما يراه العملاء.</p><b>الذهاب للمتجر ↗</b></Link></div><div className="notice-box"><b>تنبيه قبل النشر</b><p>أضف حساب المسؤول من Supabase Auth ثم اربطه بجدول admin_roles. لا تنشئ حساب الإدارة بمفتاح سري داخل المتصفح.</p></div></section></main>;
+}

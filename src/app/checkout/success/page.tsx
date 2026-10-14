@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default async function SuccessPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) { const params = await searchParams; return <main className="subpage"><section className="section-wrap"><div className="empty-state"><div className="empty-symbol">✓</div><h1>تم تسجيل طلبك</h1><p>رقم الطلب: {params.order ?? "—"}. سيتواصل معك المتجر لتأكيد التفاصيل ورسوم الشحن.</p><Link className="button button-primary" href="/">العودة للمتجر</Link></div></section></main>; }
