@@ -32,17 +32,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const supabase = await createClient();
   if (!supabase) return { title: "منتجات كاميرات المراقبة | بين ستور", robots: { index: false, follow: false } };
   const { data } = await supabase.from("products")
-    .select("slug,name_ar,name_en,brand,model,description_ar,description_en,image_urls,price_egp,is_active")
+    .select("slug,name_ar,name_en,brand,model,description_ar,description_en,image_urls,price_egp,is_active,specifications")
     .eq("slug", slug).eq("is_active", true).not("price_egp", "is", null).maybeSingle();
   if (!data) return { title: "المنتج غير متاح | بين ستور", robots: { index: false, follow: false } };
   const description = [data.name_ar, data.brand, data.model, data.description_ar].filter(Boolean).join(" — ").slice(0, 300)
     || "منتجات كاميرات المراقبة وأجهزة التسجيل والشبكات من Bein Store في 6 أكتوبر، الجيزة.";
   const title = `${data.name_ar} | بين ستور`;
   const url = `${SITE_URL}/products/${encodeURIComponent(data.slug)}`;
+  const indexable = data.specifications?.price_status === "confirmed"
+    && Boolean(data.model?.trim())
+    && Boolean(data.description_ar?.trim())
+    && Array.isArray(data.image_urls) && data.image_urls.length > 0;
   return {
     title, description,
     alternates: { canonical: url },
-    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+    robots: { index: indexable, follow: true, googleBot: { index: indexable, follow: true, "max-image-preview": "large" } },
     openGraph: { type: "website", locale: "ar_EG", siteName: "Bein Store", url, title, description, images: (data.image_urls ?? []).slice(0, 4).map((image: string) => ({ url: image, alt: data.name_ar })) },
     twitter: { card: "summary_large_image", title, description, images: (data.image_urls ?? []).slice(0, 1) }
   };
