@@ -17,14 +17,14 @@ type Draft = {
   model: string;
   description_ar: string;
   price_egp: string;
-  image_url: string;
+  image_urls: string[];
   is_active: boolean;
   is_featured: boolean;
   stock: string;
 };
 const blank: Draft = {
   category_id: "", name_ar: "", name_en: "", slug: "", sku: "", brand: "", model: "",
-  description_ar: "", price_egp: "", image_url: "", is_active: false, is_featured: false, stock: ""
+  description_ar: "", price_egp: "", image_urls: [], is_active: false, is_featured: false, stock: ""
 };
 const money = (n: number) => new Intl.NumberFormat("ar-EG").format(n) + " ج.م";
 
@@ -60,30 +60,32 @@ export default function AdminProductsPage() {
     setDraft({ id: p.id, category_id: p.category_id ?? "", name_ar: p.name_ar, name_en: p.name_en,
       slug: p.slug, sku: p.sku ?? "", brand: p.brand ?? "", model: p.model ?? "",
       description_ar: p.description_ar ?? "", price_egp: p.price_egp == null ? "" : String(p.price_egp),
-      image_url: p.image_urls?.[0] ?? "", is_active: p.is_active, is_featured: p.is_featured, stock: "" });
+      image_urls: [...(p.image_urls ?? [])], is_active: p.is_active, is_featured: p.is_featured, stock: "" });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function autoSlug(value: string) {
     return value.trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\u0600-\u06ff]+/g, "-").replace(/^-|-$/g, "");
   }
-  async function uploadImage(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+  async function uploadImages(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
     event.target.value = "";
-    if (!file) return;
-    if (!/^image\/(jpeg|png|webp|avif)$/.test(file.type)) { setMessage("ارفع صورة JPG أو PNG أو WebP أو AVIF فقط."); return; }
-    if (file.size > 5 * 1024 * 1024) { setMessage("حجم الصورة لازم يكون 5 ميجابايت أو أقل."); return; }
+    if (!files.length) return;
+    const invalid = files.find(file => !/^image\/(jpeg|png|webp|avif)$/.test(file.type) || file.size > 5 * 1024 * 1024);
+    if (invalid) { setMessage("كل الصور لازم تكون JPG أو PNG أو WebP أو AVIF وحجم الواحدة 5 ميجابايت أو أقل."); return; }
     const s = createClient();
     if (!s) { setMessage("إعدادات Supabase ناقصة."); return; }
     setUploading(true); setMessage("");
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await s.storage.from("product-images").upload(path, file, { contentType: file.type, upsert: false });
-    if (error) setMessage(`تعذر رفع الصورة: ${error.message}`);
-    else {
-      const { data } = s.storage.from("product-images").getPublicUrl(path);
-      setDraft(d => ({ ...d, image_url: data.publicUrl }));
-      setMessage("تم رفع الصورة. اضغط حفظ المنتج لتسجيل الرابط.");
+    const uploaded: string[] = [];
+    const failures: string[] = [];
+    for (const file of files) {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `products/${crypto.randomUUID()}.${ext}`;
+      const { error } = await s.storage.from("product-images").upload(path, file, { contentType: file.type, upsert: false });
+      if (error) failures.push(file.name);
+      else { const { data } = s.storage.from("product-images").getPublicUrl(path); uploaded.push(data.publicUrl); }
     }
+    if (uploaded.length) setDraft(d => ({ ...d, image_urls: [...d.image_urls, ...uploaded] }));
+    setMessage(failures.length ? `تم رفع ${uploaded.length} صورة، وتعذر رفع: ${failures.join("، ")}` : `تم رفع ${uploaded.length} صورة. راجع المعاينة ثم احفظ المنتج.`);
     setUploading(false);
   }
   async function save(e: FormEvent) {
@@ -99,7 +101,7 @@ export default function AdminProductsPage() {
       slug: draft.slug.trim() || autoSlug(draft.name_en || draft.name_ar), sku: draft.sku.trim() || null,
       brand: draft.brand.trim() || null, model: draft.model.trim() || null,
       description_ar: draft.description_ar.trim() || null, price_egp: price,
-      image_urls: draft.image_url.trim() ? [draft.image_url.trim()] : [],
+      image_urls: draft.image_urls.map(url => url.trim()).filter(Boolean),
       is_active: draft.is_active && price !== null, is_featured: draft.is_featured
     };
     const result = draft.id
@@ -146,12 +148,12 @@ export default function AdminProductsPage() {
           {field("الماركة", "brand", { maxLength: 80 })}
           {field("الموديل", "model", { maxLength: 100 })}
           {field("السعر بالجنيه المصري (اتركه فارغًا للسعر عند الطلب)", "price_egp", { type: "number", min: "0", step: "0.01" })}
-          {field("رابط صورة المنتج", "image_url", { type: "url", placeholder: "https://..." })}
-          <label>رفع صورة من الجهاز<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={uploadImage} disabled={uploading} />{uploading && <small>جارٍ رفع الصورة...</small>}</label>
+          <label className="wide-field">روابط صور المنتج (رابط في كل سطر)<textarea rows={3} value={draft.image_urls.join("\n")} onChange={e => setDraft(d => ({ ...d, image_urls: e.target.value.split("\n").map(url => url.trim()).filter(Boolean) }))} placeholder={"https://...\nhttps://..."} /></label>
+          <label>رفع صور متعددة من الجهاز<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" onChange={uploadImages} disabled={uploading} />{uploading && <small>جارٍ رفع الصور...</small>}</label>
           {field("كمية المخزون (اختياري؛ فارغ = لا تغيّر المخزون)", "stock", { type: "number", min: "0", step: "1" })}
           <label className="wide-field">الوصف<textarea value={draft.description_ar} onChange={e => setDraft(d => ({ ...d, description_ar: e.target.value }))} rows={3} /></label>
         </div>
-        {draft.image_url && <div className="image-preview"><img src={draft.image_url} alt="معاينة صورة المنتج" /><button type="button" className="text-button" onClick={() => setDraft(d => ({ ...d, image_url: "" }))}>إزالة الصورة</button></div>}
+        {draft.image_urls.length > 0 && <div className="admin-product-gallery-preview">{draft.image_urls.map((url,index) => <div key={url+"-"+index}><img src={url} alt={`صورة المنتج ${index+1}`} /><span>الصورة {index+1}</span><button type="button" onClick={() => setDraft(d => ({ ...d, image_urls: d.image_urls.filter((_,i) => i !== index) }))}>إزالة</button></div>)}</div>}
         <div className="check-row"><label><input type="checkbox" checked={draft.is_active} onChange={e => setDraft(d => ({ ...d, is_active: e.target.checked }))} /> نشر المنتج في المتجر</label><label><input type="checkbox" checked={draft.is_featured} onChange={e => setDraft(d => ({ ...d, is_featured: e.target.checked }))} /> منتج مميز</label></div>
         <div className="hero-actions"><button className="button button-primary" disabled={busy || uploading}>{busy ? "جارٍ الحفظ..." : draft.id ? "حفظ التعديلات" : "إضافة المنتج"}</button>{draft.id && <button type="button" className="button button-secondary" onClick={() => setDraft(blank)}>إلغاء التعديل</button>}</div>
         {message && <p className={message.includes("تم") ? "form-success" : "form-error"} role="status">{message}</p>}
