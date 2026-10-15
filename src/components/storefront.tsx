@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { Category, Product } from "@/lib/types";
 import { useCart } from "@/components/cart-provider";
 import ProductImage from "@/components/product-image";
