@@ -14,8 +14,9 @@ type AdminShellProps = {
 const links = [
   { href: "/admin", label: "نظرة عامة", icon: "⌂" },
   { href: "/admin/products", label: "المنتجات والأسعار", icon: "▦" },
+  { href: "/admin/categories", label: "الأقسام", icon: "▧" },
   { href: "/admin/orders", label: "الطلبات", icon: "▤" },
-  { href: "/admin/settings", label: "إعدادات المتجر", icon: "⚙" },
+  { href: "/admin/settings", label: "هوية ومحتوى الموقع", icon: "⚙" },
 ];
 export default function AdminShell({ children, title, subtitle, userEmail, onSignOut }: AdminShellProps) {
   const pathname = usePathname();
