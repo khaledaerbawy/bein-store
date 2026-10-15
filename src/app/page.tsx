@@ -111,7 +111,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <span className="nav-note"><i /> مساعدة فنية في اختيار الموديل</span>
     </nav>
 
-    {site.show_hero && (\n    <section className="commerce-hero customer-commerce-hero">
+    {site.show_hero && (
+    <section className="commerce-hero customer-commerce-hero">
       <div className="hero-main-copy">
         <div className="hero-kicker"><span /> {site.hero_badge}</div>
         <h1>{site.hero_title}<br /><em>{site.hero_title_highlight}</em></h1>
@@ -132,9 +133,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           {heroStorage ? <div className="customer-hero-secondary-photo"><ProductImage product={heroStorage} className="customer-hero-small-image" /><span>هاردات التخزين</span></div> : null}
         </div>
       </div>
-    </sect\n    )}ion>
+    </sect
+    )}ion>
 
-    {site.show_categories && (\n    <section className="category-section" id="categories">
+    {site.show_categories && (
+    <section className="category-section" id="categories">
       <div className="commerce-section-head"><div><span className="section-overline">تسوّق بسهولة</span><h2>تسوّق حسب القسم</h2><p className="section-subtitle">وصل للقسم اللي محتاجه بسرعة.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
       <div className="category-card-grid">
         {shownCategories.map((category, index) => {
@@ -151,19 +154,30 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </div>
     </section>
 
-    )}\n\n    {site.show_catalog && (\n    <section className="catalog-section" id="catalog">
+    )}
+
+    {site.show_catalog && (
+    <section className="catalog-section" id="catalog">
       <div className="commerce-section-head"><div><span className="section-overline">كتالوج Bein Store</span><h2>منتجاتنا</h2><p className="section-subtitle">صور واضحة، موديلات وأسعار معروضة، واختيار سهل للمنتج المناسب.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
       {!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}
     </section>
 
-    )}\n\n    {site.show_brands && (\n    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">ماركات بنجهّز أنظمتها حسب احتياجك</span><div className="brand-logo-list"><div className="brand-logo-card"><img src="https://www.hikvision.com/content/dam/hikvision/uk/marketing-portal/logos/hikvision/Hikvision%20Logo.PNG" alt="Hikvision" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-hilook" aria-label="HiLook"><span>HiLook</span></div><div className="brand-logo-card"><img src="https://material.dahuasecurity.com/uploads/image/20200615/20200615135430_98836.png" alt="Dahua Technology" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-unv" aria-label="UNV Uniview"><span>UNV</span><small>UNIVIEW</small></div></div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
+    )}
 
-    )}\n\n    {site.show_services && (\n    <section className="service-section" id="services">
+    {site.show_brands && (
+    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">ماركات بنجهّز أنظمتها حسب احتياجك</span><div className="brand-logo-list"><div className="brand-logo-card"><img src="https://www.hikvision.com/content/dam/hikvision/uk/marketing-portal/logos/hikvision/Hikvision%20Logo.PNG" alt="Hikvision" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-hilook" aria-label="HiLook"><span>HiLook</span></div><div className="brand-logo-card"><img src="https://material.dahuasecurity.com/uploads/image/20200615/20200615135430_98836.png" alt="Dahua Technology" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-unv" aria-label="UNV Uniview"><span>UNV</span><small>UNIVIEW</small></div></div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
+
+    )}
+
+    {site.show_services && (
+    <section className="service-section" id="services">
       <div className="service-intro"><span className="section-overline">محتاج مساعدة؟</span><h2>مش متأكد تختار إيه؟<br /><em>نساعدك توصل للمناسب.</em></h2><p>اختيار النظام الصح بيعتمد على المكان، عدد الكاميرات، طريقة التسجيل، وسعة التخزين. ابعتلنا التفاصيل ونراجع معاك المكونات المطلوبة.</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
       <div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>حدّد عدد الكاميرات</b><p>والأماكن الداخلية والخارجية المطلوب تغطيتها.</p></div></div><div className="service-step"><span>03</span><div><b>اختار طريقة التسجيل</b><p>DVR أو NVR مع سعة تخزين مناسبة.</p></div></div><div className="service-step"><span>04</span><div><b>راجع توافق المكونات</b><p>نتأكد من التوصيلات والملحقات قبل التجهيز.</p></div></div></div>
     </section>
 
-    )}\n\n    <footer className="commerce-footer" id="contact">
+    )}
+
+    <footer className="commerce-footer" id="contact">
       <div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div>
       <div className="footer-column"><b>تصفّح المتجر</b><a href="#categories">الأقسام</a><a href="#catalog">المنتجات والأسعار</a><a href="#services">حلول المشروعات</a></div>
       <div className="footer-column"><b>تواصل معانا</b>{storePhone && <a href={`tel:${storePhone.replace(/[^+\d]/g, "")}`} dir="ltr">{storePhone}</a>}{storeWhatsapp && <a href={whatsappUrl} target="_blank" rel="noreferrer">واتساب</a>}{storeAddress && <span>{storeAddress}</span>}{!storePhone && !storeWhatsapp && !storeAddress && <span>بيانات التواصل هتظهر هنا بعد إعدادها.</span>}</div>
