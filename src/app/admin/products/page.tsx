@@ -53,7 +53,7 @@ export default function AdminProductsPage() {
     const { data: role } = await s.from("admin_roles").select("is_active").eq("user_id", user.id).maybeSingle();
     if (!role?.is_active) { location.href = "/admin/login"; return; }
     const [productResult, categoryResult] = await Promise.all([
-      s.from("products").select("id,category_id,sku,slug,name_ar,name_en,brand,model,description_ar,description_en,specifications,price_egp,image_urls,is_active,is_featured").order("created_at", { ascending: false }),
+      s.from("products").select("id,category_id,sku,slug,name_ar,name_en,brand,model,description_ar,description_en,specifications,price_egp,compare_at_price_egp,image_urls,is_active,is_featured").order("created_at", { ascending: false }),
       s.from("categories").select("id,name_ar,name_en,slug,sort_order").order("sort_order", { ascending: true })
     ]);
     if (productResult.error) setMessage(productResult.error.message);
