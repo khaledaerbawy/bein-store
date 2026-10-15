@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
 import "./globals.css";
 import { CartProvider } from "@/components/cart-provider";
 import CartFeedback from "@/components/cart-feedback";
 import { createClient } from "@/lib/supabase/server";
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
