@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { Category, Product } from "@/lib/types";
+import { priceNoticeFor } from "@/lib/types";
 import { useCart } from "@/components/cart-provider";
 
 const formatPrice = (price: number) => new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(price);
@@ -18,6 +19,7 @@ export default function Storefront({ products, categories, initialQuery = "", in
     return matches && (brand === "all" || p.brand === brand) && (category === "all" || p.category_id === category);
   });
   return <>
+    {products.some((product) => priceNoticeFor(product.specifications)) && <div className="provisional-price-banner" role="note"><strong>تنبيه بخصوص الأسعار</strong><span>بعض الأسعار مؤقتة أو مرجعية لنسخة قريبة. راجع الملاحظة أسفل سعر المنتج، والسعر النهائي وتوافر الموديل يتأكدان مع المتجر قبل اعتماد الطلب.</span></div>}
     <div className="catalog-tools">
       <label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث باسم المنتج أو الموديل أو الكود" aria-label="البحث عن منتج" /></label>
       <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="تصفية حسب القسم"><option value="all">كل الأقسام</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar}</option>)}</select>
@@ -34,6 +36,7 @@ export default function Storefront({ products, categories, initialQuery = "", in
           {product.model && <p className="product-model">الموديل: {product.model}</p>}
           {product.sku && <p className="product-model">كود المنتج: {product.sku}</p>}
           <div className="product-bottom"><strong>{formatPrice(Number(product.price_egp))}</strong><button className="add-cart" onClick={() => add(product)} aria-label={`أضف ${product.name_ar} للسلة`}>+ أضف للسلة</button></div>
+          {priceNoticeFor(product.specifications) && <p className="temporary-price-note">{priceNoticeFor(product.specifications)}</p>}
         </div>
       </article>)}
     </div>}

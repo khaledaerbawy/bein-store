@@ -451,3 +451,15 @@ footer > p { color: var(--muted); font-size: 11px; flex: 1; min-width: 220px; }
  .commerce-footer { grid-template-columns:1fr; }
  .footer-main { grid-column:auto; }
 }
+
+
+/* Verified brand strip */
+.brand-logo-list{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2.4vw,30px);flex-wrap:wrap;flex:1}.brand-logo-card{height:58px;min-width:128px;padding:10px 16px;background:#fff;border:1px solid #e7e9ed;border-radius:10px;display:flex;align-items:center;justify-content:center}.brand-logo-card img{display:block;max-width:145px;max-height:36px;width:auto;height:auto;object-fit:contain}.brand-wordmark-hilook span{font-size:27px;font-weight:800;letter-spacing:-1.5px;color:#292c31}.brand-wordmark-hilook span::first-letter{color:#e3262e}.brand-wordmark-unv{flex-direction:column;gap:0;color:#1567ad}.brand-wordmark-unv span{font-size:26px;font-weight:900;letter-spacing:2px;line-height:1}.brand-wordmark-unv small{font-size:8px;letter-spacing:2px;font-weight:700}.brands-strip{gap:18px;flex-wrap:wrap}@media(max-width:640px){.brand-logo-card{min-width:112px;height:52px;padding:8px 12px}.brand-logo-card img{max-width:120px;max-height:30px}.brand-wordmark-hilook span{font-size:24px}}
+
+
+/* Temporary catalogue price disclosures */
+.provisional-price-banner { display:flex; flex-direction:column; gap:4px; margin:0 0 16px; padding:12px 14px; border:1px solid #e7d5b4; background:#fffaf1; color:#665130; font-size:11px; line-height:1.9; }
+.provisional-price-banner strong { color:#77511d; font-size:12px; }
+.temporary-price-note { margin:9px 0 0; color:#815c25; font-size:10px; line-height:1.8; }
+.detail-price-note { padding:9px 11px; border-right:3px solid #d2a253; background:#fffaf1; }
+.checkout-price-note { margin:13px 0; padding:10px; border:1px solid #e7d5b4; background:#fffaf1; }
