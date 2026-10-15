@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
-import { priceNoticeFor } from "@/lib/types";
+import ProductImage from "@/components/product-image";
 
 export default function CheckoutForm() {
   const { items, subtotal, clear } = useCart();
@@ -44,5 +44,5 @@ export default function CheckoutForm() {
     <label>ملاحظات إضافية<textarea name="notes" rows={3} maxLength={1000} /></label>
     {error && <p className="form-error" role="alert">{error}</p>}
     <button className="button button-primary full-button" type="submit" disabled={busy}>{busy ? "جارٍ تسجيل الطلب..." : storeWhatsapp ? "تأكيد الطلب والمتابعة لواتساب" : "تأكيد الطلب"}</button>
-  </form><aside className="order-summary"><h2>ملخص الطلب</h2>{items.map((item) => <div className="summary-line" key={item.product.id}><span>{item.product.name_ar} × {item.quantity}</span><strong>{new Intl.NumberFormat("ar-EG").format(Number(item.product.price_egp) * item.quantity)} ج.م</strong></div>)}{items.some((item) => priceNoticeFor(item.product.specifications)) && <p className="temporary-price-note checkout-price-note" role="note">بعض الأسعار في طلبك مؤقتة أو مرتبطة بنسخة تحتاج تأكيدًا. الإجمالي المعروض مبدئي، وسيتم تأكيد السعر النهائي معك قبل اعتماد الطلب.</p>}<div className="summary-total"><span>الإجمالي قبل الشحن</span><strong>{new Intl.NumberFormat("ar-EG").format(subtotal)} ج.م</strong></div><small>رسوم الشحن يتم تأكيدها مع المتجر قبل اعتماد الطلب.</small></aside></div>;
+  </form><aside className="order-summary"><div className="order-summary-head"><span className="order-summary-icon">✓</span><div><h2>ملخص الطلب</h2><small>{items.length} أنواع منتجات · {items.reduce((n, item) => n + item.quantity, 0)} قطعة</small></div></div>{items.map((item) => <div className="checkout-summary-item" key={item.product.id}><div className="checkout-summary-photo"><ProductImage product={item.product} className="checkout-product-photo" /></div><div className="checkout-summary-name"><span>{item.product.name_ar}</span><small>الكمية: {item.quantity}</small></div><strong>{new Intl.NumberFormat("ar-EG").format(Number(item.product.price_egp) * item.quantity)} ج.م</strong></div>)}<p className="checkout-price-confirmation">السعر النهائي وتوافر الموديل يتم تأكيدهما مع المتجر قبل اعتماد الطلب.</p><div className="summary-total"><span>الإجمالي قبل الشحن</span><strong>{new Intl.NumberFormat("ar-EG").format(subtotal)} ج.م</strong></div><small className="shipping-note">الشحن يتم تأكيده مع المتجر بعد مراجعة العنوان. لا يتم تحصيل أي دفع إلكتروني من هذه الصفحة.</small><div className="checkout-assurance"><span>✓ مراجعة بيانات الطلب</span><span>✓ تأكيد السعر والتوافر</span><span>✓ متابعة مع المتجر</span></div></aside></div>;
 }

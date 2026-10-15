@@ -18,10 +18,3 @@ export type Product = {
 
 export type Category = { id: string; name_ar: string; name_en: string; slug: string; sort_order: number };
 
-
-export function priceNoticeFor(specifications: Record<string, unknown> | null | undefined): string {
-  const status = String(specifications?.price_status ?? "");
-  if (status === "provisional_estimate") return "سعر تقديري مؤقت قابل للتغيير؛ السعر النهائي يتأكد مع المتجر قبل اعتماد الطلب.";
-  if (status === "market_reference_variant") return "السعر مرجعي لنسخة قريبة؛ يجب تأكيد تطابق الموديل قبل اعتماد الطلب.";
-  return "";
-}
