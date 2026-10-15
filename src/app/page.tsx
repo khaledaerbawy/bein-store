@@ -133,8 +133,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           {heroStorage ? <div className="customer-hero-secondary-photo"><ProductImage product={heroStorage} className="customer-hero-small-image" /><span>هاردات التخزين</span></div> : null}
         </div>
       </div>
-    </sect
-    )}ion>
+    </section>
+    )}
 
     {site.show_categories && (
     <section className="category-section" id="categories">
@@ -147,7 +147,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <span className="category-tile-image">
               {category.image_url ? <img className="category-photo" src={category.image_url} alt="" loading="lazy" /> : representativeProduct ? <ProductImage product={representativeProduct} className="category-photo" /> : <span className="category-image-fallback">BS</span>}
             </span>
-            <span className="category-tile-copy"><b>{category.name_ar || detail.title}</b><small>{detail.description}</small></span>
+            <span className="category-tile-copy"><b>{category.name_ar || detail.title}</b><small>{category.description_ar || detail.description}</small></span>
             <span className="category-tile-link">عرض المنتجات <span>←</span></span>
           </a>;
         })}
