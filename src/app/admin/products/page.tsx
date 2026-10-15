@@ -19,6 +19,8 @@ type Draft = {
   price_egp: string;
   compare_at_price_egp: string;
   specifications: Array<{ name: string; value: string }>;
+  internalSpecifications: Record<string, unknown>;
+  priceStatus: "provisional_estimate" | "market_reference" | "market_reference_variant" | "confirmed";
   image_urls: string[];
   is_active: boolean;
   is_featured: boolean;
@@ -26,7 +28,7 @@ type Draft = {
 };
 const blank: Draft = {
   category_id: "", name_ar: "", name_en: "", slug: "", sku: "", brand: "", model: "",
-  description_ar: "", description_en: "", price_egp: "", compare_at_price_egp: "", specifications: [], image_urls: [], is_active: false, is_featured: false, stock: ""
+  description_ar: "", description_en: "", price_egp: "", compare_at_price_egp: "", specifications: [], internalSpecifications: {}, priceStatus: "provisional_estimate", image_urls: [], is_active: false, is_featured: false, stock: ""
 };
 const money = (n: number) => new Intl.NumberFormat("ar-EG").format(n) + " ج.م";
 
@@ -70,7 +72,9 @@ export default function AdminProductsPage() {
       description_ar: p.description_ar ?? "", description_en: p.description_en ?? "",
       price_egp: p.price_egp == null ? "" : String(p.price_egp),
       compare_at_price_egp: p.compare_at_price_egp == null ? "" : String(p.compare_at_price_egp),
-      specifications: Object.entries(p.specifications ?? {}).map(([name,value]) => ({ name, value: String(value ?? "") })),
+      specifications: Object.entries(p.specifications ?? {}).filter(([name]) => !/^(price_|image_source_|internal_)/i.test(name)).map(([name,value]) => ({ name, value: String(value ?? "") })),
+      internalSpecifications: Object.fromEntries(Object.entries(p.specifications ?? {}).filter(([name]) => /^(price_|image_source_|internal_)/i.test(name))),
+      priceStatus: p.specifications?.price_status === "confirmed" ? "confirmed" : p.specifications?.price_status === "market_reference" ? "market_reference" : p.specifications?.price_status === "market_reference_variant" ? "market_reference_variant" : "provisional_estimate",
       image_urls: [...(p.image_urls ?? [])], is_active: p.is_active, is_featured: p.is_featured, stock: "" });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -109,7 +113,8 @@ export default function AdminProductsPage() {
     if (comparePrice !== null && (!Number.isFinite(comparePrice) || comparePrice < 0)) { setMessage("اكتب سعر مقارنة صحيحًا أو اتركه فارغًا."); setBusy(false); return; }
     if (comparePrice !== null && price !== null && comparePrice < price) { setMessage("سعر المقارنة لازم يكون مساويًا للسعر الحالي أو أعلى منه."); setBusy(false); return; }
     if (draft.is_active && price === null) { setMessage("أضف السعر المعتمد قبل نشر المنتج."); setBusy(false); return; }
-    const specifications: Record<string, unknown> = {};
+    const specifications: Record<string, unknown> = { ...draft.internalSpecifications, price_status: draft.priceStatus };
+    if (draft.priceStatus === "confirmed" && typeof specifications.price_note === "string" && specifications.price_note.includes("مؤقت")) delete specifications.price_note;
     for (const item of draft.specifications) {
       const name = item.name.trim();
       const value = item.value.trim();
@@ -230,6 +235,7 @@ export default function AdminProductsPage() {
           {field("الماركة", "brand", { maxLength: 80 })}
           {field("الموديل", "model", { maxLength: 100 })}
           {field("السعر الحالي بالجنيه المصري (اتركه فارغًا للسعر عند الطلب)", "price_egp", { type: "number", min: "0", step: "0.01" })}
+          <label>حالة السعر<select value={draft.priceStatus} onChange={e => setDraft(d => ({ ...d, priceStatus: e.target.value as Draft["priceStatus"] }))}><option value="provisional_estimate">سعر مبدئي يحتاج تأكيد</option><option value="market_reference">سعر مرجعي يحتاج مراجعة</option><option value="market_reference_variant">مرجع لموديل مشابه</option><option value="confirmed">سعر معتمد من المتجر</option></select><small>اختار «سعر معتمد» فقط بعد التأكد من الموديل والسعر الفعلي.</small></label>
           {field("سعر المقارنة / قبل الخصم (اختياري)", "compare_at_price_egp", { type: "number", min: "0", step: "0.01" })}
           <label className="wide-field">روابط صور المنتج (رابط في كل سطر)<textarea rows={3} value={draft.image_urls.join("\n")} onChange={e => setDraft(d => ({ ...d, image_urls: e.target.value.split("\n").map(url => url.trim()).filter(Boolean) }))} placeholder={"https://...\nhttps://..."} /></label>
           <label>رفع صور متعددة من الجهاز<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" onChange={uploadImages} disabled={uploading} />{uploading && <small>جارٍ رفع الصور...</small>}</label>
