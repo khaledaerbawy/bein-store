@@ -37,6 +37,15 @@ export type StoreSettings = {
   page_title: string;
   meta_description: string;
   announcement_text: string;
+  categories_title: string;
+  categories_description: string;
+  catalog_title: string;
+  catalog_description: string;
+  brands_title: string;
+  services_kicker: string;
+  services_title: string;
+  services_highlight: string;
+  services_description: string;
   show_announcement: boolean;
   hero_badge: string;
   hero_title: string;
