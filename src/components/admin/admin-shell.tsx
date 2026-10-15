@@ -1,7 +1,8 @@
 "use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 type AdminShellProps = {
   children: ReactNode;
@@ -18,6 +19,14 @@ const links = [
 ];
 export default function AdminShell({ children, title, subtitle, userEmail, onSignOut }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  async function handleSignOut() {
+    if (onSignOut) { await onSignOut(); return; }
+    const supabase = createClient();
+    await supabase?.auth.signOut();
+    router.replace("/admin/login");
+    router.refresh();
+  }
   return (
     <div className="admin-shell-root" dir="rtl">
       <aside className="admin-shell-sidebar">
@@ -43,7 +52,7 @@ export default function AdminShell({ children, title, subtitle, userEmail, onSig
         <Link href="/" className="admin-shell-store-link"><span>↗</span> عرض المتجر</Link>
         <div className="admin-shell-sidebar-bottom">
           <div className="admin-shell-help"><span className="admin-shell-help-icon">✦</span><b>محتاج مساعدة؟</b><p>تقدر تراجع بيانات المتجر وإدارة المنتجات والطلبات من هنا.</p><Link href="/admin/settings">إعدادات المتجر ←</Link></div>
-          <div className="admin-shell-profile"><span className="admin-shell-avatar">هـ</span><span className="admin-shell-profile-text"><b>مسؤول المتجر</b><small>{userEmail || "صلاحيات الإدارة"}</small></span>{onSignOut && <button className="admin-shell-signout" onClick={onSignOut} aria-label="تسجيل الخروج" title="تسجيل الخروج">↗</button>}</div>
+          <div className="admin-shell-profile"><span className="admin-shell-avatar">هـ</span><span className="admin-shell-profile-text"><b>مسؤول المتجر</b><small>{userEmail || "صلاحيات الإدارة"}</small></span><button className="admin-shell-signout" onClick={() => void handleSignOut()} aria-label="تسجيل الخروج" title="تسجيل الخروج">↗</button></div>
         </div>
       </aside>
       <div className="admin-shell-main">
