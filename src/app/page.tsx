@@ -18,7 +18,7 @@ async function getCategories(): Promise<Category[]> {
 async function getProducts(): Promise<Product[]> {
   const supabase = await createClient();
   if (!supabase) return [];
-  const { data, error } = await supabase.from("products").select("id,category_id,sku,slug,name_ar,name_en,brand,model,description_ar,description_en,specifications,price_egp,image_urls,is_active,is_featured").eq("is_active", true).not("price_egp", "is", null).order("is_featured", { ascending: false }).order("name_ar", { ascending: true });
+  const { data, error } = await supabase.from("products").select("id,category_id,sku,slug,name_ar,name_en,brand,model,description_ar,description_en,specifications,price_egp,compare_at_price_egp,image_urls,is_active,is_featured").eq("is_active", true).not("price_egp", "is", null).order("is_featured", { ascending: false }).order("name_ar", { ascending: true });
   if (error) { console.error("Catalog query failed:", error.message); return []; }
   return (data ?? []) as Product[];
 }
