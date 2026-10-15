@@ -6,6 +6,23 @@ import ProductDetailActions from "@/components/product-detail-actions";
 import ProductGallery from "@/components/product-gallery";
 import SiteBrand from "@/components/site-brand";
 export const dynamic = "force-dynamic";
+const specificationLabels: Record<string, string> = {
+  resolution: "الدقة",
+  lens: "العدسة",
+  poe: "دعم PoE",
+  ir_range_m: "مدى الأشعة تحت الحمراء",
+  protection: "درجة الحماية",
+  compression: "ضغط الفيديو",
+  capacity: "السعة",
+  sensor: "المستشعر",
+  audio: "الصوت",
+  type: "النوع",
+  ports: "عدد المنافذ",
+  power: "الطاقة",
+  cable_type: "نوع الكابل",
+  storage: "التخزين",
+  channels: "عدد القنوات"
+};
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -21,7 +38,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <section className="section-wrap product-detail-wrap"><div className="breadcrumbs"><Link href="/">الرئيسية</Link> <span>›</span> <Link href="/#catalog">المنتجات</Link> <span>›</span> <span>{p.name_ar}</span></div>
       <article className="product-detail"><ProductGallery product={p} />
         <div className="detail-copy"><span className="product-brand-pill">{p.brand ?? "BEIN STORE"}</span><h1 className="page-title">{p.name_ar}</h1>{p.model && <p className="product-model">الموديل: <b dir="ltr">{p.model}</b></p>}{p.sku && <p className="product-model">كود المنتج: {p.sku}</p>}
-          <div className="detail-price-row"><div className="detail-price-stack">{compareMoney && Number(p.compare_at_price_egp) > Number(p.price_egp) && <del className="detail-price-old">{compareMoney}</del>}<strong className="detail-price">{money}</strong>{compareMoney && Number(p.compare_at_price_egp) > Number(p.price_egp) && <span className="detail-sale-label">سعر العرض</span>}</div><span className="detail-stock"><i/> متاح للطلب — التأكيد مع المتجر</span></div>{p.description_ar && <p className="detail-description">{p.description_ar}</p>}{specifications.length > 0 && <section className="detail-specifications"><h2>المواصفات الفنية</h2><dl>{specifications.map(([key,value])=><div className="detail-spec-row" key={key}><dt>{key}</dt><dd>{String(value)}</dd></div>)}</dl></section>}
+          <div className="detail-price-row"><div className="detail-price-stack">{compareMoney && Number(p.compare_at_price_egp) > Number(p.price_egp) && <del className="detail-price-old">{compareMoney}</del>}<strong className="detail-price">{money}</strong>{compareMoney && Number(p.compare_at_price_egp) > Number(p.price_egp) && <span className="detail-sale-label">سعر العرض</span>}</div><span className="detail-stock"><i/> متاح للطلب — التأكيد مع المتجر</span></div>{p.description_ar && <p className="detail-description">{p.description_ar}</p>}{specifications.length > 0 && <section className="detail-specifications"><h2>المواصفات الفنية</h2><dl>{specifications.map(([key,value])=><div className="detail-spec-row" key={key}><dt>{specificationLabels[key] ?? key.replace(/_/g, " ")}</dt><dd>{String(value)}</dd></div>)}</dl></section>}
           <ul className="detail-highlights"><li>مساعدة في اختيار الموديل المناسب</li><li>تأكيد التوافق والتوافر قبل تجهيز الطلب</li><li>خيار إتمام الطلب ومتابعته عبر واتساب عند تفعيله</li></ul><ProductDetailActions product={p}/><p className="detail-delivery-note">رسوم الشحن والتوافر النهائي يتم تأكيدهما مع المتجر قبل اعتماد الطلب.</p>
         </div></article></section></main>;
 }
