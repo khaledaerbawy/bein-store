@@ -6,7 +6,7 @@ import SiteBrand from "@/components/site-brand";
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
 const PAGE_URL = SITE_URL + "/services/cameras-6-october";
 const TITLE = "كاميرات مراقبة في 6 أكتوبر | بين ستور";
-const DESCRIPTION = "بتدور على كاميرات مراقبة أو DVR وNVR أو مستلزمات دش وشبكات في 6 أكتوبر؟ تصفّح كتالوج Bein Store واسأل عن الموديل والسعر والتوافر قبل الطلب.";
+const DESCRIPTION = "بتدور على كاميرات مراقبة أو DVR وNVR أو مستلزمات دش وشبكات وعايز تعرف التوصيل لأكتوبر؟ تصفّح كتالوج Bein Store واسأل عن الموديل والسعر والتوافر قبل الطلب.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -21,13 +21,13 @@ export default async function CamerasInOctoberPage() {
   const supabase = await createClient();
   let phone = process.env.NEXT_PUBLIC_STORE_PHONE?.trim() || "";
   let whatsapp = (process.env.NEXT_PUBLIC_STORE_WHATSAPP || "").replace(/\D/g, "");
-  let address = process.env.NEXT_PUBLIC_STORE_ADDRESS?.trim() || "";
+
   if (supabase) {
-    const { data } = await supabase.from("store_settings").select("phone,whatsapp,address,show_phone,show_whatsapp,show_address").eq("id", "main").maybeSingle();
+    const { data } = await supabase.from("store_settings").select("phone,whatsapp,show_phone,show_whatsapp").eq("id", "main").maybeSingle();
     if (data) {
       phone = data.show_phone ? (data.phone || phone) : "";
       whatsapp = data.show_whatsapp ? (data.whatsapp || whatsapp).replace(/\D/g, "") : "";
-      address = data.show_address ? (data.address || address) : "";
+
     }
   }
   const contactMessage = "مرحبًا Bein Store، محتاج أعرف توافر وسعر كاميرات مراقبة أو مستلزمات دش وشبكات في 6 أكتوبر.";
@@ -37,11 +37,7 @@ export default async function CamerasInOctoberPage() {
     "@type": "Service",
     name: "كاميرات مراقبة وشبكات في 6 أكتوبر",
     serviceType: ["توريد كاميرات مراقبة", "أجهزة DVR وNVR", "مستلزمات الشبكات"],
-    areaServed: [
-      { "@type": "City", name: "6th of October City" },
-      { "@type": "AdministrativeArea", name: "Giza Governorate" }
-    ],
-    provider: { "@type": "OnlineStore", name: "Bein Store", url: SITE_URL },
+        provider: { "@type": "OnlineStore", name: "Bein Store", url: SITE_URL },
     url: PAGE_URL
   };
   const faqs = [
@@ -59,7 +55,7 @@ export default async function CamerasInOctoberPage() {
       <span className="section-overline">BEIN STORE · 6 OCTOBER · GIZA</span>
       <h1 className="page-title">كاميرات مراقبة وشبكات في 6 أكتوبر — بين ستور</h1>
       <p>لو بتدور على كاميرات مراقبة في 6 أكتوبر أو الجيزة، Bein Store بيساعدك تتعرف على كاميرات Hikvision وHiLook وDahua وUNV، وأجهزة التسجيل DVR وNVR، والهاردات، وسويتشات PoE وكابلات الشبكات. راجع تفاصيل المنتج والموديل في الكتالوج، واسأل عن التوافق والتوافر قبل الطلب.</p>
-      <p>ولو بحثك عن «بتاع دش في أكتوبر» أو مستلزمات دش وشبكات، ابعت اسم القطعة أو صورة الموديل عشان نتأكد من توافرها قبل ما تتحرك أو تطلبها. ما بنفترضش إن كل موديل متاح؛ التأكيد بيكون مع المتجر.</p>
+      <p>ولو بتبحث عن «بتاع دش في أكتوبر» أو مستلزمات دش وشبكات، ابعت اسم القطعة أو صورة الموديل واسأل عن التوافر وإمكانية التوصيل لمنطقتك قبل تأكيد الطلب. الصفحة دي للمتجر الإلكتروني، وليست عنوان محل لاستقبال الزوار.</p>
       <div className="hero-actions"><Link className="button button-primary" href="/#catalog">تصفح المنتجات والأسعار</Link><a className="button button-secondary" href={contactUrl} target={whatsapp ? "_blank" : undefined} rel={whatsapp ? "noreferrer" : undefined}>اسأل عن التوافر عبر واتساب</a></div>
       <div className="local-seo-faq">
         <h2>أسئلة شائعة</h2>
@@ -70,7 +66,6 @@ export default async function CamerasInOctoberPage() {
       <h2>تواصل مع Bein Store</h2>
       <p>للتأكد من السعر النهائي، التوافر، رسوم الشحن أو تفاصيل التركيب، تواصل مع المتجر قبل اعتماد الطلب.</p>
       {phone && <p>الهاتف: <a href={"tel:" + phone.replace(/[^\d+]/g, "")} dir="ltr">{phone}</a></p>}
-      {address && <p>العنوان المسجل للمتجر: {address}</p>}
       <p><Link href="/">ارجع إلى الصفحة الرئيسية لـ Bein Store ←</Link></p>
     </section>
   </main>;
