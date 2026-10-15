@@ -134,7 +134,7 @@ export default function AdminProductsPage() {
     <label>{label}<input value={String(draft[key] ?? "")} onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} {...props} /></label>;
 
   return <AdminShell title="المنتجات والأسعار" subtitle="إدارة الكتالوج والصور والأسعار وحالة ظهور المنتجات."><div className="admin-products-page">
-    <section className="section-wrap admin-content-wrap"><span className="eyebrow">CATALOG MANAGEMENT</span><h1 className="page-title">المنتجات والأسعار</h1>
+    <section className="section-wrap admin-content-wrap">
       <form className="admin-product-form" onSubmit={save}>
         <h2>{draft.id ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
         <div className="admin-form-grid">
