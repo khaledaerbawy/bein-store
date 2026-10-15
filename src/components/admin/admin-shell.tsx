@@ -15,6 +15,8 @@ const links = [
   { href: "/admin", label: "نظرة عامة", icon: "⌂" },
   { href: "/admin/products", label: "المنتجات والأسعار", icon: "▦" },
   { href: "/admin/categories", label: "الأقسام", icon: "▧" },
+  { href: "/admin/brands", label: "الماركات", icon: "◇" },
+  { href: "/admin/inventory", label: "المخزون وحركاته", icon: "▥" },
   { href: "/admin/orders", label: "الطلبات", icon: "▤" },
   { href: "/admin/settings", label: "هوية ومحتوى الموقع", icon: "⚙" },
 ];
