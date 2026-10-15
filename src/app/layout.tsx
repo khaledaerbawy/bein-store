@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: "Bein Store (بين ستور) لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات ومستلزمات التركيب في 6 أكتوبر، الجيزة، مصر.",
       applicationName: "Bein Store",
       robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+      verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
       openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: "Bein Store", title: "Bein Store | بين ستور لكاميرات المراقبة والشبكات", description: "كاميرات مراقبة، أجهزة DVR وNVR، هيلوك وهيكفيجن وشبكات ومستلزمات تركيب." },
       twitter: { card: "summary_large_image", title: "Bein Store | بين ستور", description: "كاميرات مراقبة وأجهزة تسجيل وشبكات في 6 أكتوبر، الجيزة." }
     };
