@@ -9,11 +9,11 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
-const LOCAL_SEO_DESCRIPTION = "بين ستور في 6 أكتوبر، الجيزة: كاميرات مراقبة هيكفيجن وهيلوك، أجهزة DVR وNVR، هاردات تخزين، سويتشات PoE وكابلات. اسألنا عن الموديل والسعر والتوصيل.";
+const LOCAL_SEO_DESCRIPTION = "Bein Store (بين ستور) متجر إلكتروني لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات. تصفح الموديلات واسأل عن السعر والتوافر وإمكانية التوصيل إلى 6 أكتوبر والجيزة.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
-  let title = "بين ستور | كاميرات مراقبة وDVR في 6 أكتوبر";
+  let title = "بين ستور | كاميرات مراقبة وDVR وNVR";
   let description = LOCAL_SEO_DESCRIPTION;
   if (supabase) {
     const { data } = await supabase.from("store_settings").select("store_name,page_title,meta_description").eq("id", "main").maybeSingle();
@@ -92,8 +92,8 @@ const categoriesFallback: Category[] = [
 
 const defaultStoreSettings: StoreSettings = {
   id: "main", store_name: "Bein Store", logo_url: null, favicon_url: null,
-  page_title: "بين ستور | كاميرات مراقبة في 6 أكتوبر",
-  meta_description: "Bein Store (بين ستور) في 6 أكتوبر، الجيزة: كاميرات مراقبة Hikvision وHiLook، أجهزة DVR وNVR، هاردات تخزين وسويتشات PoE وكابلات. اسأل عن الموديل والسعر والتوصيل.",
+  page_title: "بين ستور | كاميرات مراقبة وDVR وNVR",
+  meta_description: "Bein Store (بين ستور) متجر إلكتروني لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات. تصفح الموديلات واسأل عن السعر والتوافر وإمكانية التوصيل إلى 6 أكتوبر والجيزة.",
   announcement_text: "مساعدة فنية في اختيار الموديل وتأكيد السعر قبل الطلب",
   categories_title: "تسوّق حسب القسم",
   categories_description: "وصل للقسم اللي محتاجه بسرعة.",
@@ -173,10 +173,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       alternateName: ["بين ستور", "Bein Store"],
       url: SITE_URL,
       description: site.meta_description || LOCAL_SEO_DESCRIPTION,
-      areaServed: [
-        { "@type": "City", name: "6th of October City" },
-        { "@type": "AdministrativeArea", name: "Giza Governorate" }
-      ],
       ...(storePhone ? { telephone: storePhone } : {}),
       ...(storeWhatsapp ? { contactPoint: { "@type": "ContactPoint", telephone: `+${storeWhatsapp}`, contactType: "customer service", availableLanguage: ["Arabic"] } } : {}),
       hasOfferCatalog: {
