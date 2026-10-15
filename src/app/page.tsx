@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Category, Product } from "@/lib/types";
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +63,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </div>
 
     <header className="store-header">
-      <a className="store-logo" href="/" aria-label="Bein Store الرئيسية"><span className="logo-symbol">B<span>.</span></span><span className="logo-wordmark">BEIN <b>STORE</b><small>SECURITY SYSTEMS</small></span></a>
+      <Link className="store-logo" href="/" aria-label="Bein Store الرئيسية"><span className="logo-symbol">B<span>.</span></span><span className="logo-wordmark">BEIN <b>STORE</b><small>SECURITY SYSTEMS</small></span></Link>
       <form className="header-search" action="/" method="get" role="search">
         <span className="header-search-icon" aria-hidden="true">⌕</span>
         <input type="search" name="q" defaultValue={q} placeholder="ابحث باسم المنتج أو الموديل…" aria-label="ابحث في منتجات Bein Store" />
@@ -125,7 +126,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
 
     <footer className="commerce-footer" id="contact">
-      <div className="footer-main"><a className="store-logo footer-store-logo" href="/"><span className="logo-symbol">B<span>.</span></span><span className="logo-wordmark">BEIN <b>STORE</b><small>SECURITY SYSTEMS</small></span></a><p>كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.</p></div>
+      <div className="footer-main"><Link className="store-logo footer-store-logo" href="/"><span className="logo-symbol">B<span>.</span></span><span className="logo-wordmark">BEIN <b>STORE</b><small>SECURITY SYSTEMS</small></span></Link><p>كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.</p></div>
       <div className="footer-column"><b>تصفّح المتجر</b><a href="#categories">الأقسام</a><a href="#catalog">المنتجات والأسعار</a><a href="#services">حلول المشروعات</a></div>
       <div className="footer-column"><b>تواصل معانا</b>{storePhone && <a href={`tel:${storePhone.replace(/[^+\d]/g, "")}`} dir="ltr">{storePhone}</a>}{storeWhatsapp && <a href={whatsappUrl} target="_blank" rel="noreferrer">واتساب</a>}{storeAddress && <span>{storeAddress}</span>}{!storePhone && !storeWhatsapp && !storeAddress && <span>بيانات التواصل هتظهر هنا بعد إعدادها.</span>}</div>
       <div className="footer-bottom"><span>© {new Date().getFullYear()} Bein Store. جميع الحقوق محفوظة.</span><span>كاميرات · أجهزة تسجيل · شبكات · إكسسوارات</span><a href="/admin/login">دخول الإدارة</a></div>
