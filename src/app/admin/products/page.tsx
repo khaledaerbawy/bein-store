@@ -132,9 +132,9 @@ export default function AdminProductsPage() {
   const field = (label: string, key: keyof Draft, props: InputHTMLAttributes<HTMLInputElement> = {}) =>
     <label>{label}<input value={String(draft[key] ?? "")} onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} {...props} /></label>;
 
-  return <main className="subpage">
+  return <main className="subpage admin-products-page">
     <header className="subpage-header"><Link className="brand" href="/admin"><span className="brand-mark">B</span><span>الإدارة / المنتجات</span></Link><Link href="/admin">لوحة الإدارة ←</Link></header>
-    <section className="section-wrap"><span className="eyebrow">CATALOG MANAGEMENT</span><h1 className="page-title">المنتجات والأسعار</h1>
+    <section className="section-wrap admin-content-wrap"><span className="eyebrow">CATALOG MANAGEMENT</span><h1 className="page-title">المنتجات والأسعار</h1>
       <form className="admin-product-form" onSubmit={save}>
         <h2>{draft.id ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
         <div className="admin-form-grid">
