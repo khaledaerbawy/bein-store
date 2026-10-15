@@ -1556,3 +1556,83 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
   .order-status-control select,
   .order-status-control .button { width:100%; }
 }
+
+
+/* Admin sign-in page */
+.admin-home-page .admin-grid,
+.admin-products-page .admin-form-grid,
+.admin-orders-page .admin-orders { min-width:0; }
+.login-wrap {
+  display:grid;
+  place-items:center;
+  min-height:calc(100vh - 78px);
+  padding:clamp(28px,6vw,72px) 18px;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(207,229,255,.75),transparent 30rem),
+    linear-gradient(180deg,#f7faff 0%,#fff 100%);
+}
+.login-card {
+  width:min(100%,480px);
+  display:grid;
+  gap:18px;
+  padding:clamp(24px,4vw,38px);
+  border:1px solid #e0e9f3;
+  border-radius:22px;
+  background:rgba(255,255,255,.97);
+  box-shadow:0 24px 65px rgba(23,54,88,.1);
+}
+.login-card > .eyebrow { margin-bottom:-8px; }
+.login-card > .page-title {
+  margin:0;
+  color:#163552;
+  font-size:clamp(28px,4vw,36px);
+  letter-spacing:-.5px;
+}
+.login-card .muted {
+  margin:-6px 0 2px;
+  color:#718196;
+  font-size:13px;
+  line-height:1.9;
+}
+.login-card label {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:8px;
+  color:#344e68;
+  font-size:13px;
+  font-weight:800;
+}
+.login-card input {
+  width:100%;
+  min-height:48px;
+  padding:11px 14px;
+  border:1px solid #d8e2ef;
+  border-radius:10px;
+  background:#fbfdff;
+  color:#18334e;
+  font:500 14px "Tajawal",Tahoma,sans-serif;
+  text-align:left;
+}
+.login-card input:focus {
+  outline:0;
+  border-color:#76aef0;
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(20,109,224,.1);
+}
+.login-card .full-button {
+  width:100%;
+  min-height:50px;
+  margin-top:3px;
+  border:0;
+  border-radius:11px;
+  background:var(--bs-blue);
+  color:#fff;
+  font:800 14px "Tajawal",Tahoma,sans-serif;
+  cursor:pointer;
+}
+.login-card .full-button:hover:not(:disabled) { background:var(--bs-blue-dark); }
+.login-card .full-button:disabled { opacity:.65; cursor:wait; }
+@media(max-width:520px) {
+  .login-wrap { min-height:calc(100vh - 65px); padding:30px 14px; }
+  .login-card { border-radius:17px; padding:22px 18px; }
+}
