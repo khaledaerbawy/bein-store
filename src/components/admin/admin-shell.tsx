@@ -20,6 +20,7 @@ const links = [
   { href: "/admin/inventory", label: "المخزون وحركاته", icon: "▥" },
   { href: "/admin/orders", label: "الطلبات", icon: "▤" },
   { href: "/admin/settings", label: "هوية ومحتوى الموقع", icon: "⚙" },
+  { href: "/admin/tools", label: "الأدوات المتقدمة", icon: "⇩" },
 ];
 export default function AdminShell({ children, title, subtitle, userEmail, onSignOut }: AdminShellProps) {
   const pathname = usePathname();
