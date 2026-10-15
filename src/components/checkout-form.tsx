@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCart } from "@/components/cart-provider";
 import ProductImage from "@/components/product-image";
 
@@ -34,7 +35,7 @@ export default function CheckoutForm() {
     } catch (e) { whatsappWindow?.close(); setError(e instanceof Error ? e.message : "حصل خطأ غير متوقع."); }
     finally { setBusy(false); }
   }
-  if (!items.length) return <div className="empty-state"><h3>السلة فاضية</h3><p>أضف المنتجات اللي محتاجها الأول.</p><a className="button button-primary" href="/#catalog">تصفح المنتجات</a></div>;
+  if (!items.length) return <div className="empty-state"><h3>السلة فاضية</h3><p>أضف المنتجات اللي محتاجها الأول.</p><Link className="button button-primary" href="/#catalog">تصفح المنتجات</Link></div>;
   return <div className="checkout-layout"><form className="checkout-form" action={submit}>
     <h2>بيانات الطلب</h2><p className="muted">{storeWhatsapp ? "هنسجل طلبك ونفتح واتساب لتأكيد التفاصيل." : "هنسجل طلبك، وبعدها يتواصل معك فريق المتجر لتأكيد التفاصيل."} الدفع الإلكتروني غير مفعّل حاليًا.</p>
     <label>الاسم بالكامل<input name="customer_name" required minLength={2} maxLength={120} autoComplete="name" /></label>
