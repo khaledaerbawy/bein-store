@@ -36,7 +36,7 @@ export default async function CamerasInOctoberPage() {
     "@context": "https://schema.org",
     "@type": "Service",
     name: "كاميرات مراقبة وشبكات في 6 أكتوبر",
-    serviceType: ["توريد كاميرات مراقبة", "أجهزة DVR وNVR", "مستلزمات الشبكات", "الاستفسار عن مستلزمات الدش"],
+    serviceType: ["توريد كاميرات مراقبة", "أجهزة DVR وNVR", "مستلزمات الشبكات"],
     areaServed: [
       { "@type": "City", name: "6th of October City" },
       { "@type": "AdministrativeArea", name: "Giza Governorate" }
