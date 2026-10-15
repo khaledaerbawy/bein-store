@@ -1,35 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import type { Category, Product } from "@/lib/types";
 import { useCart } from "@/components/cart-provider";
 import ProductImage from "@/components/product-image";
 
 const formatPrice = (price: number) => new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(price);
-const technicalFields: Array<[string, string]> = [
-  ["resolution", "الدقة"],
-  ["lens", "العدسة"],
-  ["poe", "PoE"],
-  ["ir_range_m", "IR"],
-  ["protection", "الحماية"],
-  ["compression", "Codec"],
-  ["capacity", "السعة"],
-  ["sensor", "Sensor"],
-  ["audio", "Audio"],
-  ["type", "النوع"],
-];
-function getTechnicalSpecs(product: Product): Array<{ label: string; value: string }> {
-  return technicalFields
-    .map(([key, label]) => {
-      const raw = product.specifications?.[key];
-      if (typeof raw !== "string" && typeof raw !== "number") return null;
-      const value = String(raw).trim();
-      return value ? { label, value } : null;
-    })
-    .filter((field): field is { label: string; value: string } => field !== null)
-    .slice(0, 3);
-}
 export default function Storefront({ products, categories, initialQuery = "", initialCategoryId = "all" }: { products: Product[]; categories: Category[]; initialQuery?: string; initialCategoryId?: string }) {
   const [query, setQuery] = useState(initialQuery);
   const [brand, setBrand] = useState("all");
