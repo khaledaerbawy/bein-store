@@ -60,6 +60,7 @@ export default function CheckoutForm() {
     : Math.max(0, Number(settings.shipping_fee_egp) || 0);
   const estimatedTotal = subtotal + shippingFee;
   const minimumOrder = Math.max(0, Number(settings.minimum_order_egp) || 0);
+  const hasUnconfirmedPrice = items.some(item => typeof item.product.specifications?.price_status === "string" && item.product.specifications.price_status !== "confirmed");
 
   async function submit(formData: FormData) {
     if (!settings.orders_enabled) { setError(settings.orders_paused_message || "استقبال الطلبات متوقف مؤقتًا."); return; }
@@ -97,6 +98,7 @@ export default function CheckoutForm() {
     <form className="checkout-form" action={submit}>
       <h2>بيانات الطلب</h2>
       <p className="muted">{!settings.orders_enabled ? settings.orders_paused_message : whatsappEnabled ? "هنسجل طلبك ونفتح واتساب لتأكيد التفاصيل." : "هنسجل طلبك، وبعدها يتواصل معك فريق المتجر لتأكيد التفاصيل."} الدفع الإلكتروني غير مفعّل حاليًا.</p>
+      {hasUnconfirmedPrice && <p className="checkout-price-confirmation" role="status">تنبيه: تحتوي السلة على منتجات بأسعار مبدئية أو مرجعية. سيتم تأكيد السعر النهائي والموديل والتوافر مع المتجر قبل اعتماد الطلب.</p>}
       {minimumOrder > 0 && <p className="checkout-minimum-notice">الحد الأدنى للطلب: {money(minimumOrder)}.</p>}
       <label>الاسم بالكامل<input name="customer_name" required minLength={2} maxLength={120} autoComplete="name" /></label>
       <label>رقم الموبايل<input name="customer_phone" required minLength={8} maxLength={24} inputMode="tel" autoComplete="tel" placeholder="01xxxxxxxxx" /></label>
