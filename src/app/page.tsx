@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Category, Product } from "@/lib/types";
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
+import ProductImage from "@/components/product-image";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const whatsappUrl = storeWhatsapp ? `https://wa.me/${storeWhatsapp}` : "#contact";
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const shownCategories = categories.length ? categories : categoriesFallback;
+  const heroProduct = products.find((product) => product.slug === "dahua-outdoor-bullet" && product.image_urls?.length) ?? products.find((product) => product.model && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
   return <main className="storefront-page" dir="rtl">
     <div className="utility-bar">
       <div className="utility-inner">
@@ -76,30 +78,39 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <span className="nav-note"><i /> مساعدة في اختيار النظام المناسب</span>
     </nav>
 
-    <section className="commerce-hero">
+    <section className="commerce-hero tech-commerce-hero">
       <div className="hero-main-copy">
-        <div className="hero-kicker"><span /> حلول مراقبة للمنازل والمحلات والشركات</div>
-        <h1>كل مكوّنات نظام المراقبة،<br /><em>من مكان واحد.</em></h1>
-        <p>كاميرات، أجهزة تسجيل، هاردات، سويتشات وكابلات. اختار حسب احتياجك، وراجع الموديل والمواصفات قبل الطلب.</p>
-        <div className="commerce-hero-actions"><a className="commerce-button commerce-button-orange" href="#catalog">تصفّح المنتجات <span aria-hidden="true">←</span></a><a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "اسألنا على واتساب ↗" : "تواصل مع المتجر"}</a></div>
-        <div className="hero-assurances"><span><b>01</b> اختيار حسب احتياجك</span><span><b>02</b> مساعدة قبل الشراء</span><span><b>03</b> تجهيز وتركيب</span></div>
+        <div className="hero-kicker"><span /> IP VIDEO / CCTV / SECURITY NETWORKS</div>
+        <h1>بنية مراقبة<br /><em>تبدأ من الموديل الصح.</em></h1>
+        <p>كاميرات شبكية، أجهزة تسجيل، تخزين مخصص للمراقبة وشبكات PoE. راجع رقم الموديل والمواصفات، وتأكد من توافق المكونات قبل تنفيذ النظام.</p>
+        <div className="commerce-hero-actions">
+          <a className="commerce-button commerce-button-orange" href="#catalog">استكشف الكتالوج <span aria-hidden="true">←</span></a>
+          <a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "مساعدة فنية على واتساب ↗" : "تواصل مع المتجر"}</a>
+        </div>
+        <div className="hero-assurances"><span><b>01</b> IP CAMERAS</span><span><b>02</b> DVR / NVR</span><span><b>03</b> PoE & STORAGE</span></div>
       </div>
-      <div className="hero-product-stage" aria-label="كاميرا مراقبة من Hikvision">
-        <div className="hero-stage-top"><span>PRODUCT FOCUS</span><span>HIKVISION</span></div>
-        <div className="hero-camera-wrap"><img src="https://assets.hikvision.com/prd/normal/all/image/sm000047165/%E5%8F%8C%E5%85%89%E5%8D%8A%E7%90%8361---%E5%9F%BA%E7%BA%BF---%E5%8F%B3%E4%BE%A7.png?eo-img.format=webp" alt="كاميرا مراقبة شبكية من Hikvision" /></div>
-        <div className="hero-stage-bottom"><div><small>NETWORK CAMERA</small><b>كاميرات مراقبة IP</b></div><a href="#categories" aria-label="استكشف الأقسام">↙</a></div>
+      <div className="hero-product-stage tech-hero-product-stage" aria-label="منتج من كتالوج أنظمة المراقبة">
+        <div className="hero-stage-top"><span>PRODUCT REFERENCE / 001</span><span>{heroProduct?.brand ?? "BEIN STORE"}</span></div>
+        <div className="hero-camera-wrap">
+          {heroProduct ? <ProductImage product={heroProduct} className="tech-hero-camera" /> : <div className="tech-hero-empty">كتالوج أنظمة المراقبة</div>}
+        </div>
+        <div className="hero-stage-bottom">
+          <div><small>MODEL / PRODUCT DATA</small><b>{heroProduct?.model ?? heroProduct?.name_ar ?? "معدات أنظمة المراقبة"}</b><span>{heroProduct?.name_ar ?? "كاميرات وأجهزة تسجيل وشبكات"}</span></div>
+          {heroProduct ? <Link href={`/products/${heroProduct.slug}`} aria-label="عرض تفاصيل المنتج">تفاصيل الموديل ↗</Link> : <a href="#catalog">عرض الكتالوج ↗</a>}
+        </div>
       </div>
     </section>
 
-    <section className="service-ribbon" aria-label="خدمات Bein Store">
-      <div><span className="ribbon-number">01</span><span><b>اختيار المكونات</b><small>مساعدة في تحديد الأجهزة المناسبة</small></span></div>
-      <div><span className="ribbon-number">02</span><span><b>حلول للمشروعات</b><small>تجهيز الأنظمة حسب متطلبات المكان</small></span></div>
-      <div><span className="ribbon-number">03</span><span><b>تركيب ودعم فني</b><small>تواصل معنا قبل وبعد التجهيز</small></span></div>
-      <a href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "تحدث مع فريقنا" : "تواصل مع المتجر"} <span>↗</span></a>
+    <section className="tech-system-ribbon" aria-label="تسلسل مكونات نظام المراقبة">
+      <div className="tech-ribbon-heading"><small>SYSTEM ARCHITECTURE</small><b>تسلسل مكونات النظام</b></div>
+      <div className="tech-ribbon-stage"><span>01</span><div><b>الكاميرات</b><small>IP / Indoor / Outdoor</small></div></div><i className="tech-ribbon-arrow">→</i>
+      <div className="tech-ribbon-stage"><span>02</span><div><b>الشبكة والطاقة</b><small>PoE / Ethernet</small></div></div><i className="tech-ribbon-arrow">→</i>
+      <div className="tech-ribbon-stage"><span>03</span><div><b>أجهزة التسجيل</b><small>DVR / NVR</small></div></div><i className="tech-ribbon-arrow">→</i>
+      <div className="tech-ribbon-stage"><span>04</span><div><b>التخزين</b><small>Surveillance HDD</small></div></div>
     </section>
 
     <section className="category-section" id="categories">
-      <div className="commerce-section-head"><div><span className="section-overline">تسوّق حسب القسم</span><h2>دور على اللي محتاجه</h2><p className="section-subtitle">ابدأ بنوع الجهاز، وبعدها اختار الموديل المناسب.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
+      <div className="commerce-section-head"><div><span className="section-overline">SYSTEM COMPONENTS / 01</span><h2>اختار نوع المكوّن</h2><p className="section-subtitle">ابدأ بالفئة، ثم راجع الموديل والتوافق الفني قبل الطلب.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
       <div className="category-card-grid">
         {shownCategories.map((category, index) => {
           const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" };
@@ -114,7 +125,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
 
     <section className="catalog-section" id="catalog">
-      <div className="commerce-section-head"><div><span className="section-overline">كتالوج Bein Store</span><h2>المنتجات والأسعار</h2><p className="section-subtitle">ابحث بالموديل أو الماركة أو كود المنتج.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> الأسعار المعروضة تعتمد على بيانات المتجر</div></div>
+      <div className="commerce-section-head"><div><span className="section-overline">PRODUCT CATALOG / BEIN STORE</span><h2>الكتالوج الفني</h2><p className="section-subtitle">ابحث بالماركة أو رقم الموديل أو كود المنتج.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
       {!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}
     </section>
 
