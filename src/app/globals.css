@@ -3478,3 +3478,41 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+
+
+.local-seo-link-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  max-width: 960px;
+  margin: 26px 0;
+}
+.local-seo-link-groups > div {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+}
+.local-seo-link-groups h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+.local-seo-link-groups ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.local-seo-link-groups a {
+  color: var(--store-primary, var(--green-dark));
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .local-seo-link-groups { grid-template-columns: minmax(0, 1fr); }
+}
