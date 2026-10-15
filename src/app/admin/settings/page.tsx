@@ -1,33 +1,122 @@
 "use client";
-import { useEffect, useState } from "react";
-import Link from "next/link";
+
+import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import AdminShell from "@/components/admin/admin-shell";
+import type { StoreSettings } from "@/lib/types";
 
-const environmentSettings = [
-  { name: "NEXT_PUBLIC_STORE_PHONE", label: "رقم الهاتف", value: process.env.NEXT_PUBLIC_STORE_PHONE },
-  { name: "NEXT_PUBLIC_STORE_WHATSAPP", label: "رقم واتساب الطلبات", value: process.env.NEXT_PUBLIC_STORE_WHATSAPP },
-  { name: "NEXT_PUBLIC_STORE_ADDRESS", label: "عنوان المتجر", value: process.env.NEXT_PUBLIC_STORE_ADDRESS },
-];
+type SettingsDraft = Omit<StoreSettings, "updated_at" | "updated_by">;
+const defaults: SettingsDraft = {
+  id: "main",
+  store_name: "Bein Store",
+  logo_url: null,
+  favicon_url: null,
+  page_title: "Bein Store | كاميرات المراقبة والشبكات",
+  meta_description: "متجر Bein Store لكاميرات المراقبة وأجهزة التسجيل والشبكات.",
+  announcement_text: "مساعدة فنية في اختيار الموديل وتأكيد السعر قبل الطلب",
+  show_announcement: true,
+  hero_badge: "كاميرات مراقبة وأنظمة أمنية",
+  hero_title: "كل ما تحتاجه لنظام مراقبة",
+  hero_title_highlight: "متكامل وآمن",
+  hero_description: "كاميرات، أجهزة تسجيل، هاردات تخزين وشبكات. اختار المنتجات المناسبة للمكان، ولو محتار في الموديل أو التوصيل نساعدك قبل الطلب.",
+  hero_image_url: null,
+  hero_cta_text: "تسوّق المنتجات",
+  show_hero: true,
+  show_categories: true,
+  show_catalog: true,
+  show_brands: true,
+  show_services: true,
+  phone: null,
+  whatsapp: null,
+  address: null,
+  footer_text: "كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.",
+  primary_color: "#1766bf",
+  accent_color: "#f1f6fa"
+};
+const text = (value: string | null | undefined) => value ?? "";
 
 export default function AdminSettingsPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [checking, setChecking] = useState(true);
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const supabase = createClient();
-      if (!supabase) { router.replace("/admin/login"); return; }
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/admin/login"); return; }
-      const { data: role } = await supabase.from("admin_roles").select("is_active").eq("user_id", user.id).maybeSingle();
-      if (!role?.is_active) { await supabase.auth.signOut(); router.replace("/admin/login"); return; }
-      if (mounted) { setEmail(user.email ?? ""); setChecking(false); }
-    })();
-    return () => { mounted = false; };
+  const [userId, setUserId] = useState("");
+  const [form, setForm] = useState<SettingsDraft>(defaults);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [uploadingField, setUploadingField] = useState<keyof SettingsDraft | null>(null);
+  const [message, setMessage] = useState("");
+  const [tab, setTab] = useState<"identity" | "homepage" | "contact">("identity");
+
+  const load = useCallback(async () => {
+    const supabase = createClient();
+    if (!supabase) { setMessage("إعدادات Supabase ناقصة."); setLoading(false); return; }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { router.replace("/admin/login"); return; }
+    const { data: role } = await supabase.from("admin_roles").select("is_active").eq("user_id", user.id).maybeSingle();
+    if (!role?.is_active) { await supabase.auth.signOut(); router.replace("/admin/login"); return; }
+    setEmail(user.email ?? "");
+    setUserId(user.id);
+    const { data, error } = await supabase.from("store_settings").select("*").eq("id", "main").maybeSingle();
+    if (error) setMessage("تعذر تحميل إعدادات الموقع: " + error.message);
+    else if (data) setForm({ ...defaults, ...data, id: "main" } as SettingsDraft);
+    setLoading(false);
   }, [router]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  function update<K extends keyof SettingsDraft>(key: K, value: SettingsDraft[K]) {
+    setForm(current => ({ ...current, [key]: value }));
+  }
+
+  async function uploadImage(event: ChangeEvent<HTMLInputElement>, key: "logo_url" | "favicon_url" | "hero_image_url") {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp|avif)$/.test(file.type)) { setMessage("ارفع صورة JPG أو PNG أو WebP أو AVIF فقط."); return; }
+    if (file.size > 5 * 1024 * 1024) { setMessage("حجم الصورة يجب ألا يتجاوز 5 ميجابايت."); return; }
+    const supabase = createClient();
+    if (!supabase) { setMessage("إعدادات Supabase ناقصة."); return; }
+    setUploadingField(key); setMessage("");
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `site/${key.replace("_url", "")}-${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type, upsert: false });
+    if (error) setMessage("تعذر رفع الصورة: " + error.message);
+    else {
+      const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+      update(key, data.publicUrl);
+      setMessage("تم رفع الصورة. اضغط «حفظ التغييرات» لتطبيقها على الموقع.");
+    }
+    setUploadingField(null);
+  }
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true); setMessage("");
+    const supabase = createClient();
+    if (!supabase) { setMessage("إعدادات Supabase ناقصة."); setBusy(false); return; }
+    const payload = {
+      ...form,
+      id: "main",
+      store_name: form.store_name.trim() || "Bein Store",
+      page_title: form.page_title.trim() || form.store_name.trim() || "Bein Store",
+      meta_description: form.meta_description.trim(),
+      whatsapp: form.whatsapp?.trim() || null,
+      phone: form.phone?.trim() || null,
+      address: form.address?.trim() || null,
+      logo_url: form.logo_url?.trim() || null,
+      favicon_url: form.favicon_url?.trim() || null,
+      hero_image_url: form.hero_image_url?.trim() || null,
+      updated_at: new Date().toISOString(),
+      updated_by: userId || null
+    };
+    const { error } = await supabase.from("store_settings").upsert(payload, { onConflict: "id" });
+    if (error) setMessage("لم يتم حفظ الإعدادات: " + error.message);
+    else {
+      setMessage("تم حفظ التغييرات في قاعدة البيانات. التحديثات تظهر في المتجر بعد إعادة تحميل الصفحة.");
+      router.refresh();
+    }
+    setBusy(false);
+  }
 
   async function signOut() {
     const supabase = createClient();
@@ -36,30 +125,80 @@ export default function AdminSettingsPage() {
     router.refresh();
   }
 
-  return <AdminShell title="إعدادات المتجر" subtitle="مراجعة إعدادات الاتصال وطريقة نشر الموقع." userEmail={email} onSignOut={signOut}>
-    <section className="admin-settings-page">
-      {checking ? <div className="empty-state">جارٍ التحقق من الصلاحيات...</div> : <>
-        <article className="admin-settings-panel">
-          <div className="admin-settings-panel-head"><div><h2>بيانات التواصل</h2><p>القيم الحالية المضمّنة وقت نشر الموقع.</p></div><span>01</span></div>
-          <div className="admin-settings-fields">
-            {environmentSettings.map(setting => <div className="admin-setting-field" key={setting.name}>
-              <div><b>{setting.label}</b><small>{setting.name}</small></div>
-              <output>{setting.value?.trim() || "غير مضبوط"}</output>
-            </div>)}
-          </div>
-          <p className="admin-settings-note">تُدار هذه القيم من متغيرات البيئة في Vercel، وليس من المتصفح، حتى لا تُحفظ التغييرات محليًا أو بشكل وهمي. بعد تعديلها في Vercel يلزم نشر جديد حتى تظهر للعملاء.</p>
-          <a className="admin-settings-action" href="https://vercel.com/khaledaerbawy1-1561/bein-store/settings/environment-variables" target="_blank" rel="noreferrer">فتح إعدادات المتغيرات في Vercel ↗</a>
-        </article>
-        <article className="admin-settings-panel">
-          <div className="admin-settings-panel-head"><div><h2>الاتصال والخدمات</h2><p>معلومات تشغيل الموقع.</p></div><span>02</span></div>
-          <div className="admin-settings-fields">
-            <div className="admin-setting-field"><div><b>قاعدة البيانات وتسجيل الدخول</b><small>Supabase</small></div><output className="admin-setting-status">مُعدّة من إعدادات النشر</output></div>
-            <div className="admin-setting-field"><div><b>نشر الموقع</b><small>Vercel · فرع main</small></div><output className="admin-setting-status">الإصدارات تُنشر من GitHub</output></div>
-            <div className="admin-setting-field"><div><b>صور المنتجات</b><small>Storage bucket: product-images</small></div><output className="admin-setting-status">الرفع للمسؤولين فقط</output></div>
-          </div>
-          <div className="admin-settings-links"><Link href="/admin/products">إدارة المنتجات ←</Link><Link href="/admin/orders">متابعة الطلبات ←</Link><Link href="/">فتح واجهة المتجر ↗</Link></div>
-        </article>
-      </>}
+  const imageField = (label: string, key: "logo_url" | "favicon_url" | "hero_image_url", hint: string) => (
+    <div className="settings-image-control">
+      <div className="settings-image-heading"><b>{label}</b><small>{hint}</small></div>
+      <label className="settings-upload-button">
+        <span>{uploadingField === key ? "جارٍ الرفع..." : "اختيار صورة من الجهاز"}</span>
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={uploadingField !== null} onChange={event => void uploadImage(event, key)} />
+      </label>
+      <label className="settings-url-field">أو رابط صورة مباشر<input type="url" value={text(form[key])} onChange={event => update(key, event.target.value || null)} placeholder="https://..." /></label>
+      {form[key] && <div className="settings-preview"><img src={form[key] as string} alt={"معاينة " + label} /><button type="button" onClick={() => update(key, null)}>إزالة الصورة</button></div>}
+    </div>
+  );
+
+  const visibility = [
+    { key: "show_announcement" as const, label: "شريط التنبيه العلوي", hint: "رسالة صغيرة أعلى الموقع" },
+    { key: "show_hero" as const, label: "البانر الرئيسي", hint: "عنوان الصفحة والصورة الرئيسية" },
+    { key: "show_categories" as const, label: "أقسام المتجر", hint: "بطاقات الأقسام أسفل البانر" },
+    { key: "show_catalog" as const, label: "كتالوج المنتجات", hint: "قائمة المنتجات والأسعار" },
+    { key: "show_brands" as const, label: "شريط الماركات", hint: "الماركات المتاحة بالمتجر" },
+    { key: "show_services" as const, label: "قسم المساعدة والتركيب", hint: "معلومات مساعدة العميل" }
+  ];
+
+  return <AdminShell title="هوية ومحتوى الموقع" subtitle="غيّر اسم المتجر والشعار ومحتوى الصفحة الرئيسية وبيانات التواصل، ثم احفظ لنشرها في واجهة العميل." userEmail={email} onSignOut={signOut}>
+    <section className="settings-editor-page">
+      <div className="settings-editor-intro"><div><span>إدارة واجهة العميل</span><h2>الموقع بتاعك، تحت تحكمك</h2><p>التغييرات هنا تُحفظ في Supabase وتُستخدم في واجهة المتجر. مفيش زر شكلي أو حفظ محلي بس.</p></div><div className="settings-live-indicator"><i/> إعدادات مباشرة</div></div>
+      <form onSubmit={save}>
+        <div className="settings-editor-tabs" role="tablist" aria-label="إعدادات الموقع">
+          <button type="button" className={tab === "identity" ? "active" : ""} onClick={() => setTab("identity")}>الهوية واسم الموقع</button>
+          <button type="button" className={tab === "homepage" ? "active" : ""} onClick={() => setTab("homepage")}>الصفحة الرئيسية</button>
+          <button type="button" className={tab === "contact" ? "active" : ""} onClick={() => setTab("contact")}>التواصل والفوتر</button>
+        </div>
+        {loading ? <div className="settings-editor-empty">جارٍ تحميل الإعدادات...</div> : <>
+          {tab === "identity" && <div className="settings-editor-grid">
+            <article className="settings-editor-card"><div className="settings-editor-card-head"><span>01</span><div><h3>اسم وهوية المتجر</h3><p>تظهر في رأس الصفحة وعلامة التبويب ووصف الموقع.</p></div></div>
+              <label>اسم المتجر<input value={form.store_name} onChange={e => update("store_name", e.target.value)} required maxLength={100} placeholder="Bein Store" /></label>
+              <label>عنوان الصفحة في المتصفح ومحركات البحث<input value={form.page_title} onChange={e => update("page_title", e.target.value)} maxLength={160} required /></label>
+              <label>وصف الموقع<input value={form.meta_description} onChange={e => update("meta_description", e.target.value)} maxLength={320} /></label>
+              {imageField("شعار الموقع", "logo_url", "PNG أو JPG أو WebP · يظهر بجانب اسم المتجر")}
+              {imageField("أيقونة المتصفح (Favicon)", "favicon_url", "يفضّل صورة مربعة واضحة")}
+            </article>
+            <article className="settings-editor-card"><div className="settings-editor-card-head"><span>02</span><div><h3>ألوان الهوية</h3><p>اختار اللون الأساسي ولون خلفية البانر، مع معاينة مباشرة.</p></div></div>
+              <div className="settings-color-fields"><label>اللون الأساسي<input type="color" value={form.primary_color} onChange={e => update("primary_color", e.target.value)} /><small>{form.primary_color}</small></label><label>خلفية البانر<input type="color" value={form.accent_color} onChange={e => update("accent_color", e.target.value)} /><small>{form.accent_color}</small></label></div>
+              <div className="settings-brand-preview" style={{ borderColor: form.primary_color, background: form.accent_color }}><div>{form.logo_url ? <img src={form.logo_url} alt="الشعار" /> : <b className="settings-brand-monogram">B.</b>}<span>{form.store_name || "اسم المتجر"}<small>معاينة الهوية</small></span></div><button type="button" style={{ background: form.primary_color }}>زر رئيسي</button></div>
+            </article>
+          </div>}
+          {tab === "homepage" && <div className="settings-editor-grid">
+            <article className="settings-editor-card settings-wide"><div className="settings-editor-card-head"><span>03</span><div><h3>محتوى البانر الرئيسي</h3><p>غيّر الرسالة والصورة وزر التصفح الذي يظهر أول ما العميل يفتح الموقع.</p></div></div>
+              <label>وسم صغير أعلى العنوان<input value={form.hero_badge} onChange={e => update("hero_badge", e.target.value)} maxLength={120} /></label>
+              <label>العنوان الرئيسي<input value={form.hero_title} onChange={e => update("hero_title", e.target.value)} maxLength={180} /></label>
+              <label>السطر المميز<input value={form.hero_title_highlight} onChange={e => update("hero_title_highlight", e.target.value)} maxLength={180} /></label>
+              <label>وصف البانر<textarea rows={3} value={form.hero_description} onChange={e => update("hero_description", e.target.value)} maxLength={700} /></label>
+              <label>نص زر البانر<input value={form.hero_cta_text} onChange={e => update("hero_cta_text", e.target.value)} maxLength={50} /></label>
+              {imageField("صورة البانر (اختياري)", "hero_image_url", "إذا تركتها فارغة يستخدم الموقع صور المنتجات المتاحة")}
+              <div className="settings-home-preview"><div><small>{form.hero_badge}</small><h3>{form.hero_title}<br/><em>{form.hero_title_highlight}</em></h3><p>{form.hero_description}</p><button type="button" style={{ background: form.primary_color }}>{form.hero_cta_text}</button></div>{form.hero_image_url && <img src={form.hero_image_url} alt="معاينة البانر" />}</div>
+            </article>
+            <article className="settings-editor-card"><div className="settings-editor-card-head"><span>04</span><div><h3>التحكم في ظهور أجزاء الموقع</h3><p>إخفاء أو إظهار أي قسم بدون حذف محتواه.</p></div></div>
+              <label>نص الشريط العلوي<input value={form.announcement_text} onChange={e => update("announcement_text", e.target.value)} maxLength={180} /></label>
+              <div className="settings-visibility-list">{visibility.map(item => <label className="settings-visibility-row" key={item.key}><span><b>{item.label}</b><small>{item.hint}</small></span><input type="checkbox" checked={form[item.key]} onChange={e => update(item.key, e.target.checked)} /></label>)}</div>
+            </article>
+          </div>}
+          {tab === "contact" && <div className="settings-editor-grid">
+            <article className="settings-editor-card"><div className="settings-editor-card-head"><span>05</span><div><h3>بيانات التواصل</h3><p>تظهر في الترويسة والفوتر وأزرار التواصل.</p></div></div>
+              <label>رقم الهاتف<input type="tel" value={text(form.phone)} onChange={e => update("phone", e.target.value || null)} placeholder="+20..." /></label>
+              <label>رقم واتساب مع كود الدولة<input type="tel" value={text(form.whatsapp)} onChange={e => update("whatsapp", e.target.value || null)} placeholder="2010xxxxxxxx" /></label>
+              <label>عنوان المتجر<input value={text(form.address)} onChange={e => update("address", e.target.value || null)} placeholder="العنوان (اختياري)" /></label>
+            </article>
+            <article className="settings-editor-card"><div className="settings-editor-card-head"><span>06</span><div><h3>نص التذييل (Footer)</h3><p>الكلام التعريفي في أسفل الموقع.</p></div></div>
+              <label>النص التعريفي<textarea rows={4} value={form.footer_text} onChange={e => update("footer_text", e.target.value)} maxLength={600} /></label>
+              <p className="settings-help-text">اسم المتجر وحقوق النشر يتحدثان تلقائيًا عند تغيير اسم المتجر.</p>
+            </article>
+          </div>}
+          {message && <p className={message.startsWith("تم") ? "form-success" : "form-error"} role="status">{message}</p>}
+          <div className="settings-editor-savebar"><span>تأكد من حفظ التغييرات قبل مغادرة الصفحة.</span><button type="submit" disabled={busy || uploadingField !== null}>{busy ? "جارٍ الحفظ..." : "حفظ التغييرات"}</button><a href="/" target="_blank" rel="noreferrer">معاينة المتجر ↗</a></div>
+        </>}
+      </form>
     </section>
   </AdminShell>;
 }
