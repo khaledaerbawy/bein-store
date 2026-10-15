@@ -2452,3 +2452,191 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
   .storefront-page .product-tech-specs small{font-size:7px}
   .storefront-page .product-tech-specs b{font-size:7px}
 }
+
+
+/* Final customer storefront polish — familiar Egyptian e-commerce layout */
+.storefront-page{background:#fff;color:#182b3c;font-family:"Tajawal",Tahoma,Arial,sans-serif}
+.storefront-page .utility-bar{background:#14212c;color:#d2dbe2;border-bottom:1px solid #253642}
+.storefront-page .utility-inner{min-height:32px;display:flex;align-items:center;justify-content:space-between;gap:15px;padding-inline:clamp(16px,4.5vw,68px)}
+.storefront-page .utility-service-points{display:flex;align-items:center;gap:22px;white-space:nowrap;font-size:9px;color:#d4dce2}
+.storefront-page .utility-service-points span{position:relative}
+.storefront-page .utility-service-points span+span:before{content:"";position:absolute;right:-12px;top:3px;height:10px;border-right:1px solid #50606d}
+.storefront-page .utility-links{display:flex;align-items:center;gap:9px;font-size:9px;color:#c0cbd4;white-space:nowrap}
+.storefront-page .utility-links a{color:#e5ebef;text-decoration:none}
+.storefront-page .utility-links a:hover{color:#8bd5e9}
+.storefront-page .store-header{min-height:82px;display:grid;grid-template-columns:auto minmax(280px,1fr) auto;align-items:center;gap:clamp(18px,3vw,46px);padding:13px clamp(16px,4.5vw,68px);background:#fff;border-bottom:1px solid #e7ebef}
+.storefront-page .store-logo{min-width:190px;gap:9px}
+.storefront-page .logo-symbol{width:38px;height:38px;border-radius:3px;background:#0c4f9e;color:#fff;font-size:24px}
+.storefront-page .logo-symbol span{color:#80b7ff}
+.storefront-page .logo-wordmark{font-size:16px;letter-spacing:.4px;color:#152a3e}
+.storefront-page .logo-wordmark small{margin-top:4px;font-size:8px;letter-spacing:1.3px;color:#697c8e}
+.storefront-page .header-search{height:43px;max-width:680px;min-width:0;width:100%;margin-inline:auto;display:flex;align-items:center;gap:10px;border:1px solid #dce3e9;border-radius:5px;background:#f7f9fb;box-shadow:none;overflow:hidden}
+.storefront-page .header-search-icon{padding-right:13px;color:#506b81;font-size:21px}
+.storefront-page .header-search input{min-width:0;flex:1;height:100%;padding:0 3px;border:0;background:transparent;color:#263d51;font-size:11px}
+.storefront-page .header-search input::placeholder{color:#8b9aa7}
+.storefront-page .header-search button{align-self:stretch;min-width:84px;margin:0;padding:0 17px;border:0;border-radius:0;background:#0866d9;color:#fff;font:800 11px "Tajawal",Tahoma,sans-serif}
+.storefront-page .header-search button:hover{background:#0756b6}
+.storefront-page .header-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;min-width:0}
+.storefront-page .header-phone,.storefront-page .header-whatsapp{display:flex;align-items:center;gap:8px;color:#233c50;text-decoration:none;white-space:nowrap}
+.storefront-page .header-phone small,.storefront-page .header-whatsapp small{display:block;margin-bottom:3px;color:#718293;font-size:8px}
+.storefront-page .header-phone b,.storefront-page .header-whatsapp b{display:block;font-size:10px;font-weight:900}
+.storefront-page .phone-mark{display:grid;place-items:center;width:31px;height:31px;border:1px solid #e0e7ed;border-radius:50%;background:#f8fafb;color:#315a78;font-size:14px}
+.storefront-page .header-whatsapp .whatsapp-glyph{display:grid;place-items:center;width:32px;height:32px;border:2px solid #21a366;border-radius:50%;color:#159454;font-size:20px;font-weight:900}
+.storefront-page .header-cta.cart-link{display:flex;align-items:center;gap:7px;min-height:40px;padding:0 11px;border:1px solid #dbe3e9;border-radius:4px;background:#fff;color:#2b4760;text-decoration:none;font-size:10px;font-weight:800;white-space:nowrap}
+.storefront-page .header-cta.cart-link span{display:grid;place-items:center;min-width:20px;height:20px;padding-inline:4px;border-radius:3px;background:#0866d9;color:#fff;font-size:10px}
+.storefront-page .header-cta.cart-link:hover{border-color:#90bce9;background:#f6faff}
+.storefront-page .store-nav-row{min-height:43px;display:flex;align-items:stretch;gap:clamp(15px,2.2vw,32px);padding:0 clamp(16px,4.5vw,68px);background:#fff;border-bottom:1px solid #dfe5e9;overflow-x:auto;white-space:nowrap;scrollbar-width:none;color:#263b4e}
+.storefront-page .store-nav-row::-webkit-scrollbar{display:none}
+.storefront-page .store-nav-row a{flex:0 0 auto;display:inline-flex;align-items:center;height:43px;border-bottom:2px solid transparent;color:#30485c;text-decoration:none;font-size:10px;font-weight:800}
+.storefront-page .store-nav-row a:hover{color:#0866d9;border-bottom-color:#0866d9}
+.storefront-page .store-nav-row a.nav-all-categories{align-self:center;height:33px;gap:8px;padding:0 14px;border:0;border-radius:4px;background:#0866d9;color:#fff}
+.storefront-page .store-nav-row a.nav-all-categories:hover{background:#0757b8}
+.storefront-page .nav-note{margin-right:auto;align-self:center;flex:0 0 auto;font-size:8px;color:#6f8190}
+.storefront-page .nav-note i{background:#26a36d;box-shadow:none}
+
+/* Hero spacing and feature-product block */
+.storefront-page .tech-commerce-hero{grid-template-columns:minmax(0,1.03fr) minmax(320px,.97fr);min-height:335px;padding:32px clamp(18px,4.5vw,68px);gap:clamp(24px,3vw,45px);background:linear-gradient(110deg,#111e28 0%,#162a3b 58%,#263b4a 100%)}
+.storefront-page .tech-commerce-hero:before{background-size:34px 34px;opacity:.11}
+.storefront-page .tech-commerce-hero h1{font-size:clamp(34px,3.6vw,48px);line-height:1.42;margin:15px 0 11px}
+.storefront-page .tech-commerce-hero .hero-main-copy>p{max-width:550px;font-size:12px;line-height:1.95}
+.storefront-page .tech-commerce-hero .commerce-hero-actions{margin-top:18px;gap:9px}
+.storefront-page .tech-commerce-hero .hero-assurances{margin-top:17px;padding-top:12px;gap:15px}
+.storefront-page .tech-hero-product-stage{border:1px solid #dce4eb;border-radius:4px;overflow:hidden}
+.storefront-page .tech-hero-product-stage .hero-camera-wrap{height:223px;background:#fff;padding:13px}
+.storefront-page .tech-hero-camera{mix-blend-mode:multiply}
+.storefront-page .tech-hero-product-stage .hero-stage-top{min-height:32px;font-size:8px;padding:0 11px}
+.storefront-page .tech-hero-product-stage .hero-stage-bottom{min-height:62px;padding:10px 12px}
+.storefront-page .tech-hero-product-stage .hero-stage-bottom b{font-size:11px}
+.storefront-page .tech-hero-product-stage .hero-stage-bottom>a{padding:7px 9px}
+
+/* Category tiles now feature real products from their actual Supabase category */
+.storefront-page .category-section{max-width:none;padding:21px clamp(16px,3.5vw,54px) 29px;background:#fff}
+.storefront-page .commerce-section-head{margin-bottom:14px}
+.storefront-page .commerce-section-head h2{font-size:23px}
+.storefront-page .category-card-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.storefront-page .category-tile{display:flex;flex-direction:column;min-width:0;min-height:0;padding:0 0 11px;border:1px solid #e5eaf0;border-radius:5px;background:#fff;overflow:hidden}
+.storefront-page .category-tile:hover{background:#fff;border-color:#a9c6df;box-shadow:0 4px 13px #173a560c}
+.storefront-page .category-tile-image{display:flex;align-items:center;justify-content:center;width:100%;height:90px;padding:10px 15px;background:#f7f9fb;border-bottom:1px solid #edf0f3}
+.storefront-page .category-tile-image .category-photo{display:block;width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+.storefront-page .category-image-fallback{display:grid;place-items:center;width:42px;height:42px;border:1px solid #dce4eb;border-radius:4px;background:#fff;color:#2f6795;font:800 12px Arial,sans-serif}
+.storefront-page .category-tile-top{display:flex;align-items:center;justify-content:space-between;padding:9px 12px 0;color:#8a98a4;font-size:8px}
+.storefront-page .category-tile-top span:last-child{color:#1a70d0}
+.storefront-page .category-tile-index{display:none}
+.storefront-page .category-tile-copy{display:block;padding:6px 12px 0}
+.storefront-page .category-tile-copy b{display:block;color:#2d4255;font-size:11px;font-weight:900;line-height:1.65}
+.storefront-page .category-tile-copy small{display:block;margin-top:3px;color:#7c8a96;font-size:8px;line-height:1.7}
+.storefront-page .category-tile-link{display:flex;justify-content:space-between;align-items:center;margin:9px 12px 0;padding-top:8px;border-top:1px solid #edf0f3;color:#517087;font-size:8px}
+.storefront-page .category-tile-link span{color:#0866d9;font-size:11px}
+
+/* Product cards follow the familiar six-column hardware shop layout */
+.storefront-page .catalog-section{padding:30px clamp(16px,3.5vw,54px) 38px;background:#f8f9fb;border-top:1px solid #edf0f3}
+.storefront-page .catalog-section .commerce-section-head h2{font-size:24px}
+.storefront-page .catalog-section .section-overline{color:#5c788e}
+.storefront-page .catalog-meta{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #dfe6ec;border-radius:4px;background:#fff;color:#536f84;font-size:9px}
+.storefront-page .catalog-tools{grid-template-columns:minmax(250px,1fr) 165px 165px auto;gap:8px;margin:14px 0}
+.storefront-page .search-box,.storefront-page .catalog-tools select{min-height:37px;border:1px solid #dce3e9;border-radius:4px;background:#fff;box-shadow:none}
+.storefront-page .catalog-tools select{font-size:10px}
+.storefront-page .results-count{font-size:9px;color:#6e8191}
+.storefront-page .product-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;border:0;background:transparent}
+.storefront-page .product-card{border:1px solid #e0e6ec;border-radius:5px;background:#fff;box-shadow:none;overflow:hidden;min-width:0}
+.storefront-page .product-card:hover{border-color:#b3ccdf;box-shadow:0 4px 14px #19354b0b}
+.storefront-page .product-image{height:150px;padding:12px;background:#fff;border-bottom:1px solid #eef1f4}
+.storefront-page .product-image img{mix-blend-mode:multiply;object-fit:contain}
+.storefront-page .product-info{padding:11px;gap:0}
+.storefront-page .product-brand{font-size:8px;color:#7c8f9f;letter-spacing:.4px}
+.storefront-page .product-info h3{font-size:10px;line-height:1.65;min-height:35px;margin:6px 0 2px;color:#263f53}
+.storefront-page .product-model{font-size:8px;line-height:1.5;color:#7c8e9b;margin:3px 0}
+.storefront-page .product-tech-specs{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:6px 0}
+.storefront-page .product-tech-specs>span{padding:4px 4px 3px;background:#f8fafb;border:1px solid #e8edf1}
+.storefront-page .product-tech-specs small{font-size:7px;margin-bottom:3px;color:#8998a4}
+.storefront-page .product-tech-specs b{font-size:7px;line-height:1.4;color:#496a80}
+.storefront-page .product-bottom{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:auto;padding-top:8px;border-top:1px solid #e9eef2}
+.storefront-page .product-bottom strong{font-size:12px;color:#182f44;font-weight:900;white-space:nowrap}
+.storefront-page .add-cart{min-height:31px;padding:0 8px;border-radius:3px;border:1px solid #0761cf;background:#0967db;color:#fff;font-size:8px;font-weight:900;white-space:nowrap}
+.storefront-page .add-cart:hover{background:#0759bd}
+.storefront-page .add-cart.is-added{border-color:#258a65;background:#258a65}
+.storefront-page .catalog-section .empty-state{max-width:100%;border-radius:4px;box-shadow:none;background:#fff}
+.storefront-page .brands-strip{padding:20px clamp(16px,3.5vw,54px);background:#fff}
+.storefront-page .service-section{padding:35px clamp(18px,5vw,70px);}
+
+/* Keep everything accessible on tablet and mobile */
+@media(max-width:1350px){
+ .storefront-page .product-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .storefront-page .category-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:1000px){
+ .storefront-page .store-header{grid-template-columns:auto minmax(0,1fr);gap:12px}
+ .storefront-page .header-search{grid-column:1/-1;grid-row:2;max-width:none;order:3}
+ .storefront-page .header-actions{grid-column:2;grid-row:1}
+ .storefront-page .store-nav-row{gap:15px}
+ .storefront-page .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .storefront-page .product-image{height:145px}
+ .storefront-page .tech-commerce-hero{grid-template-columns:minmax(0,1fr) minmax(280px,.9fr)}
+ .storefront-page .tech-commerce-hero h1{font-size:34px}
+}
+@media(max-width:760px){
+ .storefront-page .utility-inner{align-items:center;padding-inline:13px}
+ .storefront-page .utility-service-points{gap:14px;overflow:auto;font-size:8px}
+ .storefront-page .utility-service-points span+span:before{right:-8px}
+ .storefront-page .utility-links{display:none}
+ .storefront-page .store-header{padding:11px 13px;gap:10px}
+ .storefront-page .store-logo{min-width:0}
+ .storefront-page .logo-symbol{width:32px;height:32px;font-size:20px}
+ .storefront-page .logo-wordmark{font-size:13px}
+ .storefront-page .logo-wordmark small{font-size:7px}
+ .storefront-page .header-actions{gap:7px}
+ .storefront-page .header-phone{display:none}
+ .storefront-page .header-whatsapp{gap:5px}
+ .storefront-page .header-whatsapp .whatsapp-glyph{width:28px;height:28px;font-size:16px}
+ .storefront-page .header-whatsapp small{font-size:7px}
+ .storefront-page .header-whatsapp b{font-size:9px}
+ .storefront-page .header-cta.cart-link{min-height:34px;padding:0 7px;font-size:9px}
+ .storefront-page .store-nav-row{min-height:39px;padding:0 12px;gap:11px}
+ .storefront-page .store-nav-row a{height:39px;font-size:9px}
+ .storefront-page .store-nav-row a.nav-all-categories{height:29px;padding:0 10px}
+ .storefront-page .nav-note{display:none}
+ .storefront-page .tech-commerce-hero{grid-template-columns:minmax(0,1fr);padding:30px 16px 22px;gap:18px}
+ .storefront-page .tech-commerce-hero h1{font-size:32px}
+ .storefront-page .tech-commerce-hero .hero-main-copy>p{font-size:11px}
+ .storefront-page .tech-commerce-hero .hero-assurances{gap:12px}
+ .storefront-page .tech-hero-product-stage .hero-camera-wrap{height:174px}
+ .tech-system-ribbon{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px 13px;gap:12px}
+ .storefront-page .category-section{padding:22px 12px}
+ .storefront-page .category-card-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .storefront-page .category-tile-image{height:72px;padding:7px}
+ .storefront-page .category-tile-copy{padding:5px 8px 0}
+ .storefront-page .category-tile-copy b{font-size:9px}
+ .storefront-page .category-tile-copy small{font-size:7px}
+ .storefront-page .category-tile-top{padding:7px 8px 0}
+ .storefront-page .category-tile-link{margin:7px 8px 0;padding-top:6px}
+ .storefront-page .catalog-section{padding:25px 12px 30px}
+ .storefront-page .commerce-section-head h2{font-size:21px}
+ .storefront-page .catalog-tools{grid-template-columns:minmax(0,1fr) minmax(115px,.65fr);gap:6px}
+ .storefront-page .search-box{grid-column:1/-1}
+ .storefront-page .results-count{grid-column:1/-1}
+ .storefront-page .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .storefront-page .product-image{height:130px;padding:8px}
+ .storefront-page .product-info{padding:9px}
+ .storefront-page .product-info h3{font-size:9px;min-height:40px}
+ .storefront-page .product-model{font-size:7px}
+ .storefront-page .product-tech-specs{gap:2px}
+ .storefront-page .product-tech-specs>span{padding:3px}
+ .storefront-page .product-tech-specs small,.storefront-page .product-tech-specs b{font-size:6px}
+ .storefront-page .product-bottom{align-items:stretch;flex-direction:column;gap:7px}
+ .storefront-page .product-bottom strong{font-size:12px}
+ .storefront-page .add-cart{width:100%;min-height:32px;font-size:9px}
+ .storefront-page .brands-strip{padding:18px 13px}
+ .storefront-page .service-section{padding:28px 14px}
+}
+@media(max-width:430px){
+ .storefront-page .utility-service-points span:nth-child(3){display:none}
+ .storefront-page .store-header{grid-template-columns:auto minmax(0,1fr)}
+ .storefront-page .header-whatsapp{display:none}
+ .storefront-page .store-nav-row{gap:10px}
+ .storefront-page .category-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .storefront-page .category-tile-image{height:80px}
+ .storefront-page .tech-commerce-hero h1{font-size:28px}
+ .storefront-page .tech-hero-product-stage .hero-stage-bottom{align-items:flex-start}
+ .storefront-page .tech-hero-product-stage .hero-stage-bottom b{font-size:10px}
+ .storefront-page .catalog-section .commerce-section-head h2{font-size:19px}
+}
