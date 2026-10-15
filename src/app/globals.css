@@ -3297,3 +3297,19 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 .site-subpage-logo{display:block;width:auto;max-width:150px;height:36px;object-fit:contain}
 .site-subpage-brand-name{color:inherit;font-size:inherit;font-weight:800;letter-spacing:0}
 @media(max-width:520px){.site-subpage-logo{max-width:112px;height:31px}.site-subpage-brand-name{font-size:17px}}
+
+
+/* Advanced product editor fields: clear editing for pricing and technical specs */
+.admin-spec-editor{display:grid;gap:10px;min-width:0;margin-top:4px;padding:14px;border:1px solid #dfe7ed;border-radius:5px;background:#fafcfd}
+.admin-spec-editor-head{display:grid;gap:4px}
+.admin-spec-editor-head b{color:#355067;font-size:11px}
+.admin-spec-editor-head small{color:#82919d;font-size:9px;line-height:1.8}
+.admin-spec-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:7px}
+.admin-spec-row input{width:100%;min-width:0;min-height:36px;padding:0 9px;border:1px solid #dbe3e9;border-radius:4px;background:#fff;color:#2e485d;font:10px "Tajawal",Tahoma,sans-serif}
+.admin-spec-row button{min-height:32px;padding:0 9px;border:1px solid #eadada;border-radius:4px;background:#fff;color:#a15353;font-size:9px}
+.admin-add-spec{justify-self:start;min-height:33px;padding:0 11px;border:1px solid #cbddea;border-radius:4px;background:#fff;color:#31658c;font-size:9px;font-weight:900}
+.storefront-page .product-price-stack{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.storefront-page .product-price-old{color:#96a1aa;font-size:9px;text-decoration:line-through;white-space:nowrap}
+.storefront-page .product-sale-badge{display:inline-flex;align-items:center;padding:4px 6px;border-radius:3px;background:#fff1eb;color:#b85e3e;font-size:8px;font-weight:900}
+.storefront-page .product-price-current{color:#183650;font-size:15px;font-weight:900;white-space:nowrap}
+@media(max-width:650px){.admin-spec-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.admin-spec-row button{grid-column:1/-1;justify-self:start}.storefront-page .product-price-current{font-size:13px}}
