@@ -64,6 +64,14 @@ export type StoreSettings = {
   show_phone: boolean;
   show_whatsapp: boolean;
   show_address: boolean;
+  orders_enabled: boolean;
+  orders_paused_message: string;
+  shipping_fee_egp: number;
+  free_shipping_threshold_egp: number | null;
+  minimum_order_egp: number;
+  whatsapp_order_confirmation: boolean;
+  allow_order_notes: boolean;
+  delivery_time_text: string;
   footer_text: string;
   primary_color: string;
   accent_color: string;
