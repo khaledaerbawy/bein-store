@@ -53,7 +53,7 @@ export default function AdminOrdersPage(){
   filtered.forEach(o=>rows.push([String(o.order_number),new Date(o.created_at).toLocaleString("en-GB"),o.customer_name,o.customer_phone,o.customer_email??"",o.city??"",o.shipping_address??"",statusLabel(o.status),(o.order_items??[]).map(i=>i.product_name_snapshot+" × "+i.quantity).join(" | "),String(o.subtotal_egp),String(o.shipping_fee_egp),String(o.total_egp),o.notes??""]));
   const csv="\uFEFF"+rows.map(row=>row.map(csvCell).join(",")).join("\r\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
-  const a=document.createElement("a");a.href=url;a.download="bein-store-orders.csv";a.click();URL.revokeObjectURL(url);
+  const a=document.createElement("a");a.href=url;a.download="bein-store-orders.csv";a.click();window.setTimeout(() => URL.revokeObjectURL(url), 1000);
  }
  const counts={all:orders.length,new:orders.filter(o=>o.status==="new").length,working:orders.filter(o=>["confirmed","preparing"].includes(o.status)).length,completed:orders.filter(o=>o.status==="completed").length};
  return <AdminShell title="طلبات العملاء" subtitle="ابحث في الطلبات، راجع بيانات العميل، حدّث الحالة، وصدّر تقريرًا للمحاسبة.">
