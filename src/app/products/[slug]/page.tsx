@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/types";
 import ProductDetailActions from "@/components/product-detail-actions";
-import ProductImage from "@/components/product-image";
+import ProductGallery from "@/components/product-gallery";
 export const dynamic = "force-dynamic";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -16,7 +16,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(Number(p.price_egp));
   return <main className="subpage product-page" dir="rtl"><header className="subpage-header"><Link className="brand" href="/"><span className="brand-mark">B</span><span>Bein <b>Store</b></span></Link><div className="subpage-header-actions"><Link href="/#catalog">مواصلة التسوق ←</Link><Link className="subpage-cart-link" href="/cart">عرض السلة</Link></div></header>
     <section className="section-wrap product-detail-wrap"><div className="breadcrumbs"><Link href="/">الرئيسية</Link> <span>›</span> <Link href="/#catalog">المنتجات</Link> <span>›</span> <span>{p.name_ar}</span></div>
-      <article className="product-detail"><div className="detail-gallery"><div className="detail-image"><ProductImage product={p} className="detail-photo" showNote /></div>{p.image_urls?.length > 1 && <div className="detail-thumbnails">{p.image_urls.slice(0, 4).map((url, i) => <div className="detail-thumbnail" key={url}><img src={url} alt={`${p.name_ar} - صورة ${i + 1}`} loading="lazy" /></div>)}</div>}</div>
+      <article className="product-detail"><ProductGallery product={p} />
         <div className="detail-copy"><span className="product-brand-pill">{p.brand ?? "BEIN STORE"}</span><h1 className="page-title">{p.name_ar}</h1>{p.model && <p className="product-model">الموديل: <b dir="ltr">{p.model}</b></p>}{p.sku && <p className="product-model">كود المنتج: {p.sku}</p>}
           <div className="detail-price-row"><strong className="detail-price">{money}</strong><span className="detail-stock"><i/> متاح للطلب — التأكيد مع المتجر</span></div>{p.description_ar && <p className="detail-description">{p.description_ar}</p>}
           <ul className="detail-highlights"><li>مساعدة في اختيار الموديل المناسب</li><li>تأكيد التوافق والتوافر قبل تجهيز الطلب</li><li>خيار إتمام الطلب ومتابعته عبر واتساب عند تفعيله</li></ul><ProductDetailActions product={p}/><p className="detail-delivery-note">رسوم الشحن والتوافر النهائي يتم تأكيدهما مع المتجر قبل اعتماد الطلب.</p>
