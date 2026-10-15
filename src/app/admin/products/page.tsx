@@ -4,6 +4,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent, type InputHTMLAt
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Product } from "@/lib/types";
+import AdminShell from "@/components/admin/admin-shell";
 
 type Draft = {
   id?: string;
@@ -132,8 +133,7 @@ export default function AdminProductsPage() {
   const field = (label: string, key: keyof Draft, props: InputHTMLAttributes<HTMLInputElement> = {}) =>
     <label>{label}<input value={String(draft[key] ?? "")} onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} {...props} /></label>;
 
-  return <main className="subpage admin-products-page">
-    <header className="subpage-header"><Link className="brand" href="/admin"><span className="brand-mark">B</span><span>الإدارة / المنتجات</span></Link><Link href="/admin">لوحة الإدارة ←</Link></header>
+  return <AdminShell title="المنتجات والأسعار" subtitle="إدارة الكتالوج والصور والأسعار وحالة ظهور المنتجات."><div className="admin-products-page">
     <section className="section-wrap admin-content-wrap"><span className="eyebrow">CATALOG MANAGEMENT</span><h1 className="page-title">المنتجات والأسعار</h1>
       <form className="admin-product-form" onSubmit={save}>
         <h2>{draft.id ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
@@ -162,5 +162,5 @@ export default function AdminProductsPage() {
         {products.map(p => <tr key={p.id}><td><b>{p.name_ar}</b><small>{p.brand ?? ""} {p.model ?? ""} {p.sku ? `· ${p.sku}` : ""}</small></td><td>{p.price_egp === null ? "عند الطلب" : money(Number(p.price_egp))}</td><td><span className={p.is_active ? "status-active" : "status-inactive"}>{p.is_active ? "منشور" : "مخفي"}</span></td><td><div className="table-actions"><button onClick={() => edit(p)}>تعديل</button><button onClick={() => void toggle(p)}>{p.is_active ? "إخفاء" : "نشر"}</button><button className="danger-button" onClick={() => void remove(p)}>حذف</button></div></td></tr>)}
       </tbody></table>{!products.length && <p className="muted">لا توجد منتجات بعد. ابدأ بإضافة أول منتج.</p>}</div>}
     </section>
-  </main>;
+  </div></AdminShell>;
 }
