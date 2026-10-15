@@ -81,9 +81,8 @@ export default function CheckoutForm() {
       if (!response.ok) throw new Error(result.error || "تعذر تسجيل الطلب. حاول مرة أخرى.");
       clear();
       const lines = items.map((x) => "• " + x.product.name_ar + " × " + x.quantity).join("\n");
-      const actualTotal = Number(result.total_egp) || estimatedTotal;
-      const actualShipping = Math.max(0, actualTotal - subtotal);
-      const message = "طلب جديد من Bein Store\nرقم الطلب: " + result.order_number + "\nالاسم: " + payload.customer_name + "\nالهاتف: " + payload.customer_phone + "\nالمدينة: " + payload.city + "\nالعنوان: " + payload.shipping_address + "\n\nالمنتجات:\n" + lines + "\n\nقيمة المنتجات: " + money(subtotal) + "\nالشحن: " + (actualShipping === 0 ? "مجاني / بدون رسوم مسجلة" : money(actualShipping)) + "\nالإجمالي المبدئي: " + money(actualTotal) + "\nطريقة الدفع: عند الاستلام / تأكيد عبر المتجر";
+      const actualTotal = Number(result.total_egp);
+      const message = "طلب جديد من Bein Store\nرقم الطلب: " + result.order_number + "\nالاسم: " + payload.customer_name + "\nالهاتف: " + payload.customer_phone + "\nالمدينة: " + payload.city + "\nالعنوان: " + payload.shipping_address + "\n\nالمنتجات:\n" + lines + "\n\nالإجمالي المسجل للنظام: " + money(Number.isFinite(actualTotal) ? actualTotal : estimatedTotal) + "\nطريقة الدفع: عند الاستلام / تأكيد عبر المتجر\nملاحظة: يتم تأكيد السعر والتوافر ورسوم الشحن النهائية مع المتجر.";
       if (whatsappWindow && whatsappEnabled) whatsappWindow.location.href = "https://wa.me/" + storeWhatsapp + "?text=" + encodeURIComponent(message);
       router.push("/checkout/success?order=" + encodeURIComponent(String(result.order_number)));
     } catch (e) {
