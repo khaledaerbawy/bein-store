@@ -3313,3 +3313,16 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 .storefront-page .product-sale-badge{display:inline-flex;align-items:center;padding:4px 6px;border-radius:3px;background:#fff1eb;color:#b85e3e;font-size:8px;font-weight:900}
 .storefront-page .product-price-current{color:#183650;font-size:15px;font-weight:900;white-space:nowrap}
 @media(max-width:650px){.admin-spec-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.admin-spec-row button{grid-column:1/-1;justify-self:start}.storefront-page .product-price-current{font-size:13px}}
+
+
+/* Product detail price comparison and technical specifications */
+.detail-price-stack{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.detail-price-old{color:#929da5;font-size:13px;text-decoration:line-through}
+.detail-sale-label{display:inline-flex;padding:4px 7px;border-radius:3px;background:#fff1eb;color:#b85e3e;font-size:9px;font-weight:900}
+.detail-specifications{margin:20px 0;padding:17px;border:1px solid #e3e9ee;border-radius:5px;background:#fff}
+.detail-specifications h2{margin:0 0 12px;color:#2c465c;font-size:15px;font-weight:900}
+.detail-specifications dl{margin:0;border-top:1px solid #edf0f3}
+.detail-spec-row{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(0,1.3fr);gap:14px;padding:10px 0;border-bottom:1px solid #edf0f3}
+.detail-spec-row:last-child{border-bottom:0}
+.detail-spec-row dt{color:#748898;font-size:10px;overflow-wrap:anywhere}
+.detail-spec-row dd{margin:0;color:#2d485f;font-size:10px;font-weight:800;overflow-wrap:anywhere}
