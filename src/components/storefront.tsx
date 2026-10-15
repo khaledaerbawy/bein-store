@@ -28,7 +28,7 @@ export default function Storefront({ products, categories, initialQuery = "", in
     {filtered.length === 0 ? <div className="empty-state"><div className="empty-symbol">⌕</div><h3>{products.length ? "مفيش نتائج مطابقة" : "المنتجات غير متاحة حاليًا"}</h3><p>{products.length ? "جرّب كلمة بحث مختلفة أو اختار كل الماركات." : "جرّب تغيير البحث أو اختيار قسم آخر."}</p></div> : <div className="product-grid">
       {filtered.map((product, index) => <article className="product-card" key={product.id} style={{ animationDelay: `${Math.min(index, 12) * 34}ms` }}>
         <Link className="product-image" href={`/products/${product.slug}`} aria-label={`عرض ${product.name_ar}`}>
-          <ProductImage product={product} className="catalog-photo" showNote />
+          <ProductImage product={product} className="catalog-photo" />
           {product.is_featured && <span className="featured-badge">اختيار مميز</span>}
         </Link>
         <div className="product-info"><div className="product-brand">{product.brand ?? "BEIN STORE"}</div><Link href={`/products/${product.slug}`}><h3>{product.name_ar}</h3></Link>
