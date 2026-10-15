@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Category, Product, StoreSettings, StoreBrand } from "@/lib/types";
+import type { Category, Product, StoreSettings, StoreBrand, SiteBanner } from "@/lib/types";
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
 import ProductImage from "@/components/product-image";
@@ -29,6 +29,19 @@ async function getBrands(): Promise<StoreBrand[]> {
   const { data, error } = await supabase.from("store_brands").select("id,name,slug,logo_url,website_url,description,sort_order,is_active").eq("is_active", true).order("sort_order", { ascending: true }).order("name", { ascending: true });
   if (error) { console.error("Brand query failed:", error.message); return []; }
   return (data ?? []) as StoreBrand[];
+}
+
+async function getBanners(): Promise<SiteBanner[]> {
+  const supabase = await createClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("site_banners")
+    .select("id,title,kicker,description,image_url,button_text,button_url,placement,background_color,text_color,sort_order,starts_at,ends_at,is_active")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+  if (error) { console.error("Site banners query failed:", error.message); return []; }
+  return (data ?? []) as SiteBanner[];
 }
 
 const categoryDetails: Record<string, { code: string; title: string; description: string }> = {
@@ -96,8 +109,28 @@ async function getStoreSettings(): Promise<StoreSettings> {
   return { ...defaultStoreSettings, ...data } as StoreSettings;
 }
 
+
+function renderSiteBanners(banners: SiteBanner[], placement: SiteBanner["placement"]) {
+  const items = banners.filter((banner) => banner.placement === placement);
+  if (!items.length) return null;
+  return <section className={`site-promo-banners site-promo-banners-${placement}`} aria-label="عروض المتجر">
+    {items.map((banner) => {
+      const external = /^https?:\/\//i.test(banner.button_url ?? "");
+      return <article className="site-promo-banner" key={banner.id} style={{ backgroundColor: banner.background_color, color: banner.text_color }}>
+        <div className="site-promo-banner-copy">
+          {banner.kicker && <small>{banner.kicker}</small>}
+          <h2>{banner.title}</h2>
+          {banner.description && <p>{banner.description}</p>}
+          {banner.button_text && banner.button_url && <a className="site-promo-button" href={banner.button_url} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>{banner.button_text} <span aria-hidden="true">←</span></a>}
+        </div>
+        {banner.image_url && <img src={banner.image_url} alt="" loading="lazy" />}
+      </article>;
+    })}
+  </section>;
+}
+
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
-  const [{ q = "", category: categorySlug = "" }, products, categories, site, brands] = await Promise.all([searchParams, getProducts(), getCategories(), getStoreSettings(), getBrands()]);
+  const [{ q = "", category: categorySlug = "" }, products, categories, site, brands, banners] = await Promise.all([searchParams, getProducts(), getCategories(), getStoreSettings(), getBrands(), getBanners()]);
   const initialCategoryId = categories.find((item) => item.slug === categorySlug)?.id ?? "all";
   const storePhone = site.show_phone ? (site.phone || process.env.NEXT_PUBLIC_STORE_PHONE || "").trim() : "";
   const storeWhatsapp = site.show_whatsapp ? (site.whatsapp || process.env.NEXT_PUBLIC_STORE_WHATSAPP || "").replace(/\D/g, "") : "";
@@ -161,6 +194,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
     )}
 
+    {renderSiteBanners(banners, "after_hero")}
+
     {site.show_categories && (
     <section className="category-section" id="categories">
       <div className="commerce-section-head"><div><span className="section-overline">تسوّق بسهولة</span><h2>{site.categories_title}</h2><p className="section-subtitle">{site.categories_description}</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
@@ -180,6 +215,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
 
     )}
+
+    {renderSiteBanners(banners, "after_categories")}
 
     {site.show_catalog && (
     <section className="catalog-section" id="catalog">
@@ -201,6 +238,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
 
     )}
+
+    {renderSiteBanners(banners, "before_footer")}
 
     <footer className="commerce-footer" id="contact">
       <div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div>
