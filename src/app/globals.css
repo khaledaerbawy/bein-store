@@ -3467,3 +3467,14 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
   line-height: 1.9;
   margin: 12px 0 0;
 }
+
+.local-seo-inline-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--store-primary, var(--green-dark));
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
