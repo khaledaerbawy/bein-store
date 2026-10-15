@@ -65,7 +65,7 @@ const defaultStoreSettings: StoreSettings = {
   hero_description: "كاميرات، أجهزة تسجيل، هاردات تخزين وشبكات. اختار المنتجات المناسبة للمكان، ولو محتار في الموديل أو التوصيل نساعدك قبل الطلب.",
   hero_image_url: null, hero_cta_text: "تسوّق المنتجات",
   show_hero: true, show_categories: true, show_catalog: true, show_brands: true, show_services: true,
-  phone: null, whatsapp: null, address: null,
+  phone: null, whatsapp: null, address: null, show_phone: true, show_whatsapp: true, show_address: true,
   footer_text: "كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.",
   primary_color: "#1766bf", accent_color: "#f1f6fa"
 };
@@ -83,9 +83,9 @@ async function getStoreSettings(): Promise<StoreSettings> {
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
   const [{ q = "", category: categorySlug = "" }, products, categories, site] = await Promise.all([searchParams, getProducts(), getCategories(), getStoreSettings()]);
   const initialCategoryId = categories.find((item) => item.slug === categorySlug)?.id ?? "all";
-  const storePhone = (site.phone || process.env.NEXT_PUBLIC_STORE_PHONE || "").trim();
-  const storeWhatsapp = (site.whatsapp || process.env.NEXT_PUBLIC_STORE_WHATSAPP || "").replace(/\D/g, "");
-  const storeAddress = (site.address || process.env.NEXT_PUBLIC_STORE_ADDRESS || "").trim();
+  const storePhone = site.show_phone ? (site.phone || process.env.NEXT_PUBLIC_STORE_PHONE || "").trim() : "";
+  const storeWhatsapp = site.show_whatsapp ? (site.whatsapp || process.env.NEXT_PUBLIC_STORE_WHATSAPP || "").replace(/\D/g, "") : "";
+  const storeAddress = site.show_address ? (site.address || process.env.NEXT_PUBLIC_STORE_ADDRESS || "").trim() : "";
   const whatsappUrl = storeWhatsapp ? `https://wa.me/${storeWhatsapp}` : "#contact";
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const shownCategories = categories.length ? categories : categoriesFallback;
