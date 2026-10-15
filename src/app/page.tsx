@@ -51,6 +51,15 @@ const defaultStoreSettings: StoreSettings = {
   page_title: "Bein Store | كاميرات المراقبة والشبكات",
   meta_description: "متجر Bein Store لكاميرات المراقبة وأجهزة التسجيل والشبكات.",
   announcement_text: "مساعدة فنية في اختيار الموديل وتأكيد السعر قبل الطلب",
+  categories_title: "تسوّق حسب القسم",
+  categories_description: "وصل للقسم اللي محتاجه بسرعة.",
+  catalog_title: "منتجاتنا",
+  catalog_description: "صور واضحة، موديلات وأسعار معروضة، واختيار سهل للمنتج المناسب.",
+  brands_title: "ماركات بنجهّز أنظمتها حسب احتياجك",
+  services_kicker: "محتاج مساعدة؟",
+  services_title: "مش متأكد تختار إيه؟",
+  services_highlight: "نساعدك توصل للمناسب.",
+  services_description: "اختيار النظام الصح بيعتمد على المكان، عدد الكاميرات، طريقة التسجيل، وسعة التخزين. ابعتلنا التفاصيل ونراجع معاك المكونات المطلوبة.",
   show_announcement: true, hero_badge: "كاميرات مراقبة وأنظمة أمنية",
   hero_title: "كل ما تحتاجه لنظام مراقبة", hero_title_highlight: "متكامل وآمن",
   hero_description: "كاميرات، أجهزة تسجيل، هاردات تخزين وشبكات. اختار المنتجات المناسبة للمكان، ولو محتار في الموديل أو التوصيل نساعدك قبل الطلب.",
@@ -138,7 +147,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
     {site.show_categories && (
     <section className="category-section" id="categories">
-      <div className="commerce-section-head"><div><span className="section-overline">تسوّق بسهولة</span><h2>تسوّق حسب القسم</h2><p className="section-subtitle">وصل للقسم اللي محتاجه بسرعة.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
+      <div className="commerce-section-head"><div><span className="section-overline">تسوّق بسهولة</span><h2>{site.categories_title}</h2><p className="section-subtitle">{site.categories_description}</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
       <div className="category-card-grid">
         {shownCategories.map((category, index) => {
           const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" };
@@ -158,20 +167,20 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
     {site.show_catalog && (
     <section className="catalog-section" id="catalog">
-      <div className="commerce-section-head"><div><span className="section-overline">كتالوج Bein Store</span><h2>منتجاتنا</h2><p className="section-subtitle">صور واضحة، موديلات وأسعار معروضة، واختيار سهل للمنتج المناسب.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
+      <div className="commerce-section-head"><div><span className="section-overline">كتالوج Bein Store</span><h2>{site.catalog_title}</h2><p className="section-subtitle">{site.catalog_description}</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
       {!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}
     </section>
 
     )}
 
     {site.show_brands && (
-    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">ماركات بنجهّز أنظمتها حسب احتياجك</span><div className="brand-logo-list"><div className="brand-logo-card"><img src="https://www.hikvision.com/content/dam/hikvision/uk/marketing-portal/logos/hikvision/Hikvision%20Logo.PNG" alt="Hikvision" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-hilook" aria-label="HiLook"><span>HiLook</span></div><div className="brand-logo-card"><img src="https://material.dahuasecurity.com/uploads/image/20200615/20200615135430_98836.png" alt="Dahua Technology" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-unv" aria-label="UNV Uniview"><span>UNV</span><small>UNIVIEW</small></div></div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
+    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">{site.brands_title}</span><div className="brand-logo-list"><div className="brand-logo-card"><img src="https://www.hikvision.com/content/dam/hikvision/uk/marketing-portal/logos/hikvision/Hikvision%20Logo.PNG" alt="Hikvision" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-hilook" aria-label="HiLook"><span>HiLook</span></div><div className="brand-logo-card"><img src="https://material.dahuasecurity.com/uploads/image/20200615/20200615135430_98836.png" alt="Dahua Technology" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-unv" aria-label="UNV Uniview"><span>UNV</span><small>UNIVIEW</small></div></div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
 
     )}
 
     {site.show_services && (
     <section className="service-section" id="services">
-      <div className="service-intro"><span className="section-overline">محتاج مساعدة؟</span><h2>مش متأكد تختار إيه؟<br /><em>نساعدك توصل للمناسب.</em></h2><p>اختيار النظام الصح بيعتمد على المكان، عدد الكاميرات، طريقة التسجيل، وسعة التخزين. ابعتلنا التفاصيل ونراجع معاك المكونات المطلوبة.</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
+      <div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
       <div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>حدّد عدد الكاميرات</b><p>والأماكن الداخلية والخارجية المطلوب تغطيتها.</p></div></div><div className="service-step"><span>03</span><div><b>اختار طريقة التسجيل</b><p>DVR أو NVR مع سعة تخزين مناسبة.</p></div></div><div className="service-step"><span>04</span><div><b>راجع توافق المكونات</b><p>نتأكد من التوصيلات والملحقات قبل التجهيز.</p></div></div></div>
     </section>
 
