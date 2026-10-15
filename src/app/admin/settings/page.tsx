@@ -42,6 +42,14 @@ const defaults: SettingsDraft = {
   show_phone: true,
   show_whatsapp: true,
   show_address: true,
+  orders_enabled: true,
+  orders_paused_message: "استقبال الطلبات متوقف مؤقتًا. تواصل مع المتجر للاستفسار.",
+  shipping_fee_egp: 0,
+  free_shipping_threshold_egp: null,
+  minimum_order_egp: 0,
+  whatsapp_order_confirmation: true,
+  allow_order_notes: true,
+  delivery_time_text: "موعد التوصيل ورسوم الشحن يتم تأكيدهما مع المتجر بعد مراجعة العنوان.",
   footer_text: "كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.",
   primary_color: "#1766bf",
   accent_color: "#f1f6fa"
@@ -57,7 +65,7 @@ export default function AdminSettingsPage() {
   const [busy, setBusy] = useState(false);
   const [uploadingField, setUploadingField] = useState<keyof SettingsDraft | null>(null);
   const [message, setMessage] = useState("");
-  const [tab, setTab] = useState<"identity" | "homepage" | "contact">("identity");
+  const [tab, setTab] = useState<"identity" | "homepage" | "contact" | "orders">("identity");
 
   const load = useCallback(async () => {
     const supabase = createClient();
@@ -172,6 +180,7 @@ export default function AdminSettingsPage() {
           <button type="button" className={tab === "identity" ? "active" : ""} onClick={() => setTab("identity")}>الهوية واسم الموقع</button>
           <button type="button" className={tab === "homepage" ? "active" : ""} onClick={() => setTab("homepage")}>الصفحة الرئيسية</button>
           <button type="button" className={tab === "contact" ? "active" : ""} onClick={() => setTab("contact")}>التواصل والفوتر</button>
+          <button type="button" className={tab === "orders" ? "active" : ""} onClick={() => setTab("orders")}>الطلبات والشحن</button>
         </div>
         {loading ? <div className="settings-editor-empty">جارٍ تحميل الإعدادات...</div> : <>
           {tab === "identity" && <div className="settings-editor-grid">
@@ -227,6 +236,26 @@ export default function AdminSettingsPage() {
             <article className="settings-editor-card"><div className="settings-editor-card-head"><span>06</span><div><h3>نص التذييل (Footer)</h3><p>الكلام التعريفي في أسفل الموقع.</p></div></div>
               <label>النص التعريفي<textarea rows={4} value={form.footer_text} onChange={e => update("footer_text", e.target.value)} maxLength={600} /></label>
               <p className="settings-help-text">اسم المتجر وحقوق النشر يتحدثان تلقائيًا عند تغيير اسم المتجر.</p>
+            </article>
+          </div>}
+          {tab === "orders" && <div className="settings-editor-grid">
+            <article className="settings-editor-card">
+              <div className="settings-editor-card-head"><span>07</span><div><h3>استقبال الطلبات</h3><p>تحكم في إتاحة إرسال طلب جديد وطريقة متابعة العميل بعد التسجيل.</p></div></div>
+              <div className="settings-visibility-list">
+                <label className="settings-visibility-row"><span><b>استقبال طلبات جديدة</b><small>إيقافه يمنع تسجيل طلبات جديدة من الموقع، مع بقاء المنتجات ظاهرة.</small></span><input type="checkbox" checked={form.orders_enabled} onChange={e => update("orders_enabled", e.target.checked)} /></label>
+                <label className="settings-visibility-row"><span><b>متابعة الطلب عبر واتساب</b><small>يفتح محادثة واتساب بعد تسجيل الطلب إذا كان رقم واتساب ظاهرًا.</small></span><input type="checkbox" checked={form.whatsapp_order_confirmation} onChange={e => update("whatsapp_order_confirmation", e.target.checked)} /></label>
+                <label className="settings-visibility-row"><span><b>السماح بملاحظات العميل</b><small>إظهار خانة الملاحظات في إتمام الطلب.</small></span><input type="checkbox" checked={form.allow_order_notes} onChange={e => update("allow_order_notes", e.target.checked)} /></label>
+              </div>
+              <label>الرسالة التي تظهر عند إيقاف استقبال الطلبات<textarea rows={3} value={form.orders_paused_message} onChange={e => update("orders_paused_message", e.target.value)} maxLength={400} /></label>
+              <label>رسالة الشحن والتوصيل في صفحة إتمام الطلب<textarea rows={3} value={form.delivery_time_text} onChange={e => update("delivery_time_text", e.target.value)} maxLength={400} /></label>
+            </article>
+            <article className="settings-editor-card">
+              <div className="settings-editor-card-head"><span>08</span><div><h3>الشحن والحد الأدنى للطلب</h3><p>القيم دي تدخل في حساب إجمالي الطلب في قاعدة البيانات. اترك حد الشحن المجاني فارغًا لتعطيله.</p></div></div>
+              <label>رسوم الشحن بالجنيه<input type="number" min="0" step="0.01" required value={form.shipping_fee_egp} onChange={e => update("shipping_fee_egp", Number(e.target.value))} /></label>
+              <label>حد الشحن المجاني بالجنيه (اختياري)<input type="number" min="0" step="0.01" value={form.free_shipping_threshold_egp == null ? "" : String(form.free_shipping_threshold_egp)} onChange={e => update("free_shipping_threshold_egp", e.target.value.trim() === "" ? null : Number(e.target.value))} placeholder="اتركه فارغًا إذا لم يوجد" /></label>
+              <label>الحد الأدنى لقيمة الطلب بالجنيه<input type="number" min="0" step="0.01" required value={form.minimum_order_egp} onChange={e => update("minimum_order_egp", Number(e.target.value))} /></label>
+              <div className="settings-home-preview"><div><small>معاينة الإعدادات</small><h3>الشحن: {new Intl.NumberFormat("ar-EG").format(form.shipping_fee_egp || 0)} ج.م</h3><p>{form.free_shipping_threshold_egp == null ? "لا يوجد حد للشحن المجاني." : "شحن مجاني عند وصول قيمة المنتجات إلى " + new Intl.NumberFormat("ar-EG").format(form.free_shipping_threshold_egp) + " ج.م."}</p><p>الحد الأدنى للطلب: {new Intl.NumberFormat("ar-EG").format(form.minimum_order_egp || 0)} ج.م</p></div></div>
+              <p className="settings-help-text">الدفع الإلكتروني غير مفعّل. هذه الإعدادات تتحكم في الشحن وقواعد تسجيل الطلب ومتابعته فقط.</p>
             </article>
           </div>}
           {message && <p className={message.startsWith("تم") ? "form-success" : "form-error"} role="status">{message}</p>}
