@@ -3188,7 +3188,6 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 @media(max-width:430px){.settings-color-fields{grid-template-columns:minmax(0,1fr)}.settings-editor-savebar{gap:7px}.settings-editor-savebar button,.settings-editor-savebar>a{flex:1;justify-content:center}}
 
 /* Admin-managed storefront colors and logo assets */
-.storefront-page{--store-primary:var(--store-primary,#1766bf)}
 .storefront-page .logo-image{display:block;max-width:160px;max-height:48px;object-fit:contain}
 .storefront-page .customer-commerce-hero{background:var(--store-accent,#f1f6fa)!important}
 .storefront-page .customer-commerce-hero .hero-kicker>span{background:var(--store-primary,#1766bf)}
