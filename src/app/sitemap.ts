@@ -13,25 +13,53 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
   if (!supabase) return entries;
 
-  const { data, error } = await supabase
-    .from("products")
-    .select("slug,model,description_ar,image_urls,specifications")
-    .eq("is_active", true)
-    .not("price_egp", "is", null)
-    .order("name_ar", { ascending: true });
+  const [productsResult, categoriesResult, brandsResult] = await Promise.all([
+    supabase.from("products")
+      .select("slug,model,description_ar,image_urls")
+      .eq("is_active", true)
+      .not("price_egp", "is", null)
+      .order("name_ar", { ascending: true }),
+    supabase.from("categories")
+      .select("slug")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true }),
+    supabase.from("store_brands")
+      .select("slug")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+  ]);
 
-  if (error) {
-    console.error("Sitemap product query failed:", error.message);
-    return entries;
+  if (productsResult.error) console.error("Sitemap product query failed:", productsResult.error.message);
+  if (categoriesResult.error) console.error("Sitemap category query failed:", categoriesResult.error.message);
+  if (brandsResult.error) console.error("Sitemap brand query failed:", brandsResult.error.message);
+
+  for (const category of categoriesResult.data ?? []) {
+    if (!category.slug) continue;
+    entries.push({
+      url: SITE_URL + "/categories/" + encodeURIComponent(category.slug),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8
+    });
   }
 
-  for (const product of data ?? []) {
+  for (const brand of brandsResult.data ?? []) {
+    if (!brand.slug) continue;
+    entries.push({
+      url: SITE_URL + "/brands/" + encodeURIComponent(brand.slug),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8
+    });
+  }
+
+  for (const product of productsResult.data ?? []) {
     const indexable = Boolean(product.model?.trim())
       && Boolean(product.description_ar?.trim())
       && Array.isArray(product.image_urls) && product.image_urls.length > 0;
     if (!product.slug || !indexable) continue;
     entries.push({
-      url: `${SITE_URL}/products/${encodeURIComponent(product.slug)}`,
+      url: SITE_URL + "/products/" + encodeURIComponent(product.slug),
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7
