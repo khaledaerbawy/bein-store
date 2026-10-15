@@ -15,6 +15,7 @@ export default function AdminHome() {
   const router = useRouter();
   const [status, setStatus] = useState("جارٍ التحقق من الصلاحيات...");
   const [email, setEmail] = useState("");
+  const [storeName, setStoreName] = useState("Bein Store");
   const [metrics, setMetrics] = useState<MetricState>({ products: null, activeProducts: null, pendingOrders: null, completedSales: null });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -30,6 +31,9 @@ export default function AdminHome() {
       const { data: role } = await supabase.from("admin_roles").select("role,is_active").eq("user_id", user.id).maybeSingle();
       if (!role?.is_active) { await supabase.auth.signOut(); router.replace("/admin/login"); return; }
       if (active) { setEmail(user.email ?? ""); setStatus("تم التحقق من صلاحيات الإدارة"); }
+      void supabase.from("store_settings").select("store_name").eq("id", "main").maybeSingle().then(({ data }) => {
+        if (active && data?.store_name) setStoreName(data.store_name);
+      });
       const [productCount, activeCount, pendingCount, latest, completed] = await Promise.all([
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("products").select("id", { count: "exact", head: true }).eq("is_active", true),
@@ -70,8 +74,8 @@ export default function AdminHome() {
       <section className="admin-dashboard-content">
         <div className="admin-dashboard-welcome">
           <div className="admin-dashboard-welcome-copy">
-            <span className="admin-dashboard-overline">BEIN STORE · CONTROL CENTER</span>
-            <h2>أهلاً بك في <em>Bein Store</em></h2>
+            <span className="admin-dashboard-overline">{storeName.toLocaleUpperCase("en")} · CONTROL CENTER</span>
+            <h2>أهلاً بك في <em>{storeName}</em></h2>
             <p>{status}. تابع الكتالوج والطلبات من مساحة واحدة.</p>
             <div className="admin-dashboard-welcome-actions"><Link href="/admin/products">إدارة المنتجات <span>←</span></Link><Link className="secondary" href="/">معاينة المتجر ↗</Link></div>
           </div>
