@@ -167,7 +167,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const structuredData = [
     {
       "@context": "https://schema.org",
-      "@type": "Store",
+      "@type": "OnlineStore",
       "@id": `${SITE_URL}/#store`,
       name: site.store_name || "Bein Store",
       alternateName: ["بين ستور", "Bein Store"],
@@ -177,12 +177,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         { "@type": "City", name: "6th of October City" },
         { "@type": "AdministrativeArea", name: "Giza Governorate" }
       ],
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "6th of October City",
-        addressRegion: "Giza",
-        addressCountry: "EG"
-      },
       ...(storePhone ? { telephone: storePhone } : {}),
       ...(storeWhatsapp ? { contactPoint: { "@type": "ContactPoint", telephone: `+${storeWhatsapp}`, contactType: "customer service", availableLanguage: ["Arabic"] } } : {}),
       hasOfferCatalog: {
