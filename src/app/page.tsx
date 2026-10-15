@@ -55,7 +55,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const whatsappUrl = storeWhatsapp ? `https://wa.me/${storeWhatsapp}` : "#contact";
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const shownCategories = categories.length ? categories : categoriesFallback;
-  const heroProduct = products.find((product) => product.brand === "Hikvision" && product.model?.startsWith("DS-2CD") && product.image_urls?.length) ?? products.find((product) => product.brand === "Hikvision" && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
+  const heroProduct = products.find((product) => product.brand === "Hikvision" && product.model?.startsWith("DS-2CD") && product.image_urls?.length) ?? products.find((product) => product.category_id === categories.find((item) => item.slug === "security-cameras")?.id && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
+  const heroRecorder = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "recorders" && product.image_urls?.length) ?? null;
+  const heroStorage = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "storage" && product.image_urls?.length) ?? null;
   return <main className="storefront-page" dir="rtl">
     <div className="utility-bar">
       <div className="utility-inner">
@@ -84,39 +86,31 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <span className="nav-note"><i /> مساعدة فنية في اختيار الموديل</span>
     </nav>
 
-    <section className="commerce-hero tech-commerce-hero">
+    <section className="commerce-hero customer-commerce-hero">
       <div className="hero-main-copy">
-        <div className="hero-kicker"><span /> HIKVISION · كاميرات مراقبة وأنظمة أمنية</div>
-        <h1>أنظمة مراقبة<br /><em>احترافية للمنازل والمشروعات.</em></h1>
-        <p>كاميرات مراقبة، أجهزة تسجيل، هاردات تخزين وشبكات. اختار المكونات المناسبة للمكان، وراجع الموديلات قبل تأكيد الطلب.</p>
+        <div className="hero-kicker"><span /> كاميرات مراقبة وأنظمة أمنية</div>
+        <h1>كل ما تحتاجه لنظام مراقبة<br /><em>متكامل وآمن</em></h1>
+        <p>كاميرات، أجهزة تسجيل، هاردات تخزين وشبكات. اختار المنتجات المناسبة للمكان، ولو محتار في الموديل أو التوصيل نساعدك قبل الطلب.</p>
         <div className="commerce-hero-actions">
-          <a className="commerce-button commerce-button-orange" href="#catalog">استكشف الكتالوج <span aria-hidden="true">←</span></a>
-          <a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "مساعدة فنية على واتساب ↗" : "تواصل مع المتجر"}</a>
+          <a className="commerce-button commerce-button-orange" href="#catalog">تسوّق المنتجات <span aria-hidden="true">←</span></a>
+          <a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "اسألنا على واتساب" : "تواصل مع المتجر"}</a>
         </div>
-        <div className="hero-assurances"><span><b>01</b> IP CAMERAS</span><span><b>02</b> DVR / NVR</span><span><b>03</b> PoE & STORAGE</span></div>
+        <div className="customer-hero-benefits"><span>اختيار الموديل المناسب</span><span>مراجعة التوافق قبل الطلب</span><span>تأكيد السعر والتوفر</span></div>
       </div>
-      <div className="hero-product-stage tech-hero-product-stage" aria-label="منتج من كتالوج أنظمة المراقبة">
-        <div className="hero-stage-top"><span>PRODUCT REFERENCE / 001</span><span>{heroProduct?.brand ?? "BEIN STORE"}</span></div>
-        <div className="hero-camera-wrap">
-          {heroProduct ? <ProductImage product={heroProduct} className="tech-hero-camera" /> : <div className="tech-hero-empty">كتالوج أنظمة المراقبة</div>}
+      <div className="customer-hero-products" aria-label="منتجات من كتالوج Bein Store">
+        <div className="customer-hero-main-photo">
+          {heroProduct ? <ProductImage product={heroProduct} className="customer-hero-camera" /> : <div className="customer-hero-photo-empty">كاميرات مراقبة</div>}
+          <div className="customer-hero-photo-caption"><small>{heroProduct?.brand ?? "Bein Store"}</small><b>{heroProduct?.name_ar ?? "كاميرات وأنظمة مراقبة"}</b></div>
         </div>
-        <div className="hero-stage-bottom">
-          <div><small>MODEL / PRODUCT DATA</small><b>{heroProduct?.model ?? heroProduct?.name_ar ?? "معدات أنظمة المراقبة"}</b><span>{heroProduct?.name_ar ?? "كاميرات وأجهزة تسجيل وشبكات"}</span></div>
-          {heroProduct ? <Link href={`/products/${heroProduct.slug}`} aria-label="عرض تفاصيل المنتج">تفاصيل الموديل ↗</Link> : <a href="#catalog">عرض الكتالوج ↗</a>}
+        <div className="customer-hero-secondary">
+          {heroRecorder ? <div className="customer-hero-secondary-photo"><ProductImage product={heroRecorder} className="customer-hero-small-image" /><span>أجهزة التسجيل</span></div> : null}
+          {heroStorage ? <div className="customer-hero-secondary-photo"><ProductImage product={heroStorage} className="customer-hero-small-image" /><span>هاردات التخزين</span></div> : null}
         </div>
       </div>
-    </section>
-
-    <section className="tech-system-ribbon" aria-label="تسلسل مكونات نظام المراقبة">
-      <div className="tech-ribbon-heading"><small>SYSTEM ARCHITECTURE</small><b>تسلسل مكونات النظام</b></div>
-      <div className="tech-ribbon-stage"><span>01</span><div><b>الكاميرات</b><small>IP / Indoor / Outdoor</small></div></div><i className="tech-ribbon-arrow">→</i>
-      <div className="tech-ribbon-stage"><span>02</span><div><b>الشبكة والطاقة</b><small>PoE / Ethernet</small></div></div><i className="tech-ribbon-arrow">→</i>
-      <div className="tech-ribbon-stage"><span>03</span><div><b>أجهزة التسجيل</b><small>DVR / NVR</small></div></div><i className="tech-ribbon-arrow">→</i>
-      <div className="tech-ribbon-stage"><span>04</span><div><b>التخزين</b><small>Surveillance HDD</small></div></div>
     </section>
 
     <section className="category-section" id="categories">
-      <div className="commerce-section-head"><div><span className="section-overline">الأقسام</span><h2>تسوّق حسب القسم</h2><p className="section-subtitle">ابدأ بالفئة، ثم راجع الموديل والتوافق الفني قبل الطلب.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
+      <div className="commerce-section-head"><div><span className="section-overline">تسوّق بسهولة</span><h2>تسوّق حسب القسم</h2><p className="section-subtitle">وصل للقسم اللي محتاجه بسرعة.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
       <div className="category-card-grid">
         {shownCategories.map((category, index) => {
           const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" };
@@ -125,23 +119,22 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <span className="category-tile-image">
               {representativeProduct ? <ProductImage product={representativeProduct} className="category-photo" /> : <span className="category-image-fallback">{detail.code}</span>}
             </span>
-            <span className="category-tile-top"><span>{detail.code}</span><span aria-hidden="true">↗</span></span>
             <span className="category-tile-copy"><b>{category.name_ar || detail.title}</b><small>{detail.description}</small></span>
-            <span className="category-tile-link">تصفّح القسم <span>←</span></span>
+            <span className="category-tile-link">عرض المنتجات <span>←</span></span>
           </a>;
         })}
       </div>
     </section>
 
     <section className="catalog-section" id="catalog">
-      <div className="commerce-section-head"><div><span className="section-overline">منتجات Bein Store</span><h2>أفضل المنتجات</h2><p className="section-subtitle">تصفّح المنتجات حسب الماركة والموديل، وشوف السعر المعروض قبل الطلب.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
+      <div className="commerce-section-head"><div><span className="section-overline">كتالوج Bein Store</span><h2>منتجاتنا</h2><p className="section-subtitle">صور واضحة، موديلات وأسعار معروضة، واختيار سهل للمنتج المناسب.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
       {!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}
     </section>
 
     <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">ماركات بنجهّز أنظمتها حسب احتياجك</span><div className="brand-logo-list"><div className="brand-logo-card"><img src="https://www.hikvision.com/content/dam/hikvision/uk/marketing-portal/logos/hikvision/Hikvision%20Logo.PNG" alt="Hikvision" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-hilook" aria-label="HiLook"><span>HiLook</span></div><div className="brand-logo-card"><img src="https://material.dahuasecurity.com/uploads/image/20200615/20200615135430_98836.png" alt="Dahua Technology" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-unv" aria-label="UNV Uniview"><span>UNV</span><small>UNIVIEW</small></div></div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
 
     <section className="service-section" id="services">
-      <div className="service-intro"><span className="section-overline">للبيوت والمحلات والشركات</span><h2>محتاج نظام كامل؟<br /><em>نساعدك ترتّب مكوّناته.</em></h2><p>اختيار النظام الصح بيعتمد على المكان، عدد الكاميرات، طريقة التسجيل، وسعة التخزين. ابعتلنا التفاصيل ونراجع معاك المكونات المطلوبة.</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
+      <div className="service-intro"><span className="section-overline">محتاج مساعدة؟</span><h2>مش متأكد تختار إيه؟<br /><em>نساعدك توصل للمناسب.</em></h2><p>اختيار النظام الصح بيعتمد على المكان، عدد الكاميرات، طريقة التسجيل، وسعة التخزين. ابعتلنا التفاصيل ونراجع معاك المكونات المطلوبة.</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
       <div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>حدّد عدد الكاميرات</b><p>والأماكن الداخلية والخارجية المطلوب تغطيتها.</p></div></div><div className="service-step"><span>03</span><div><b>اختار طريقة التسجيل</b><p>DVR أو NVR مع سعة تخزين مناسبة.</p></div></div><div className="service-step"><span>04</span><div><b>راجع توافق المكونات</b><p>نتأكد من التوصيلات والملحقات قبل التجهيز.</p></div></div></div>
     </section>
 
