@@ -15,6 +15,15 @@ const defaults: SettingsDraft = {
   page_title: "Bein Store | كاميرات المراقبة والشبكات",
   meta_description: "متجر Bein Store لكاميرات المراقبة وأجهزة التسجيل والشبكات.",
   announcement_text: "مساعدة فنية في اختيار الموديل وتأكيد السعر قبل الطلب",
+  categories_title: "تسوّق حسب القسم",
+  categories_description: "وصل للقسم اللي محتاجه بسرعة.",
+  catalog_title: "منتجاتنا",
+  catalog_description: "صور واضحة، موديلات وأسعار معروضة، واختيار سهل للمنتج المناسب.",
+  brands_title: "ماركات بنجهّز أنظمتها حسب احتياجك",
+  services_kicker: "محتاج مساعدة؟",
+  services_title: "مش متأكد تختار إيه؟",
+  services_highlight: "نساعدك توصل للمناسب.",
+  services_description: "اختيار النظام الصح بيعتمد على المكان، عدد الكاميرات، طريقة التسجيل، وسعة التخزين. ابعتلنا التفاصيل ونراجع معاك المكونات المطلوبة.",
   show_announcement: true,
   hero_badge: "كاميرات مراقبة وأنظمة أمنية",
   hero_title: "كل ما تحتاجه لنظام مراقبة",
@@ -178,6 +187,17 @@ export default function AdminSettingsPage() {
               <label>نص زر البانر<input value={form.hero_cta_text} onChange={e => update("hero_cta_text", e.target.value)} maxLength={50} /></label>
               {imageField("صورة البانر (اختياري)", "hero_image_url", "إذا تركتها فارغة يستخدم الموقع صور المنتجات المتاحة")}
               <div className="settings-home-preview"><div><small>{form.hero_badge}</small><h3>{form.hero_title}<br/><em>{form.hero_title_highlight}</em></h3><p>{form.hero_description}</p><button type="button" style={{ background: form.primary_color }}>{form.hero_cta_text}</button></div>{form.hero_image_url && <img src={form.hero_image_url} alt="معاينة البانر" />}</div>
+            </article>
+            <article className="settings-editor-card"><div className="settings-editor-card-head"><span>05</span><div><h3>عناوين الأقسام والكلام الظاهر للعميل</h3><p>عدّل عناوين أجزاء الصفحة الرئيسية والوصف المختصر لكل جزء.</p></div></div>
+              <label>عنوان الأقسام<input value={form.categories_title} onChange={e => update("categories_title", e.target.value)} maxLength={140} /></label>
+              <label>وصف قسم الأقسام<textarea rows={2} value={form.categories_description} onChange={e => update("categories_description", e.target.value)} maxLength={300} /></label>
+              <label>عنوان المنتجات<input value={form.catalog_title} onChange={e => update("catalog_title", e.target.value)} maxLength={140} /></label>
+              <label>وصف قسم المنتجات<textarea rows={2} value={form.catalog_description} onChange={e => update("catalog_description", e.target.value)} maxLength={300} /></label>
+              <label>النص فوق الماركات<input value={form.brands_title} onChange={e => update("brands_title", e.target.value)} maxLength={160} /></label>
+              <label>عنوان صغير لقسم المساعدة<input value={form.services_kicker} onChange={e => update("services_kicker", e.target.value)} maxLength={100} /></label>
+              <label>عنوان المساعدة<input value={form.services_title} onChange={e => update("services_title", e.target.value)} maxLength={150} /></label>
+              <label>السطر الثاني المميز<input value={form.services_highlight} onChange={e => update("services_highlight", e.target.value)} maxLength={150} /></label>
+              <label>وصف قسم المساعدة<textarea rows={3} value={form.services_description} onChange={e => update("services_description", e.target.value)} maxLength={600} /></label>
             </article>
             <article className="settings-editor-card"><div className="settings-editor-card-head"><span>04</span><div><h3>التحكم في ظهور أجزاء الموقع</h3><p>إخفاء أو إظهار أي قسم بدون حذف محتواه.</p></div></div>
               <label>نص الشريط العلوي<input value={form.announcement_text} onChange={e => update("announcement_text", e.target.value)} maxLength={180} /></label>
