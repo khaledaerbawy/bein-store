@@ -3283,3 +3283,12 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 .detail-thumbnail.active{border-color:#1766bf;box-shadow:0 0 0 2px #e7f1fb}
 @media(max-width:850px){.admin-products-filters{grid-template-columns:minmax(0,1fr) minmax(130px,.7fr)}.admin-products-filters label:first-child{grid-column:1/-1}}
 @media(max-width:560px){.admin-products-management{padding:12px}.admin-products-management-head h2{font-size:14px}.admin-products-filters{grid-template-columns:minmax(0,1fr)}.admin-products-filters label:first-child{grid-column:auto}.admin-bulk-actions{align-items:stretch}.admin-bulk-select{flex-basis:100%}.admin-bulk-actions>span{flex-basis:100%}.admin-bulk-category{flex-basis:100%}}
+
+
+/* Checkout reflects admin-configured shipping and order rules */
+.checkout-minimum-notice{margin:0;padding:9px 11px;border:1px solid #eadfc9;border-radius:4px;background:#fffaf1;color:#8c6a2f;font-size:10px;line-height:1.7}
+.summary-shipping-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #edf0f2;color:#687d8e;font-size:10px}
+.summary-shipping-row strong{color:#2f516b;font-size:11px}
+.summary-final-total{margin-top:2px;border-top:0;padding-top:10px}
+.summary-final-total span{color:#344e62;font-weight:800}
+.summary-final-total strong{color:#1d4e7e;font-size:18px}
