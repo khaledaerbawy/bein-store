@@ -43,7 +43,7 @@ export default function Storefront({ products, categories, initialQuery = "", in
   });
   return <>
     <div className="catalog-tools">
-      <label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث باسم المنتج أو الموديل أو الكود" aria-label="البحث عن منتج" /></label>
+      <label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث عن المنتج أو الموديل" aria-label="البحث عن منتج" /></label>
       <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="تصفية حسب القسم"><option value="all">كل الأقسام</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar}</option>)}</select>
       <select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="تصفية حسب الماركة"><option value="all">كل الماركات</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}</select>
       <span className="results-count">{filtered.length} منتج</span>
@@ -55,9 +55,7 @@ export default function Storefront({ products, categories, initialQuery = "", in
           {product.is_featured && <span className="featured-badge">اختيار مميز</span>}
         </Link>
         <div className="product-info"><div className="product-brand">{product.brand ?? "BEIN STORE"}</div><Link href={`/products/${product.slug}`}><h3>{product.name_ar}</h3></Link>
-          {product.model && <p className="product-model">الموديل: {product.model}</p>}
-          {product.sku && <p className="product-model">كود المنتج: {product.sku}</p>}
-          {getTechnicalSpecs(product).length > 0 && <div className="product-tech-specs" aria-label="المواصفات الفنية">{getTechnicalSpecs(product).map((spec) => <span key={spec.label}><small>{spec.label}</small><b>{spec.value}</b></span>)}</div>}
+          {product.model && <p className="product-model">الموديل: <b dir="ltr">{product.model}</b></p>}
           <div className="product-bottom"><strong>{formatPrice(Number(product.price_egp))}</strong><button type="button" className={`add-cart ${lastAdded?.id === product.id ? "is-added" : ""}`} onClick={() => add(product)} aria-label={`أضف ${product.name_ar} للسلة`} aria-pressed={lastAdded?.id === product.id}>{lastAdded?.id === product.id ? "✓ تمت الإضافة" : "+ أضف للسلة"}</button></div>
         </div>
       </article>)}
