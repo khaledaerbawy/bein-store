@@ -7,6 +7,29 @@ import { useCart } from "@/components/cart-provider";
 import ProductImage from "@/components/product-image";
 
 const formatPrice = (price: number) => new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(price);
+const technicalFields: Array<[string, string]> = [
+  ["resolution", "الدقة"],
+  ["lens", "العدسة"],
+  ["poe", "PoE"],
+  ["ir_range_m", "IR"],
+  ["protection", "الحماية"],
+  ["compression", "Codec"],
+  ["capacity", "السعة"],
+  ["sensor", "Sensor"],
+  ["audio", "Audio"],
+  ["type", "النوع"],
+];
+function getTechnicalSpecs(product: Product): Array<{ label: string; value: string }> {
+  return technicalFields
+    .map(([key, label]) => {
+      const raw = product.specifications?.[key];
+      if (typeof raw !== "string" && typeof raw !== "number") return null;
+      const value = String(raw).trim();
+      return value ? { label, value } : null;
+    })
+    .filter((field): field is { label: string; value: string } => field !== null)
+    .slice(0, 3);
+}
 export default function Storefront({ products, categories, initialQuery = "", initialCategoryId = "all" }: { products: Product[]; categories: Category[]; initialQuery?: string; initialCategoryId?: string }) {
   const [query, setQuery] = useState(initialQuery);
   const [brand, setBrand] = useState("all");
@@ -34,6 +57,7 @@ export default function Storefront({ products, categories, initialQuery = "", in
         <div className="product-info"><div className="product-brand">{product.brand ?? "BEIN STORE"}</div><Link href={`/products/${product.slug}`}><h3>{product.name_ar}</h3></Link>
           {product.model && <p className="product-model">الموديل: {product.model}</p>}
           {product.sku && <p className="product-model">كود المنتج: {product.sku}</p>}
+          {getTechnicalSpecs(product).length > 0 && <div className="product-tech-specs" aria-label="المواصفات الفنية">{getTechnicalSpecs(product).map((spec) => <span key={spec.label}><small>{spec.label}</small><b>{spec.value}</b></span>)}</div>}
           <div className="product-bottom"><strong>{formatPrice(Number(product.price_egp))}</strong><button type="button" className={`add-cart ${lastAdded?.id === product.id ? "is-added" : ""}`} onClick={() => add(product)} aria-label={`أضف ${product.name_ar} للسلة`} aria-pressed={lastAdded?.id === product.id}>{lastAdded?.id === product.id ? "✓ تمت الإضافة" : "+ أضف للسلة"}</button></div>
         </div>
       </article>)}
