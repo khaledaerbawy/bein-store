@@ -2429,3 +2429,26 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
  .storefront-page .commerce-section-head h2 {font-size:22px}
  .storefront-page .service-intro h2 {font-size:23px}
 }
+
+.storefront-page .product-tech-specs{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+  margin:8px 0 1px;
+}
+.storefront-page .product-tech-specs>span{
+  min-width:0;padding:6px 6px 5px;border:1px solid #e4eaee;background:#f8fafb;
+}
+.storefront-page .product-tech-specs small,
+.storefront-page .product-tech-specs b{display:block;min-width:0;overflow-wrap:anywhere}
+.storefront-page .product-tech-specs small{
+  margin-bottom:4px;color:#8798a4;font:8px Arial,Tahoma,sans-serif;letter-spacing:.1px;
+}
+.storefront-page .product-tech-specs b{
+  color:#45657a;font-size:8px;font-weight:800;line-height:1.45;
+}
+.storefront-page .product-model{overflow-wrap:anywhere}
+@media(max-width:800px){
+  .storefront-page .product-tech-specs{gap:4px}
+  .storefront-page .product-tech-specs>span{padding:5px 4px}
+  .storefront-page .product-tech-specs small{font-size:7px}
+  .storefront-page .product-tech-specs b{font-size:7px}
+}
