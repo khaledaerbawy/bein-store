@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data, error } = await supabase
     .from("products")
-    .select("slug")
+    .select("slug,model,description_ar,image_urls,specifications")
     .eq("is_active", true)
     .not("price_egp", "is", null)
     .order("name_ar", { ascending: true });
@@ -26,7 +26,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   for (const product of data ?? []) {
-    if (!product.slug) continue;
+    const indexable = product.specifications?.price_status === "confirmed"
+      && Boolean(product.model?.trim())
+      && Boolean(product.description_ar?.trim())
+      && Array.isArray(product.image_urls) && product.image_urls.length > 0;
+    if (!product.slug || !indexable) continue;
     entries.push({
       url: `${SITE_URL}/products/${encodeURIComponent(product.slug)}`,
       lastModified: now,
