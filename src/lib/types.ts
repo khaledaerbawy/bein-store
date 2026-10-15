@@ -70,3 +70,14 @@ export type StoreSettings = {
   updated_at?: string;
   updated_by?: string | null;
 };
+
+export type StoreBrand = {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  website_url: string | null;
+  description: string | null;
+  sort_order: number;
+  is_active: boolean;
+};
