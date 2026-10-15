@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import type { Category, Product, StoreSettings, StoreBrand, SiteBanner } from "@/lib/types";
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
@@ -6,6 +7,28 @@ import ProductImage from "@/components/product-image";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\\/+$/, "");
+const LOCAL_SEO_DESCRIPTION = "بين ستور في 6 أكتوبر، الجيزة: كاميرات مراقبة هيكفيجن وهيلوك، أجهزة DVR وNVR، هاردات تخزين، سويتشات PoE وكابلات. اسألنا عن الموديل والسعر والتوصيل.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = await createClient();
+  let title = "بين ستور | كاميرات مراقبة وDVR في 6 أكتوبر";
+  let description = LOCAL_SEO_DESCRIPTION;
+  if (supabase) {
+    const { data } = await supabase.from("store_settings").select("store_name,page_title,meta_description").eq("id", "main").maybeSingle();
+    if (data?.page_title?.trim()) title = data.page_title.trim();
+    if (data?.meta_description?.trim()) description = data.meta_description.trim();
+  }
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+    openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: "Bein Store", title, description },
+    twitter: { card: "summary_large_image", title, description }
+  };
+}
 
 async function getCategories(): Promise<Category[]> {
   const supabase = await createClient();
@@ -141,7 +164,62 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const heroProduct = products.find((product) => product.brand === "Hikvision" && product.model?.startsWith("DS-2CD") && product.image_urls?.length) ?? products.find((product) => product.category_id === categories.find((item) => item.slug === "security-cameras")?.id && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
   const heroRecorder = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "recorders" && product.image_urls?.length) ?? null;
   const heroStorage = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "storage" && product.image_urls?.length) ?? null;
-  return <main className="storefront-page" dir="rtl" style={{ "--store-primary": site.primary_color, "--store-accent": site.accent_color } as React.CSSProperties}>
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "@id": `${SITE_URL}/#store`,
+      name: site.store_name || "Bein Store",
+      alternateName: ["بين ستور", "Bein Store"],
+      url: SITE_URL,
+      description: site.meta_description || LOCAL_SEO_DESCRIPTION,
+      areaServed: [
+        { "@type": "City", name: "6th of October City" },
+        { "@type": "AdministrativeArea", name: "Giza Governorate" }
+      ],
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "6th of October City",
+        addressRegion: "Giza",
+        addressCountry: "EG"
+      },
+      ...(storePhone ? { telephone: storePhone } : {}),
+      ...(storeWhatsapp ? { contactPoint: { "@type": "ContactPoint", telephone: `+${storeWhatsapp}`, contactType: "customer service", availableLanguage: ["Arabic"] } } : {}),
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "كاميرات مراقبة وأجهزة تسجيل وشبكات",
+        itemListElement: categories.slice(0, 12).map((category) => ({
+          "@type": "OfferCatalog",
+          name: category.name_ar,
+          url: `${SITE_URL}/?category=${encodeURIComponent(category.slug)}#catalog`
+        }))
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: site.store_name || "Bein Store",
+      alternateName: "بين ستور",
+      inLanguage: "ar-EG",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/?q={search_term_string}` },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ];
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      { "@type": "Question", name: "فين أشتري كاميرات مراقبة في 6 أكتوبر؟", acceptedAnswer: { "@type": "Answer", text: "تقدر تتصفح منتجات Bein Store على الموقع وتتواصل مع المتجر لتأكيد الموديل والسعر والتوافر ومواعيد التوصيل قبل اعتماد الطلب." } },
+      { "@type": "Question", name: "هل عندكم كاميرات Hikvision وHiLook وأجهزة DVR وNVR؟", acceptedAnswer: { "@type": "Answer", text: "الموقع مخصص لعرض كاميرات المراقبة وأجهزة التسجيل والشبكات. راجع الكتالوج أو اسأل المتجر عن توافر الموديل المحدد قبل الطلب." } },
+      { "@type": "Question", name: "بدور على بتاع دش في أكتوبر أو مستلزمات شبكات، أعمل إيه؟", acceptedAnswer: { "@type": "Answer", text: "تواصل مع Bein Store لتأكيد توافر مستلزمات الدش والشبكات والموديل المطلوب قبل الزيارة أو الطلب." } }
+    ]
+  };
+  return <main className="storefront-page" dir="rtl" style={{ "--store-primary": site.primary_color, "--store-accent": site.accent_color } as React.CSSProperties}><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData).replace(/</g, "\\u003c") }} />
     {site.show_announcement && <div className="utility-bar">
       <div className="utility-inner">
         <div className="utility-service-points"><span>{site.announcement_text}</span></div>
@@ -240,6 +318,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     )}
 
     {renderSiteBanners(banners, "before_footer")}
+
+    <section className="local-seo-section section-wrap" aria-labelledby="local-seo-heading">
+      <div className="section-heading"><div><span className="section-overline">BEIN STORE · 6 OCTOBER</span><h2 id="local-seo-heading">كاميرات مراقبة وشبكات في 6 أكتوبر والجيزة</h2></div></div>
+      <p>لو بتدور على كاميرات مراقبة للبيت أو المحل أو الشركة، أو أجهزة تسجيل DVR وNVR وهاردات تخزين وسويتشات PoE وكابلات، تصفّح كتالوج بين ستور. بنساعدك تراجع الموديل وتوافق المكونات، ونتأكد من السعر والتوافر والشحن قبل اعتماد الطلب.</p>
+      <p>بتدور على بتاع دش في أكتوبر أو مستلزمات دش وشبكات؟ تواصل معانا الأول عشان نأكد توافر القطعة المطلوبة قبل الزيارة.</p>
+      <div className="local-seo-faq">
+        <details><summary>إزاي أختار كاميرا مراقبة مناسبة؟</summary><p>حدد مكان التركيب، داخلي أو خارجي، الدقة المطلوبة، الرؤية الليلية وطريقة التسجيل. لو مش متأكد، ابعت تفاصيل المكان وعدد الكاميرات للمتجر.</p></details>
+        <details><summary>إيه الفرق بين DVR وNVR؟</summary><p>جهاز DVR غالبًا بيستخدم مع كاميرات الأنظمة التناظرية HD، أما NVR فبيستخدم لتسجيل كاميرات الشبكة IP. لازم تتأكد من توافق الكاميرات والمنافذ والطاقة قبل الشراء.</p></details>
+        <details><summary>هل الأسعار والتوافر نهائيين؟</summary><p>أي منتج سعره مبدئي أو مرجعي يحتاج تأكيد من المتجر. بنراجع رقم الموديل والسعر والتوافر ورسوم الشحن قبل اعتماد الطلب.</p></details>
+      </div>
+    </section>
 
     <footer className="commerce-footer" id="contact">
       <div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div>
