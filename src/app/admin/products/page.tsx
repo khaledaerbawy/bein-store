@@ -170,7 +170,7 @@ export default function AdminProductsPage() {
     const text = [p.name_ar, p.name_en, p.brand, p.model, p.sku, p.slug].filter(Boolean).join(" ").toLocaleLowerCase("ar");
     return (!q || text.includes(q))
       && (categoryFilter === "all" || p.category_id === categoryFilter)
-      && (statusFilter === "all" || (statusFilter === "active" ? p.is_active : statusFilter === "hidden" ? !p.is_active : p.specifications?.price_status === "provisional_estimate"));
+      && (statusFilter === "all" || (statusFilter === "active" ? p.is_active : statusFilter === "hidden" ? !p.is_active : typeof p.specifications?.price_status === "string" && p.specifications.price_status !== "confirmed"));
   });
   function toggleSelected(id: string, checked: boolean) {
     setSelectedIds(current => checked ? (current.includes(id) ? current : [...current, id]) : current.filter(item => item !== id));
@@ -257,7 +257,7 @@ export default function AdminProductsPage() {
         <div className="admin-products-filters">
           <label>بحث<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="اسم، موديل، ماركة أو SKU"/></label>
           <label>القسم<select value={categoryFilter} onChange={e=>setCategoryFilter(e.target.value)}><option value="all">كل الأقسام</option>{categories.map(category=><option key={category.id} value={category.id}>{category.name_ar}</option>)}</select></label>
-          <label>الحالة<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">الكل</option><option value="active">منشور</option><option value="hidden">مخفي</option><option value="provisional">سعر مبدئي</option></select></label>
+          <label>الحالة<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">الكل</option><option value="active">منشور</option><option value="hidden">مخفي</option><option value="provisional">يحتاج تأكيد</option></select></label>
         </div>
         <div className="admin-bulk-actions">
           <label className="admin-bulk-select"><input type="checkbox" checked={filteredProducts.length>0&&filteredProducts.every(p=>selectedIds.includes(p.id))} onChange={e=>toggleVisible(e.target.checked)}/> تحديد النتائج الظاهرة</label>
