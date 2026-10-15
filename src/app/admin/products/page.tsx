@@ -109,7 +109,12 @@ export default function AdminProductsPage() {
     if (comparePrice !== null && (!Number.isFinite(comparePrice) || comparePrice < 0)) { setMessage("اكتب سعر مقارنة صحيحًا أو اتركه فارغًا."); setBusy(false); return; }
     if (comparePrice !== null && price !== null && comparePrice < price) { setMessage("سعر المقارنة لازم يكون مساويًا للسعر الحالي أو أعلى منه."); setBusy(false); return; }
     if (draft.is_active && price === null) { setMessage("أضف السعر المعتمد قبل نشر المنتج."); setBusy(false); return; }
-    const specifications = Object.fromEntries(draft.specifications.map(item => [item.name.trim(), item.value.trim()]).filter(([name,value]) => Boolean(name) && Boolean(value)));
+    const specifications: Record<string, unknown> = {};
+    for (const item of draft.specifications) {
+      const name = item.name.trim();
+      const value = item.value.trim();
+      if (name && value) specifications[name] = value;
+    }
     const payload = {
       category_id: draft.category_id || null,
       name_ar: draft.name_ar.trim(), name_en: draft.name_en.trim() || draft.name_ar.trim(),
