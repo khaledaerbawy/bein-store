@@ -39,6 +39,9 @@ const defaults: SettingsDraft = {
   phone: null,
   whatsapp: null,
   address: null,
+  show_phone: true,
+  show_whatsapp: true,
+  show_address: true,
   footer_text: "كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.",
   primary_color: "#1766bf",
   accent_color: "#f1f6fa"
