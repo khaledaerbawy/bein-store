@@ -11,10 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!supabase) {
     return {
       metadataBase: new URL(SITE_URL),
-      title: { default: "Bein Store | بين ستور لكاميرات المراقبة والشبكات في 6 أكتوبر", template: "%s | Bein Store" },
+      title: { default: "Bein Store | بين ستور لكاميرات المراقبة والشبكات في 6 أكتوبر", template: "%s" },
       description: "Bein Store (بين ستور) لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات ومستلزمات التركيب في 6 أكتوبر، الجيزة، مصر.",
       applicationName: "Bein Store",
-      alternates: { canonical: "/" },
       robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
       openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: "Bein Store", title: "Bein Store | بين ستور لكاميرات المراقبة والشبكات", description: "كاميرات مراقبة، أجهزة DVR وNVR، هيلوك وهيكفيجن وشبكات ومستلزمات تركيب." },
       twitter: { card: "summary_large_image", title: "Bein Store | بين ستور", description: "كاميرات مراقبة وأجهزة تسجيل وشبكات في 6 أكتوبر، الجيزة." }
@@ -25,10 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = data?.meta_description?.trim() || "Bein Store (بين ستور) لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات ومستلزمات التركيب في 6 أكتوبر، الجيزة، مصر.";
   const result: Metadata = {
     metadataBase: new URL(SITE_URL),
-    title: { default: title || "Bein Store | بين ستور لكاميرات المراقبة والشبكات في 6 أكتوبر", template: "%s | Bein Store" },
+    title: { default: title || "Bein Store | بين ستور لكاميرات المراقبة والشبكات في 6 أكتوبر", template: "%s" },
     description,
     applicationName: data?.store_name || "Bein Store",
-    alternates: { canonical: "/" },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
     openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: data?.store_name || "Bein Store", title, description },
     twitter: { card: "summary_large_image", title, description }
