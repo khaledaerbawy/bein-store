@@ -39,8 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     || "منتجات كاميرات المراقبة وأجهزة التسجيل والشبكات من Bein Store في 6 أكتوبر، الجيزة.";
   const title = `${data.name_ar} | بين ستور`;
   const url = `${SITE_URL}/products/${encodeURIComponent(data.slug)}`;
-  const indexable = data.specifications?.price_status === "confirmed"
-    && Boolean(data.model?.trim())
+  const indexable = Boolean(data.model?.trim())
     && Boolean(data.description_ar?.trim())
     && Array.isArray(data.image_urls) && data.image_urls.length > 0;
   return {
