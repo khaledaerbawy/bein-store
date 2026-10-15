@@ -27,7 +27,16 @@ export async function POST(request: Request) {
   }
   const { data, error } = await supabase.rpc("create_public_order", { p_customer: customer, p_items: items });
   if (error) {
-    const known = error.message.includes("PRODUCT_UNAVAILABLE") ? "أحد المنتجات لم يعد متاحًا بالسعر الحالي. حدّث السلة وحاول مرة أخرى." : error.message.includes("INSUFFICIENT_STOCK") ? "الكمية المطلوبة غير متاحة حاليًا." : "تعذر تسجيل الطلب. حاول مرة أخرى أو تواصل معنا عبر واتساب.";
+    let known = "تعذر تسجيل الطلب. حاول مرة أخرى أو تواصل معنا عبر واتساب.";
+    if (error.message.includes("PRODUCT_UNAVAILABLE")) known = "أحد المنتجات لم يعد متاحًا بالسعر الحالي. حدّث السلة وحاول مرة أخرى.";
+    else if (error.message.includes("INSUFFICIENT_STOCK")) known = "الكمية المطلوبة غير متاحة حاليًا.";
+    else if (error.message.includes("ORDER_BELOW_MINIMUM:")) {
+      const value = Number(error.message.split("ORDER_BELOW_MINIMUM:")[1]?.match(/^\s*([0-9.]+)/)?.[1]);
+      known = Number.isFinite(value) ? "الحد الأدنى لقيمة الطلب " + new Intl.NumberFormat("ar-EG").format(value) + " جنيه." : "قيمة الطلب أقل من الحد الأدنى المسموح.";
+    } else if (error.message.includes("ORDERS_PAUSED:")) {
+      const paused = error.message.split("ORDERS_PAUSED:")[1]?.trim();
+      known = paused || "استقبال الطلبات متوقف مؤقتًا. تواصل مع المتجر للاستفسار.";
+    }
     console.error("Order creation failed:", error.message);
     return NextResponse.json({ error: known }, { status: 400 });
   }
