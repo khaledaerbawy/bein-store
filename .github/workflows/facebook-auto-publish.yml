@@ -1,0 +1,51 @@
+name: Facebook auto publish
+
+on:
+  schedule:
+    # GitHub cron uses UTC. In Egypt this is 10/11 AM, 2/3 PM and 6/7 PM depending on daylight saving time.
+    - cron: "0 8,12,16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: facebook-auto-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Playwright
+        run: npm install --no-save --package-lock=false playwright@1.56.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Publish one post to each configured Page
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION }}
+          META_PAGE_1_ID: ${{ secrets.META_PAGE_1_ID }}
+          META_PAGE_1_ACCESS_TOKEN: ${{ secrets.META_PAGE_1_ACCESS_TOKEN }}
+          META_PAGE_1_LABEL: ${{ vars.META_PAGE_1_LABEL }}
+          META_PAGE_2_ID: ${{ secrets.META_PAGE_2_ID }}
+          META_PAGE_2_ACCESS_TOKEN: ${{ secrets.META_PAGE_2_ACCESS_TOKEN }}
+          META_PAGE_2_LABEL: ${{ vars.META_PAGE_2_LABEL }}
+          META_PAGE_3_ID: ${{ secrets.META_PAGE_3_ID }}
+          META_PAGE_3_ACCESS_TOKEN: ${{ secrets.META_PAGE_3_ACCESS_TOKEN }}
+          META_PAGE_3_LABEL: ${{ vars.META_PAGE_3_LABEL }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node scripts/social-publisher.mjs
