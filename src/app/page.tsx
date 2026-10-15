@@ -305,7 +305,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
     {site.show_services && (
     <section className="service-section" id="services">
-      <div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
+      <div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a><Link className="local-seo-inline-link" href="/services/cameras-6-october">كاميرات مراقبة وشبكات في 6 أكتوبر ←</Link></div>
       <div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>حدّد عدد الكاميرات</b><p>والأماكن الداخلية والخارجية المطلوب تغطيتها.</p></div></div><div className="service-step"><span>03</span><div><b>اختار طريقة التسجيل</b><p>DVR أو NVR مع سعة تخزين مناسبة.</p></div></div><div className="service-step"><span>04</span><div><b>راجع توافق المكونات</b><p>نتأكد من التوصيلات والملحقات قبل التجهيز.</p></div></div></div>
     </section>
 
