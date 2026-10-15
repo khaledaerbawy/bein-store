@@ -11,10 +11,50 @@ export type Product = {
   description_en: string | null;
   specifications: Record<string, unknown>;
   price_egp: number | null;
+  compare_at_price_egp?: number | null;
   image_urls: string[];
   is_active: boolean;
   is_featured: boolean;
 };
 
-export type Category = { id: string; name_ar: string; name_en: string; slug: string; sort_order: number };
+export type Category = {
+  id: string;
+  name_ar: string;
+  name_en: string;
+  slug: string;
+  sort_order: number;
+  description_ar?: string | null;
+  description_en?: string | null;
+  image_url?: string | null;
+  is_active?: boolean;
+};
 
+export type StoreSettings = {
+  id: string;
+  store_name: string;
+  logo_url: string | null;
+  favicon_url: string | null;
+  page_title: string;
+  meta_description: string;
+  announcement_text: string;
+  show_announcement: boolean;
+  hero_badge: string;
+  hero_title: string;
+  hero_title_highlight: string;
+  hero_description: string;
+  hero_image_url: string | null;
+  hero_cta_text: string;
+  show_hero: boolean;
+  show_categories: boolean;
+  show_catalog: boolean;
+  show_brands: boolean;
+  show_services: boolean;
+  phone: string | null;
+  whatsapp: string | null;
+  address: string | null;
+  footer_text: string;
+  primary_color: string;
+  accent_color: string;
+  updated_at?: string;
+  updated_by?: string | null;
+};
