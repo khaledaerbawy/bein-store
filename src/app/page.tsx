@@ -74,6 +74,14 @@ const defaultStoreSettings: StoreSettings = {
   hero_image_url: null, hero_cta_text: "تسوّق المنتجات",
   show_hero: true, show_categories: true, show_catalog: true, show_brands: true, show_services: true,
   phone: null, whatsapp: null, address: null, show_phone: true, show_whatsapp: true, show_address: true,
+  orders_enabled: true,
+  orders_paused_message: "استقبال الطلبات متوقف مؤقتًا. تواصل مع المتجر للاستفسار.",
+  shipping_fee_egp: 0,
+  free_shipping_threshold_egp: null,
+  minimum_order_egp: 0,
+  whatsapp_order_confirmation: true,
+  allow_order_notes: true,
+  delivery_time_text: "موعد التوصيل ورسوم الشحن يتم تأكيدهما مع المتجر بعد مراجعة العنوان.",
   footer_text: "كاميرات مراقبة وأنظمة تسجيل وشبكات ومستلزمات تركيب، مع مساعدة في اختيار المكونات المناسبة.",
   primary_color: "#1766bf", accent_color: "#f1f6fa"
 };
