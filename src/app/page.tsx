@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Category, Product, StoreSettings } from "@/lib/types";
+import type { Category, Product, StoreSettings, StoreBrand } from "@/lib/types";
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
 import ProductImage from "@/components/product-image";
@@ -21,6 +21,14 @@ async function getProducts(): Promise<Product[]> {
   const { data, error } = await supabase.from("products").select("id,category_id,sku,slug,name_ar,name_en,brand,model,description_ar,description_en,specifications,price_egp,image_urls,is_active,is_featured").eq("is_active", true).not("price_egp", "is", null).order("is_featured", { ascending: false }).order("name_ar", { ascending: true });
   if (error) { console.error("Catalog query failed:", error.message); return []; }
   return (data ?? []) as Product[];
+}
+
+async function getBrands(): Promise<StoreBrand[]> {
+  const supabase = await createClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase.from("store_brands").select("id,name,slug,logo_url,website_url,description,sort_order,is_active").eq("is_active", true).order("sort_order", { ascending: true }).order("name", { ascending: true });
+  if (error) { console.error("Brand query failed:", error.message); return []; }
+  return (data ?? []) as StoreBrand[];
 }
 
 const categoryDetails: Record<string, { code: string; title: string; description: string }> = {
@@ -81,7 +89,7 @@ async function getStoreSettings(): Promise<StoreSettings> {
 }
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
-  const [{ q = "", category: categorySlug = "" }, products, categories, site] = await Promise.all([searchParams, getProducts(), getCategories(), getStoreSettings()]);
+  const [{ q = "", category: categorySlug = "" }, products, categories, site, brands] = await Promise.all([searchParams, getProducts(), getCategories(), getStoreSettings(), getBrands()]);
   const initialCategoryId = categories.find((item) => item.slug === categorySlug)?.id ?? "all";
   const storePhone = site.show_phone ? (site.phone || process.env.NEXT_PUBLIC_STORE_PHONE || "").trim() : "";
   const storeWhatsapp = site.show_whatsapp ? (site.whatsapp || process.env.NEXT_PUBLIC_STORE_WHATSAPP || "").replace(/\D/g, "") : "";
@@ -174,7 +182,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     )}
 
     {site.show_brands && (
-    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">{site.brands_title}</span><div className="brand-logo-list"><div className="brand-logo-card"><img src="https://www.hikvision.com/content/dam/hikvision/uk/marketing-portal/logos/hikvision/Hikvision%20Logo.PNG" alt="Hikvision" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-hilook" aria-label="HiLook"><span>HiLook</span></div><div className="brand-logo-card"><img src="https://material.dahuasecurity.com/uploads/image/20200615/20200615135430_98836.png" alt="Dahua Technology" loading="lazy" /></div><div className="brand-logo-card brand-wordmark-unv" aria-label="UNV Uniview"><span>UNV</span><small>UNIVIEW</small></div></div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
+    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">{site.brands_title}</span><div className="brand-logo-list">{brands.map(brand => <div className="brand-logo-card" key={brand.id}>{brand.website_url ? <a href={brand.website_url} target="_blank" rel="noreferrer" aria-label={brand.name}>{brand.logo_url ? <img src={brand.logo_url} alt={brand.name} loading="lazy" /> : <span className="brand-managed-wordmark">{brand.name}</span>}</a> : brand.logo_url ? <img src={brand.logo_url} alt={brand.name} loading="lazy" /> : <span className="brand-managed-wordmark">{brand.name}</span>}</div>)}</div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
 
     )}
 
