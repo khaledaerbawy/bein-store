@@ -2042,3 +2042,29 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 @media(prefers-reduced-motion:reduce) {
  .admin-shell-nav-link,.admin-dashboard-shortcut>span:last-child {transition:none}
 }
+
+
+/* Store settings screen */
+.admin-settings-page{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.admin-settings-panel{min-width:0;border:1px solid #e0e5e9;border-radius:5px;background:#fff}
+.admin-settings-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:13px;padding:17px 18px;border-bottom:1px solid #e9edf0}
+.admin-settings-panel-head h2{margin:0;color:#2d4357;font-size:15px;font-weight:800}
+.admin-settings-panel-head p{margin:5px 0 0;color:#89939d;font-size:10px;line-height:1.8}
+.admin-settings-panel-head>span{display:grid;place-items:center;width:28px;height:28px;border:1px solid #e1e6eb;border-radius:4px;color:#728394;font-size:10px}
+.admin-settings-fields{padding:0 18px}
+.admin-setting-field{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #edf0f2;min-width:0}
+.admin-setting-field:last-child{border-bottom:0}
+.admin-setting-field>div{min-width:0;flex:1}
+.admin-setting-field b,.admin-setting-field small{display:block}
+.admin-setting-field b{color:#3b4f61;font-size:11px;font-weight:800}
+.admin-setting-field small{margin-top:4px;color:#98a1aa;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9px;overflow-wrap:anywhere}
+.admin-setting-field output{max-width:55%;padding:6px 8px;border:1px solid #e4e8ec;border-radius:3px;background:#fafbfc;color:#66737f;font-size:10px;line-height:1.6;text-align:left;overflow-wrap:anywhere}
+.admin-setting-field output.admin-setting-status{max-width:none;color:#4c6c86;background:#f6f8fa}
+.admin-settings-note{margin:0 18px 15px;padding:10px 12px;border:1px solid #e5e8eb;border-radius:3px;background:#fafbfc;color:#7e8993;font-size:10px;line-height:1.9}
+.admin-settings-action{display:inline-flex;align-items:center;min-height:36px;margin:0 18px 18px;padding:0 12px;border-radius:4px;background:#244f75;color:#fff;font-size:10px;font-weight:800;text-decoration:none}
+.admin-settings-action:hover{background:#193f61}
+.admin-settings-links{display:flex;gap:7px;flex-wrap:wrap;padding:15px 18px;border-top:1px solid #edf0f2}
+.admin-settings-links a{display:inline-flex;align-items:center;min-height:33px;padding:0 10px;border:1px solid #dce3e8;border-radius:4px;color:#315a7f;background:#fff;font-size:10px;font-weight:700;text-decoration:none}
+.admin-settings-links a:hover{background:#f2f6f9}
+@media(max-width:900px){.admin-settings-page{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:480px){.admin-setting-field{align-items:flex-start;flex-direction:column;gap:8px}.admin-setting-field output{max-width:100%;width:100%;text-align:right}.admin-settings-panel-head{padding:14px}.admin-settings-fields{padding:0 14px}.admin-settings-note{margin-inline:14px}.admin-settings-action{margin-inline:14px}.admin-settings-links{padding:12px 14px}}
