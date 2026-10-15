@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/types";
 import ProductDetailActions from "@/components/product-detail-actions";
 import ProductGallery from "@/components/product-gallery";
+import SiteBrand from "@/components/site-brand";
 export const dynamic = "force-dynamic";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -14,7 +15,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (error || !data) notFound();
   const p = data as Product;
   const money = new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(Number(p.price_egp));
-  return <main className="subpage product-page" dir="rtl"><header className="subpage-header"><Link className="brand" href="/"><span className="brand-mark">B</span><span>Bein <b>Store</b></span></Link><div className="subpage-header-actions"><Link href="/#catalog">مواصلة التسوق ←</Link><Link className="subpage-cart-link" href="/cart">عرض السلة</Link></div></header>
+  return <main className="subpage product-page" dir="rtl"><header className="subpage-header"><SiteBrand className="brand" /><div className="subpage-header-actions"><Link href="/#catalog">مواصلة التسوق ←</Link><Link className="subpage-cart-link" href="/cart">عرض السلة</Link></div></header>
     <section className="section-wrap product-detail-wrap"><div className="breadcrumbs"><Link href="/">الرئيسية</Link> <span>›</span> <Link href="/#catalog">المنتجات</Link> <span>›</span> <span>{p.name_ar}</span></div>
       <article className="product-detail"><ProductGallery product={p} />
         <div className="detail-copy"><span className="product-brand-pill">{p.brand ?? "BEIN STORE"}</span><h1 className="page-title">{p.name_ar}</h1>{p.model && <p className="product-model">الموديل: <b dir="ltr">{p.model}</b></p>}{p.sku && <p className="product-model">كود المنتج: {p.sku}</p>}
