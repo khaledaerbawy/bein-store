@@ -3292,3 +3292,8 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 .summary-final-total{margin-top:2px;border-top:0;padding-top:10px}
 .summary-final-total span{color:#344e62;font-weight:800}
 .summary-final-total strong{color:#1d4e7e;font-size:18px}
+
+/* Shared customer subpage branding follows the site logo and name configured by admin */
+.site-subpage-logo{display:block;width:auto;max-width:150px;height:36px;object-fit:contain}
+.site-subpage-brand-name{color:inherit;font-size:inherit;font-weight:800;letter-spacing:0}
+@media(max-width:520px){.site-subpage-logo{max-width:112px;height:31px}.site-subpage-brand-name{font-size:17px}}
