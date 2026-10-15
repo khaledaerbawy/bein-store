@@ -67,7 +67,13 @@ export default function AdminSettingsPage() {
     setUserId(user.id);
     const { data, error } = await supabase.from("store_settings").select("*").eq("id", "main").maybeSingle();
     if (error) setMessage("تعذر تحميل إعدادات الموقع: " + error.message);
-    else if (data) setForm({ ...defaults, ...data, id: "main" } as SettingsDraft);
+    else if (data) {
+      const loaded = { ...defaults, ...data, id: "main" } as SettingsDraft;
+      if (!loaded.phone) loaded.phone = process.env.NEXT_PUBLIC_STORE_PHONE?.trim() || null;
+      if (!loaded.whatsapp) loaded.whatsapp = process.env.NEXT_PUBLIC_STORE_WHATSAPP?.trim() || null;
+      if (!loaded.address) loaded.address = process.env.NEXT_PUBLIC_STORE_ADDRESS?.trim() || null;
+      setForm(loaded);
+    }
     setLoading(false);
   }, [router]);
 
@@ -209,6 +215,11 @@ export default function AdminSettingsPage() {
               <label>رقم الهاتف<input type="tel" value={text(form.phone)} onChange={e => update("phone", e.target.value || null)} placeholder="+20..." /></label>
               <label>رقم واتساب مع كود الدولة<input type="tel" value={text(form.whatsapp)} onChange={e => update("whatsapp", e.target.value || null)} placeholder="2010xxxxxxxx" /></label>
               <label>عنوان المتجر<input value={text(form.address)} onChange={e => update("address", e.target.value || null)} placeholder="العنوان (اختياري)" /></label>
+              <div className="settings-visibility-list settings-contact-visibility">
+                <label className="settings-visibility-row"><span><b>إظهار رقم الهاتف</b><small>عرض الهاتف في رأس الموقع والفوتر</small></span><input type="checkbox" checked={form.show_phone} onChange={e => update("show_phone", e.target.checked)} /></label>
+                <label className="settings-visibility-row"><span><b>إظهار واتساب</b><small>إظهار زر التواصل وإرسال الطلبات عبر واتساب</small></span><input type="checkbox" checked={form.show_whatsapp} onChange={e => update("show_whatsapp", e.target.checked)} /></label>
+                <label className="settings-visibility-row"><span><b>إظهار العنوان</b><small>عرض عنوان المتجر في الفوتر</small></span><input type="checkbox" checked={form.show_address} onChange={e => update("show_address", e.target.checked)} /></label>
+              </div>
             </article>
             <article className="settings-editor-card"><div className="settings-editor-card-head"><span>06</span><div><h3>نص التذييل (Footer)</h3><p>الكلام التعريفي في أسفل الموقع.</p></div></div>
               <label>النص التعريفي<textarea rows={4} value={form.footer_text} onChange={e => update("footer_text", e.target.value)} maxLength={600} /></label>
