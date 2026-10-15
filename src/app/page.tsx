@@ -59,8 +59,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   return <main className="storefront-page" dir="rtl">
     <div className="utility-bar">
       <div className="utility-inner">
-        <span>Bein Store — كاميرات مراقبة وشبكات وأنظمة أمنية</span>
-        <div className="utility-links"><span>مصر</span><span className="utility-separator">|</span><a href="#contact">خدمة العملاء</a></div>
+        <div className="utility-service-points"><span>مراجعة الموديل والتوافق قبل الطلب</span><span>تأكيد السعر والتوفر مع المتجر</span><span>مساعدة فنية لاختيار مكونات النظام</span></div>
+        <div className="utility-links"><span>EGP · مصر</span><span className="utility-separator">|</span><a href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>خدمة العملاء {storeWhatsapp ? "عبر واتساب ↗" : "↗"}</a></div>
       </div>
     </div>
 
@@ -71,11 +71,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <input type="search" name="q" defaultValue={q} placeholder="ابحث باسم المنتج أو الموديل…" aria-label="ابحث في منتجات Bein Store" />
         <button type="submit">بحث</button>
       </form>
-      <div className="header-actions">{storePhone ? <a className="header-phone" href={`tel:${storePhone.replace(/[^+\d]/g, "")}`}><span className="phone-mark" aria-hidden="true">☎</span><span><small>للاستفسارات والطلبات</small><b dir="ltr">{storePhone}</b></span></a> : <a className="header-phone" href="#contact"><span className="phone-mark" aria-hidden="true">☎</span><span><small>خدمة العملاء</small><b>تواصل مع المتجر</b></span></a>}<CartLink /></div>
+      <div className="header-actions">
+        {storeWhatsapp ? <a className="header-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="تواصل عبر واتساب"><span className="whatsapp-glyph">◔</span><span><small>تواصل معانا</small><b>واتساب</b></span></a> : null}
+        {storePhone ? <a className="header-phone" href={`tel:${storePhone.replace(/[^+\d]/g, "")}`}><span className="phone-mark" aria-hidden="true">☎</span><span><small>للاستفسارات والطلبات</small><b dir="ltr">{storePhone}</b></span></a> : !storeWhatsapp ? <a className="header-phone" href="#contact"><span className="phone-mark" aria-hidden="true">☎</span><span><small>خدمة العملاء</small><b>تواصل مع المتجر</b></span></a> : null}
+        <CartLink />
+      </div>
     </header>
     <nav className="store-nav-row" aria-label="القائمة الرئيسية">
-      <a href="#categories">الأقسام</a><a href="#catalog">كل المنتجات</a><a href="#services">التركيب وحلول المشروعات</a><a href="#brands">الماركات</a><a href="#contact">تواصل معنا</a>
-      <span className="nav-note"><i /> مساعدة في اختيار النظام المناسب</span>
+      <a className="nav-all-categories" href="#categories"><span aria-hidden="true">☰</span> جميع الأقسام</a>
+      {shownCategories.slice(0, 6).map((category) => <a key={category.id} href={`/?category=${encodeURIComponent(category.slug)}#catalog`}>{category.name_ar}</a>)}
+      <a href="#services">حلول المشروعات</a>
+      <span className="nav-note"><i /> مساعدة فنية في اختيار الموديل</span>
     </nav>
 
     <section className="commerce-hero tech-commerce-hero">
@@ -114,9 +120,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <div className="category-card-grid">
         {shownCategories.map((category, index) => {
           const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" };
+          const representativeProduct = products.find((product) => product.category_id === category.id && product.image_urls?.length) ?? null;
           return <a className="category-tile" href={`/?category=${encodeURIComponent(category.slug)}#catalog`} key={category.id}>
+            <span className="category-tile-image">
+              {representativeProduct ? <ProductImage product={representativeProduct} className="category-photo" /> : <span className="category-image-fallback">{detail.code}</span>}
+            </span>
             <span className="category-tile-top"><span>{detail.code}</span><span aria-hidden="true">↗</span></span>
-            <span className="category-tile-index">{detail.code}</span>
             <span className="category-tile-copy"><b>{category.name_ar || detail.title}</b><small>{detail.description}</small></span>
             <span className="category-tile-link">تصفّح القسم <span>←</span></span>
           </a>;
