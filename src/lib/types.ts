@@ -89,3 +89,23 @@ export type StoreBrand = {
   sort_order: number;
   is_active: boolean;
 };
+
+export type SiteBanner = {
+  id: string;
+  title: string;
+  kicker: string | null;
+  description: string | null;
+  image_url: string | null;
+  button_text: string | null;
+  button_url: string | null;
+  placement: "after_hero" | "after_categories" | "before_footer";
+  background_color: string;
+  text_color: string;
+  sort_order: number;
+  starts_at: string | null;
+  ends_at: string | null;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string | null;
+};
