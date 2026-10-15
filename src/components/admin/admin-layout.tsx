@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="admin-container" dir="rtl" style={{ display: 'flex', minHeight: '100vh', background: '#f7f8f5' }}>
-      <aside className="admin-sidebar" style={{ width: '260px', background: '#15201d', color: 'white', display: 'flex', flexSurink: 0, flexDirection: 'column' }}>
+      <aside className="admin-sidebar" style={{ width: '260px', background: '#15201d', color: 'white', display: 'flex', flexShrink: 0, flexDirection: 'column' }}>
         <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <Link href="/" className="brand">
             <span className="brand-mark">B</span>
@@ -63,8 +63,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <nav style={{ flex: 1, padding: '20px 0' }}>
           {navItems.map((item) => (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
               style={{
                 display: 'flex',
@@ -84,14 +84,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
         <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ fontSize: '12px', color: '#6c7772', marginBottom: '10px', wordBreak: 'break-all' }}>{email}</div>
-          <button 
+          <button
             onClick={signOut}
-            style={{ 
-              width: '100%', 
-              padding: '8px', 
-              background: 'transparent', 
-              border: '1px solid #6c7772', 
-              color: '#6c7772', 
+            style={{
+              width: '100%',
+              padding: '8px',
+              background: 'transparent',
+              border: '1px solid #6c7772',
+              color: '#6c7772',
               borderRadius: '4px',
               cursor: 'pointer'
             }}
