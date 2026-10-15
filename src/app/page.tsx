@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\\/+$/, "");
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
 const LOCAL_SEO_DESCRIPTION = "بين ستور في 6 أكتوبر، الجيزة: كاميرات مراقبة هيكفيجن وهيلوك، أجهزة DVR وNVR، هاردات تخزين، سويتشات PoE وكابلات. اسألنا عن الموديل والسعر والتوصيل.";
 
 export async function generateMetadata(): Promise<Metadata> {
