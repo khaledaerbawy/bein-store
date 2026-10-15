@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent, type InputHTMLAttributes } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Category, Product } from "@/lib/types";
 import AdminShell from "@/components/admin/admin-shell";
@@ -121,8 +120,14 @@ export default function AdminProductsPage() {
     const stock = draft.stock.trim() === "" ? null : Number(draft.stock);
     if (stock !== null) {
       if (!Number.isInteger(stock) || stock < 0) { setMessage("تم حفظ المنتج، لكن كمية المخزون يجب أن تكون رقمًا صحيحًا غير سالب."); setBusy(false); await load(); return; }
-      const { error: stockError } = await s.from("inventory").upsert({ product_id: productId, quantity_on_hand: stock, low_stock_threshold: 2 }, { onConflict: "product_id" });
-      if (stockError) { setMessage(`تم حفظ المنتج، لكن لم يتم حفظ المخزون: ${stockError.message}`); setBusy(false); await load(); return; }
+      const { error: stockError } = await s.rpc("admin_adjust_inventory", {
+        p_product_id: productId,
+        p_new_quantity: stock,
+        p_low_stock_threshold: 2,
+        p_reason: "تعديل من صفحة المنتج",
+        p_reference: "تعديل بيانات المنتج"
+      });
+      if (stockError) { setMessage(`تم حفظ المنتج، لكن لم يتم حفظ المخزون أو تسجيل حركته: ${stockError.message}`); setBusy(false); await load(); return; }
     }
     setMessage("تم حفظ المنتج."); setDraft(blank); await load(); setBusy(false);
   }
