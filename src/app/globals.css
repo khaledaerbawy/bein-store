@@ -3430,3 +3430,40 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
 .admin-tools-private-warning p{margin:5px 0 0;color:#8a7a61;font-size:9px;line-height:1.9}
 @media(max-width:1080px){.admin-tools-quality-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-tools-export-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.admin-tools-hero{align-items:flex-start;flex-direction:column;padding:16px}.admin-tools-hero h2{font-size:18px}.admin-tools-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.admin-tools-summary article{padding:12px}.admin-tools-summary b{font-size:21px}.admin-tools-quality-grid{grid-template-columns:minmax(0,1fr)}.admin-tools-export-list{grid-template-columns:minmax(0,1fr)}.admin-tools-section-heading{align-items:flex-start;flex-direction:column}.admin-tools-section-heading>span{white-space:normal}}
+
+
+/* Local search content: helpful, readable and accessible */
+.local-seo-section {
+  border-top: 1px solid var(--line);
+  background: rgba(255,255,255,.42);
+}
+.local-seo-section > p {
+  max-width: 850px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 2;
+  margin: 14px 0;
+}
+.local-seo-faq {
+  display: grid;
+  gap: 10px;
+  max-width: 900px;
+  margin-top: 26px;
+}
+.local-seo-faq details {
+  padding: 17px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.local-seo-faq summary {
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 14px;
+}
+.local-seo-faq details p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+  margin: 12px 0 0;
+}
