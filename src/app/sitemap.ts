@@ -26,8 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   for (const product of data ?? []) {
-    const indexable = product.specifications?.price_status === "confirmed"
-      && Boolean(product.model?.trim())
+    const indexable = Boolean(product.model?.trim())
       && Boolean(product.description_ar?.trim())
       && Array.isArray(product.image_urls) && product.image_urls.length > 0;
     if (!product.slug || !indexable) continue;
