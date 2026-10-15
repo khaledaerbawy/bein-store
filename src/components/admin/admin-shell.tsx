@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +23,20 @@ const links = [
 export default function AdminShell({ children, title, subtitle, userEmail, onSignOut }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [storeName, setStoreName] = useState("Bein Store");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const supabase = createClient();
+      if (!supabase) return;
+      const { data } = await supabase.from("store_settings").select("store_name,logo_url").eq("id", "main").maybeSingle();
+      if (!alive || !data) return;
+      setStoreName(data.store_name || "Bein Store");
+      setLogoUrl(data.logo_url || null);
+    })();
+    return () => { alive = false; };
+  }, []);
   async function handleSignOut() {
     if (onSignOut) { await onSignOut(); return; }
     const supabase = createClient();
@@ -33,13 +47,13 @@ export default function AdminShell({ children, title, subtitle, userEmail, onSig
   return (
     <div className="admin-shell-root" dir="rtl">
       <aside className="admin-shell-sidebar">
-        <Link href="/admin" className="admin-shell-brand">
-          <span className="admin-shell-logo">B<span>.</span></span>
-          <span className="admin-shell-wordmark">BEIN <b>STORE</b><small>SECURITY SYSTEMS</small></span>
+        <Link href="/admin" className="admin-shell-brand" aria-label={storeName + " الإدارة"}>
+          {logoUrl ? <img className="admin-shell-logo-image" src={logoUrl} alt={storeName} /> : <span className="admin-shell-logo">B<span>.</span></span>}
+          <span className="admin-shell-wordmark">{storeName}<small>SECURITY SYSTEMS</small></span>
         </Link>
         <div className="admin-shell-workspace">
           <span className="admin-shell-workspace-icon">B</span>
-          <span><b>Bein Store</b><small>مساحة الإدارة</small></span>
+          <span><b>{storeName}</b><small>مساحة الإدارة</small></span>
           <span className="admin-shell-chevron">⌄</span>
         </div>
         <div className="admin-shell-nav-label">القائمة الرئيسية</div>
@@ -60,11 +74,11 @@ export default function AdminShell({ children, title, subtitle, userEmail, onSig
       </aside>
       <div className="admin-shell-main">
         <header className="admin-shell-topbar">
-          <div className="admin-shell-topbar-title"><div className="admin-shell-breadcrumb">Bein Store <span>›</span> الإدارة <span>›</span> <b>{title}</b></div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
+          <div className="admin-shell-topbar-title"><div className="admin-shell-breadcrumb">{storeName} <span>›</span> الإدارة <span>›</span> <b>{title}</b></div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
           <div className="admin-shell-topbar-actions"><span className="admin-shell-live"><i/> المتجر متصل</span><Link href="/" className="admin-shell-preview">↗ <span>معاينة المتجر</span></Link><span className="admin-shell-top-avatar">هـ</span></div>
         </header>
         <main className="admin-shell-content">{children}</main>
-        <footer className="admin-shell-footer"><span>© {new Date().getFullYear()} Bein Store</span><span>لوحة إدارة المتجر · كاميرات مراقبة وشبكات</span></footer>
+        <footer className="admin-shell-footer"><span>© {new Date().getFullYear()} {storeName}</span><span>لوحة إدارة المتجر · كاميرات مراقبة وشبكات</span></footer>
       </div>
     </div>
   );
