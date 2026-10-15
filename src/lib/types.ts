@@ -61,6 +61,9 @@ export type StoreSettings = {
   phone: string | null;
   whatsapp: string | null;
   address: string | null;
+  show_phone: boolean;
+  show_whatsapp: boolean;
+  show_address: boolean;
   footer_text: string;
   primary_color: string;
   accent_color: string;
