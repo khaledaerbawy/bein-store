@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\\/+$/, "");
 import "./globals.css";
 import { CartProvider } from "@/components/cart-provider";
 import CartFeedback from "@/components/cart-feedback";
@@ -8,15 +10,28 @@ export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
   if (!supabase) {
     return {
-      title: "Bein Store | كاميرات المراقبة والشبكات",
-      description: "متجر Bein Store لكاميرات المراقبة وأجهزة التسجيل والشبكات."
+      metadataBase: new URL(SITE_URL),
+      title: { default: "Bein Store | بين ستور لكاميرات المراقبة والشبكات في 6 أكتوبر", template: "%s | Bein Store" },
+      description: "Bein Store (بين ستور) لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات ومستلزمات التركيب في 6 أكتوبر، الجيزة، مصر.",
+      applicationName: "Bein Store",
+      alternates: { canonical: "/" },
+      robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+      openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: "Bein Store", title: "Bein Store | بين ستور لكاميرات المراقبة والشبكات", description: "كاميرات مراقبة، أجهزة DVR وNVR، هيلوك وهيكفيجن وشبكات ومستلزمات تركيب." },
+      twitter: { card: "summary_large_image", title: "Bein Store | بين ستور", description: "كاميرات مراقبة وأجهزة تسجيل وشبكات في 6 أكتوبر، الجيزة." }
     };
   }
   const { data } = await supabase.from("store_settings").select("store_name,page_title,meta_description,favicon_url").eq("id", "main").maybeSingle();
   const title = data?.page_title?.trim() || data?.store_name || "Bein Store | كاميرات المراقبة والشبكات";
+  const description = data?.meta_description?.trim() || "Bein Store (بين ستور) لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات ومستلزمات التركيب في 6 أكتوبر، الجيزة، مصر.";
   const result: Metadata = {
-    title,
-    description: data?.meta_description || "متجر Bein Store لكاميرات المراقبة وأجهزة التسجيل والشبكات."
+    metadataBase: new URL(SITE_URL),
+    title: { default: title || "Bein Store | بين ستور لكاميرات المراقبة والشبكات في 6 أكتوبر", template: "%s | Bein Store" },
+    description,
+    applicationName: data?.store_name || "Bein Store",
+    alternates: { canonical: "/" },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+    openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: data?.store_name || "Bein Store", title, description },
+    twitter: { card: "summary_large_image", title, description }
   };
   if (data?.favicon_url) {
     result.icons = { icon: data.favicon_url, shortcut: data.favicon_url };
