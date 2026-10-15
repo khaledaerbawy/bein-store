@@ -104,6 +104,7 @@ export default function AdminToolsPage() {
       products: products.length,
       activeProducts: products.filter(p => p.is_active === true).length,
       missingPrice: products.filter(p => p.price_egp == null).length,
+      unconfirmedPrice: products.filter(p => p.specifications && typeof p.specifications === "object" && "price_status" in p.specifications && p.specifications.price_status !== "confirmed").length,
       missingModel: products.filter(p => !String(p.model ?? "").trim()).length,
       missingImages: products.filter(p => !Array.isArray(p.image_urls) || p.image_urls.length === 0).length,
       missingDescription: products.filter(p => !String(p.description_ar ?? "").trim()).length,
@@ -146,6 +147,7 @@ export default function AdminToolsPage() {
 
   const qualityItems = [
     { title: "أسعار غير محددة", value: counts.missingPrice, detail: "منتجات لا تُعرض في واجهة البيع ما دام السعر فارغًا.", bad: counts.missingPrice > 0 },
+    { title: "أسعار تحتاج تأكيد", value: counts.unconfirmedPrice, detail: "راجع الأسعار المبدئية والمرجعية قبل اعتمادها كسعر بيع نهائي.", bad: counts.unconfirmedPrice > 0 },
     { title: "موديلات غير مكتملة", value: counts.missingModel, detail: "راجع رقم الموديل أو سجّل أنه غير متاح.", bad: counts.missingModel > 0 },
     { title: "منتجات بلا صور", value: counts.missingImages, detail: "أضف صورة مناسبة قبل نشر المنتج.", bad: counts.missingImages > 0 },
     { title: "أقسام بلا صورة مخصصة", value: counts.categoriesWithoutImage, detail: "واجهة القسم تستخدم صورة بديلة إن لم تُرفع صورة.", bad: counts.categoriesWithoutImage > 0 },
