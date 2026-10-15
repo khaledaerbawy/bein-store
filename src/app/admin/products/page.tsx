@@ -30,6 +30,12 @@ const money = (n: number) => new Intl.NumberFormat("ar-EG").format(n) + " ج.م"
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "hidden">("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkCategoryId, setBulkCategoryId] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [draft, setDraft] = useState<Draft>(blank);
   const [message, setMessage] = useState("");
@@ -135,6 +141,58 @@ export default function AdminProductsPage() {
   const field = (label: string, key: keyof Draft, props: InputHTMLAttributes<HTMLInputElement> = {}) =>
     <label>{label}<input value={String(draft[key] ?? "")} onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} {...props} /></label>;
 
+  const filteredProducts = products.filter(p => {
+    const q = query.trim().toLocaleLowerCase("ar");
+    const text = [p.name_ar, p.name_en, p.brand, p.model, p.sku, p.slug].filter(Boolean).join(" ").toLocaleLowerCase("ar");
+    return (!q || text.includes(q))
+      && (categoryFilter === "all" || p.category_id === categoryFilter)
+      && (statusFilter === "all" || (statusFilter === "active" ? p.is_active : !p.is_active));
+  });
+  function toggleSelected(id: string, checked: boolean) {
+    setSelectedIds(current => checked ? (current.includes(id) ? current : [...current, id]) : current.filter(item => item !== id));
+  }
+  function toggleVisible(checked: boolean) {
+    setSelectedIds(current => checked
+      ? Array.from(new Set([...current, ...filteredProducts.map(p => p.id)]))
+      : current.filter(id => !filteredProducts.some(p => p.id === id)));
+  }
+  async function bulkSetActive(isActive: boolean) {
+    if (!selectedIds.length) return;
+    const selectedProducts = products.filter(p => selectedIds.includes(p.id));
+    if (isActive && selectedProducts.some(p => p.price_egp === null || p.price_egp === undefined)) {
+      setMessage("لا يمكن نشر المجموعة لأن فيها منتجات بدون سعر. أكمل الأسعار أو استبعد هذه المنتجات من التحديد.");
+      return;
+    }
+    const s = createClient(); if (!s) return;
+    setBulkBusy(true); setMessage("");
+    const { error } = await s.from("products").update({ is_active: isActive }).in("id", selectedIds);
+    setMessage(error ? "تعذر تحديث المجموعة: " + error.message : (isActive ? "تم نشر المنتجات المحددة." : "تم إخفاء المنتجات المحددة."));
+    if (!error) setSelectedIds([]);
+    setBulkBusy(false); await load();
+  }
+  async function bulkMoveCategory() {
+    if (!selectedIds.length) return;
+    if (!bulkCategoryId) { setMessage("اختار القسم الذي ستنقل إليه المنتجات."); return; }
+    const s = createClient(); if (!s) return;
+    const category_id = bulkCategoryId === "__none" ? null : bulkCategoryId;
+    setBulkBusy(true); setMessage("");
+    const { error } = await s.from("products").update({ category_id }).in("id", selectedIds);
+    setMessage(error ? "تعذر نقل المنتجات: " + error.message : "تم نقل المنتجات المحددة إلى القسم المختار.");
+    if (!error) { setSelectedIds([]); setBulkCategoryId(""); }
+    setBulkBusy(false); await load();
+  }
+  function exportCatalog() {
+    const categoryById = new Map(categories.map(category => [category.id, category.name_ar]));
+    const header = ["ID","اسم المنتج","Name (EN)","SKU","الماركة","الموديل","القسم","السعر EGP","الحالة","مميز","صور المنتج"];
+    const rows = products.map(p => [p.id,p.name_ar,p.name_en,p.sku ?? "",p.brand ?? "",p.model ?? "",p.category_id ? categoryById.get(p.category_id) ?? "" : "",p.price_egp == null ? "" : String(p.price_egp),p.is_active ? "منشور" : "مخفي",p.is_featured ? "نعم" : "لا",(p.image_urls ?? []).join(" | ")]);
+    const escape = (value: string) => '"' + value.replace(/"/g, '""') + '"';
+    const csv = [header, ...rows].map(row => row.map(value => escape(String(value ?? ""))).join(",")).join("\r\n");
+    const blob = new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a"); link.href = url; link.download = "bein-store-products.csv"; link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return <AdminShell title="المنتجات والأسعار" subtitle="إدارة الكتالوج والصور والأسعار وحالة ظهور المنتجات."><div className="admin-products-page">
     <section className="section-wrap admin-content-wrap">
       <form className="admin-product-form" onSubmit={save}>
@@ -159,10 +217,26 @@ export default function AdminProductsPage() {
         {message && <p className={message.includes("تم") ? "form-success" : "form-error"} role="status">{message}</p>}
         <p className="muted">لا يمكن نشر المنتج إذا كان السعر فارغًا. الصور تُرفع إلى مساحة تخزين عامة للعرض، والرفع والتعديل متاحان للمسؤولين فقط. لا يتم إنشاء مخزون افتراضي؛ اكتب الكمية فقط إذا كنت تريد تتبعها.</p>
       </form>
-      <h2 className="admin-list-title">المنتجات المسجلة ({products.length})</h2>
+      <div className="admin-products-management">
+        <div className="admin-products-management-head"><div><h2>الكتالوج المسجل ({products.length})</h2><p>بحث وفلاتر وتعديلات جماعية وتصدير نسخة CSV.</p></div><button type="button" onClick={exportCatalog}>تصدير الكتالوج CSV ↓</button></div>
+        <div className="admin-products-filters">
+          <label>بحث<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="اسم، موديل، ماركة أو SKU"/></label>
+          <label>القسم<select value={categoryFilter} onChange={e=>setCategoryFilter(e.target.value)}><option value="all">كل الأقسام</option>{categories.map(category=><option key={category.id} value={category.id}>{category.name_ar}</option>)}</select></label>
+          <label>الحالة<select value={statusFilter} onChange={e=>setStatusFilter(e.target.value as typeof statusFilter)}><option value="all">الكل</option><option value="active">منشور</option><option value="hidden">مخفي</option></select></label>
+        </div>
+        <div className="admin-bulk-actions">
+          <label className="admin-bulk-select"><input type="checkbox" checked={filteredProducts.length>0&&filteredProducts.every(p=>selectedIds.includes(p.id))} onChange={e=>toggleVisible(e.target.checked)}/> تحديد النتائج الظاهرة</label>
+          <span>{selectedIds.length} منتج محدد</span>
+          <button type="button" disabled={bulkBusy||!selectedIds.length} onClick={()=>void bulkSetActive(true)}>نشر المحدد</button>
+          <button type="button" disabled={bulkBusy||!selectedIds.length} onClick={()=>void bulkSetActive(false)}>إخفاء المحدد</button>
+          <label className="admin-bulk-category"><select value={bulkCategoryId} onChange={e=>setBulkCategoryId(e.target.value)}><option value="">نقل للقسم…</option><option value="__none">بدون قسم</option>{categories.map(category=><option key={category.id} value={category.id}>{category.name_ar}</option>)}</select></label>
+          <button type="button" disabled={bulkBusy||!selectedIds.length||!bulkCategoryId} onClick={()=>void bulkMoveCategory()}>تطبيق النقل</button>
+        </div>
+      </div>
+
       {loading ? <p>جارٍ تحميل المنتجات...</p> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>المنتج</th><th>السعر</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>
-        {products.map(p => <tr key={p.id}><td><b>{p.name_ar}</b><small>{p.brand ?? ""} {p.model ?? ""} {p.sku ? `· ${p.sku}` : ""}</small></td><td>{p.price_egp === null ? "عند الطلب" : money(Number(p.price_egp))}</td><td><span className={p.is_active ? "status-active" : "status-inactive"}>{p.is_active ? "منشور" : "مخفي"}</span></td><td><div className="table-actions"><button onClick={() => edit(p)}>تعديل</button><button onClick={() => void toggle(p)}>{p.is_active ? "إخفاء" : "نشر"}</button><button className="danger-button" onClick={() => void remove(p)}>حذف</button></div></td></tr>)}
-      </tbody></table>{!products.length && <p className="muted">لا توجد منتجات بعد. ابدأ بإضافة أول منتج.</p>}</div>}
+        {filteredProducts.map(p => <tr key={p.id}><td><div className="admin-product-selection"><input type="checkbox" checked={selectedIds.includes(p.id)} onChange={e=>toggleSelected(p.id,e.target.checked)} aria-label={"تحديد "+p.name_ar}/><span><b>{p.name_ar}</b><small>{p.brand ?? ""} {p.model ?? ""} {p.sku ? `· ${p.sku}` : ""}</small></span></div></td><td>{p.price_egp === null ? "عند الطلب" : money(Number(p.price_egp))}</td><td><span className={p.is_active ? "status-active" : "status-inactive"}>{p.is_active ? "منشور" : "مخفي"}</span></td><td><div className="table-actions"><button onClick={() => edit(p)}>تعديل</button><button onClick={() => void toggle(p)}>{p.is_active ? "إخفاء" : "نشر"}</button><button className="danger-button" onClick={() => void remove(p)}>حذف</button></div></td></tr>)}
+      </tbody></table>{!filteredProducts.length && <p className="muted">لا توجد منتجات مطابقة للبحث والفلاتر الحالية.</p>}</div>}
     </section>
   </div></AdminShell>;
 }
