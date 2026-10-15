@@ -314,9 +314,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     {renderSiteBanners(banners, "before_footer")}
 
     <section className="local-seo-section section-wrap" aria-labelledby="local-seo-heading">
-      <div className="section-heading"><div><span className="section-overline">BEIN STORE · 6 OCTOBER</span><h2 id="local-seo-heading">كاميرات مراقبة وشبكات في 6 أكتوبر والجيزة</h2></div></div>
-      <p>لو بتدور على كاميرات مراقبة للبيت أو المحل أو الشركة، أو أجهزة تسجيل DVR وNVR وهاردات تخزين وسويتشات PoE وكابلات، تصفّح كتالوج بين ستور. بنساعدك تراجع الموديل وتوافق المكونات، ونتأكد من السعر والتوافر والشحن قبل اعتماد الطلب.</p>
-      <p>بتدور على بتاع دش في أكتوبر أو مستلزمات دش وشبكات؟ تواصل معانا الأول عشان نأكد توافر القطعة المطلوبة قبل الزيارة.</p>
+      <div className="section-heading"><div><span className="section-overline">BEIN STORE · ONLINE STORE</span><h2 id="local-seo-heading">كاميرات مراقبة وأجهزة تسجيل وشبكات — اسأل عن التوصيل إلى 6 أكتوبر</h2></div></div>
+      <p>بين ستور متجر إلكتروني لعرض كاميرات المراقبة وأجهزة التسجيل DVR وNVR والهاردات وسويتشات PoE وكابلات الشبكات. لو بتبحث عن كاميرا أو جهاز بموديل محدد، افتح صفحة المنتج لمراجعة المواصفات والصور، وتأكد من السعر والتوافر والتوصيل مع المتجر قبل اعتماد الطلب.</p>
+      <p>بتبحث عن «بتاع دش في أكتوبر» أو مستلزمات دش وشبكات؟ ابعت اسم القطعة أو صورة الموديل واسأل عن التوافر وإمكانية التوصيل لمنطقتك. الموقع متجر إلكتروني، وليس عنوان محل لاستقبال الزوار.</p>
+      <nav className="local-seo-link-groups" aria-label="تصفح الأقسام والماركات">
+        <div><h3>تصفح الأقسام</h3><ul>{categories.filter(category => category.is_active !== false).map(category => <li key={category.id}><Link href={"/categories/" + encodeURIComponent(category.slug)}>{category.name_ar}</Link></li>)}</ul></div>
+        <div><h3>تصفح الماركات</h3><ul>{brands.filter(brand => brand.is_active).map(brand => <li key={brand.id}><Link href={"/brands/" + encodeURIComponent(brand.slug)}>منتجات {brand.name}</Link></li>)}</ul></div>
+      </nav>
       <div className="local-seo-faq">
         <details><summary>إزاي أختار كاميرا مراقبة مناسبة؟</summary><p>حدد مكان التركيب، داخلي أو خارجي، الدقة المطلوبة، الرؤية الليلية وطريقة التسجيل. لو مش متأكد، ابعت تفاصيل المكان وعدد الكاميرات للمتجر.</p></details>
         <details><summary>إيه الفرق بين DVR وNVR؟</summary><p>جهاز DVR غالبًا بيستخدم مع كاميرات الأنظمة التناظرية HD، أما NVR فبيستخدم لتسجيل كاميرات الشبكة IP. لازم تتأكد من توافق الكاميرات والمنافذ والطاقة قبل الشراء.</p></details>
