@@ -6,7 +6,8 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [
-    { url: SITE_URL, lastModified: now, changeFrequency: "daily", priority: 1 }
+    { url: SITE_URL, lastModified: now, changeFrequency: "daily", priority: 1 },
+    { url: SITE_URL + "/services/cameras-6-october", lastModified: now, changeFrequency: "monthly", priority: 0.85 }
   ];
 
   const supabase = await createClient();
