@@ -70,7 +70,6 @@ export default function AdminInventoryPage(){
   if(!Number.isInteger(threshold)||threshold<0){setMessage("حد التنبيه لازم يكون رقمًا صحيحًا غير سالب.");return;}
   const s=createClient();if(!s)return;
   setSavingId(p.id);setMessage("");
-  const {data:{user}}=await s.auth.getUser();
   const {data,error}=await s.rpc("admin_adjust_inventory",{
    p_product_id:p.id,
    p_new_quantity:qty,
@@ -79,7 +78,6 @@ export default function AdminInventoryPage(){
    p_reference:references[p.id]?.trim()||null
   });
   if(error){setMessage("لم يتم حفظ المخزون: "+error.message);setSavingId("");return;}
-  const result=Array.isArray(data)?data[0]:data;
   setMessage("تم تحديث مخزون «"+p.name_ar+"» وتسجيل حركة المخزون.");
   setReferences(old=>({...old,[p.id]:""}));
   setSavingId("");
