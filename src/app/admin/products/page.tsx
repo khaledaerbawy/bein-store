@@ -15,7 +15,10 @@ type Draft = {
   brand: string;
   model: string;
   description_ar: string;
+  description_en: string;
   price_egp: string;
+  compare_at_price_egp: string;
+  specifications: Array<{ name: string; value: string }>;
   image_urls: string[];
   is_active: boolean;
   is_featured: boolean;
@@ -23,7 +26,7 @@ type Draft = {
 };
 const blank: Draft = {
   category_id: "", name_ar: "", name_en: "", slug: "", sku: "", brand: "", model: "",
-  description_ar: "", price_egp: "", image_urls: [], is_active: false, is_featured: false, stock: ""
+  description_ar: "", description_en: "", price_egp: "", compare_at_price_egp: "", specifications: [], image_urls: [], is_active: false, is_featured: false, stock: ""
 };
 const money = (n: number) => new Intl.NumberFormat("ar-EG").format(n) + " ج.م";
 
@@ -64,7 +67,10 @@ export default function AdminProductsPage() {
   function edit(p: Product) {
     setDraft({ id: p.id, category_id: p.category_id ?? "", name_ar: p.name_ar, name_en: p.name_en,
       slug: p.slug, sku: p.sku ?? "", brand: p.brand ?? "", model: p.model ?? "",
-      description_ar: p.description_ar ?? "", price_egp: p.price_egp == null ? "" : String(p.price_egp),
+      description_ar: p.description_ar ?? "", description_en: p.description_en ?? "",
+      price_egp: p.price_egp == null ? "" : String(p.price_egp),
+      compare_at_price_egp: p.compare_at_price_egp == null ? "" : String(p.compare_at_price_egp),
+      specifications: Object.entries(p.specifications ?? {}).map(([name,value]) => ({ name, value: String(value ?? "") })),
       image_urls: [...(p.image_urls ?? [])], is_active: p.is_active, is_featured: p.is_featured, stock: "" });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -99,13 +105,21 @@ export default function AdminProductsPage() {
     if (!s) { setMessage("إعدادات Supabase ناقصة."); setBusy(false); return; }
     const price = draft.price_egp.trim() === "" ? null : Number(draft.price_egp);
     if (price !== null && (!Number.isFinite(price) || price < 0)) { setMessage("اكتب سعرًا صحيحًا أو اتركه فارغًا."); setBusy(false); return; }
+    const comparePrice = draft.compare_at_price_egp.trim() === "" ? null : Number(draft.compare_at_price_egp);
+    if (comparePrice !== null && (!Number.isFinite(comparePrice) || comparePrice < 0)) { setMessage("اكتب سعر مقارنة صحيحًا أو اتركه فارغًا."); setBusy(false); return; }
+    if (comparePrice !== null && price !== null && comparePrice < price) { setMessage("سعر المقارنة لازم يكون مساويًا للسعر الحالي أو أعلى منه."); setBusy(false); return; }
     if (draft.is_active && price === null) { setMessage("أضف السعر المعتمد قبل نشر المنتج."); setBusy(false); return; }
+    const specifications = Object.fromEntries(draft.specifications.map(item => [item.name.trim(), item.value.trim()]).filter(([name,value]) => Boolean(name) && Boolean(value)));
     const payload = {
       category_id: draft.category_id || null,
       name_ar: draft.name_ar.trim(), name_en: draft.name_en.trim() || draft.name_ar.trim(),
       slug: draft.slug.trim() || autoSlug(draft.name_en || draft.name_ar), sku: draft.sku.trim() || null,
       brand: draft.brand.trim() || null, model: draft.model.trim() || null,
-      description_ar: draft.description_ar.trim() || null, price_egp: price,
+      description_ar: draft.description_ar.trim() || null,
+      description_en: draft.description_en.trim() || null,
+      price_egp: price,
+      compare_at_price_egp: comparePrice,
+      specifications,
       image_urls: draft.image_urls.map(url => url.trim()).filter(Boolean),
       is_active: draft.is_active && price !== null, is_featured: draft.is_featured
     };
@@ -188,8 +202,8 @@ export default function AdminProductsPage() {
   }
   function exportCatalog() {
     const categoryById = new Map(categories.map(category => [category.id, category.name_ar]));
-    const header = ["ID","اسم المنتج","Name (EN)","SKU","الماركة","الموديل","القسم","السعر EGP","الحالة","مميز","صور المنتج"];
-    const rows = products.map(p => [p.id,p.name_ar,p.name_en,p.sku ?? "",p.brand ?? "",p.model ?? "",p.category_id ? categoryById.get(p.category_id) ?? "" : "",p.price_egp == null ? "" : String(p.price_egp),p.is_active ? "منشور" : "مخفي",p.is_featured ? "نعم" : "لا",(p.image_urls ?? []).join(" | ")]);
+    const header = ["ID","اسم المنتج","Name (EN)","SKU","الماركة","الموديل","القسم","السعر EGP","سعر المقارنة EGP","الوصف AR","الوصف EN","المواصفات JSON","الحالة","مميز","صور المنتج"];
+    const rows = products.map(p => [p.id,p.name_ar,p.name_en,p.sku ?? "",p.brand ?? "",p.model ?? "",p.category_id ? categoryById.get(p.category_id) ?? "" : "",p.price_egp == null ? "" : String(p.price_egp),p.compare_at_price_egp == null ? "" : String(p.compare_at_price_egp),p.description_ar ?? "",p.description_en ?? "",JSON.stringify(p.specifications ?? {}),p.is_active ? "منشور" : "مخفي",p.is_featured ? "نعم" : "لا",(p.image_urls ?? []).join(" | ")]);
     const escape = (value: string) => '"' + value.replace(/"/g, '""') + '"';
     const csv = [header, ...rows].map(row => row.map(value => escape(String(value ?? ""))).join(",")).join("\r\n");
     const blob = new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" });
@@ -210,11 +224,22 @@ export default function AdminProductsPage() {
           {field("كود المنتج SKU", "sku", { maxLength: 80 })}
           {field("الماركة", "brand", { maxLength: 80 })}
           {field("الموديل", "model", { maxLength: 100 })}
-          {field("السعر بالجنيه المصري (اتركه فارغًا للسعر عند الطلب)", "price_egp", { type: "number", min: "0", step: "0.01" })}
+          {field("السعر الحالي بالجنيه المصري (اتركه فارغًا للسعر عند الطلب)", "price_egp", { type: "number", min: "0", step: "0.01" })}
+          {field("سعر المقارنة / قبل الخصم (اختياري)", "compare_at_price_egp", { type: "number", min: "0", step: "0.01" })}
           <label className="wide-field">روابط صور المنتج (رابط في كل سطر)<textarea rows={3} value={draft.image_urls.join("\n")} onChange={e => setDraft(d => ({ ...d, image_urls: e.target.value.split("\n").map(url => url.trim()).filter(Boolean) }))} placeholder={"https://...\nhttps://..."} /></label>
           <label>رفع صور متعددة من الجهاز<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" onChange={uploadImages} disabled={uploading} />{uploading && <small>جارٍ رفع الصور...</small>}</label>
           {field("كمية المخزون (اختياري؛ فارغ = لا تغيّر المخزون)", "stock", { type: "number", min: "0", step: "1" })}
-          <label className="wide-field">الوصف<textarea value={draft.description_ar} onChange={e => setDraft(d => ({ ...d, description_ar: e.target.value }))} rows={3} /></label>
+          <label className="wide-field">الوصف بالعربي<textarea value={draft.description_ar} onChange={e => setDraft(d => ({ ...d, description_ar: e.target.value }))} rows={3} maxLength={5000} /></label>
+          <label className="wide-field">الوصف بالإنجليزي<textarea value={draft.description_en} onChange={e => setDraft(d => ({ ...d, description_en: e.target.value }))} rows={3} maxLength={5000} /></label>
+          <div className="wide-field admin-spec-editor">
+            <div className="admin-spec-editor-head"><b>المواصفات الفنية</b><small>استخدم مفاتيح واضحة مثل resolution أو lens أو poe أو capacity حتى تظهر في تفاصيل المنتج.</small></div>
+            {draft.specifications.map((spec,index)=><div className="admin-spec-row" key={index}>
+              <input value={spec.name} aria-label={"اسم المواصفة "+(index+1)} onChange={e=>setDraft(d=>({...d,specifications:d.specifications.map((item,i)=>i===index?{...item,name:e.target.value}:item)}))} placeholder="المفتاح (مثال: resolution)"/>
+              <input value={spec.value} aria-label={"قيمة المواصفة "+(index+1)} onChange={e=>setDraft(d=>({...d,specifications:d.specifications.map((item,i)=>i===index?{...item,value:e.target.value}:item)}))} placeholder="القيمة (مثال: 2MP)"/>
+              <button type="button" onClick={()=>setDraft(d=>({...d,specifications:d.specifications.filter((_,i)=>i!==index)}))}>إزالة</button>
+            </div>)}
+            <button type="button" className="admin-add-spec" onClick={()=>setDraft(d=>({...d,specifications:[...d.specifications,{name:"",value:""}]}))}>＋ إضافة مواصفة</button>
+          </div>
         </div>
         {draft.image_urls.length > 0 && <div className="admin-product-gallery-preview">{draft.image_urls.map((url,index) => <div key={url+"-"+index}><img src={url} alt={`صورة المنتج ${index+1}`} /><span>الصورة {index+1}</span><button type="button" onClick={() => setDraft(d => ({ ...d, image_urls: d.image_urls.filter((_,i) => i !== index) }))}>إزالة</button></div>)}</div>}
         <div className="check-row"><label><input type="checkbox" checked={draft.is_active} onChange={e => setDraft(d => ({ ...d, is_active: e.target.checked }))} /> نشر المنتج في المتجر</label><label><input type="checkbox" checked={draft.is_featured} onChange={e => setDraft(d => ({ ...d, is_featured: e.target.checked }))} /> منتج مميز</label></div>
