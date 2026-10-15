@@ -90,6 +90,9 @@ export default function AdminHome() {
             <div className="admin-dashboard-shortcuts">
               <Link className="admin-dashboard-shortcut" href="/admin/products"><span className="admin-dashboard-shortcut-icon">＋</span><span><b>إضافة أو تعديل منتج</b><small>الاسم، الصورة، الموديل والسعر</small></span><span>←</span></Link>
               <Link className="admin-dashboard-shortcut" href="/admin/orders"><span className="admin-dashboard-shortcut-icon">▤</span><span><b>مراجعة الطلبات</b><small>متابعة الحالة وتفاصيل العميل</small></span><span>←</span></Link>
+              <Link className="admin-dashboard-shortcut" href="/admin/categories"><span className="admin-dashboard-shortcut-icon">▧</span><span><b>إدارة الأقسام</b><small>أضف قسمًا ورتّب ظهوره</small></span><span>←</span></Link>
+              <Link className="admin-dashboard-shortcut" href="/admin/brands"><span className="admin-dashboard-shortcut-icon">◇</span><span><b>إدارة الماركات</b><small>الشعارات والترتيب والظهور</small></span><span>←</span></Link>
+              <Link className="admin-dashboard-shortcut" href="/admin/inventory"><span className="admin-dashboard-shortcut-icon">▥</span><span><b>المخزون وحركاته</b><small>الكميات والتنبيهات وسجل التعديل</small></span><span>←</span></Link>
               <Link className="admin-dashboard-shortcut" href="/admin/settings"><span className="admin-dashboard-shortcut-icon">⚙</span><span><b>إعدادات المتجر</b><small>معلومات الاتصال والتفضيلات</small></span><span>←</span></Link>
             </div>
           </section>
