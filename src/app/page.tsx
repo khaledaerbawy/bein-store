@@ -55,7 +55,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const whatsappUrl = storeWhatsapp ? `https://wa.me/${storeWhatsapp}` : "#contact";
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const shownCategories = categories.length ? categories : categoriesFallback;
-  const heroProduct = products.find((product) => product.slug === "dahua-outdoor-bullet" && product.image_urls?.length) ?? products.find((product) => product.model && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
+  const heroProduct = products.find((product) => product.brand === "Hikvision" && product.model?.startsWith("DS-2CD") && product.image_urls?.length) ?? products.find((product) => product.brand === "Hikvision" && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
   return <main className="storefront-page" dir="rtl">
     <div className="utility-bar">
       <div className="utility-inner">
@@ -86,9 +86,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
     <section className="commerce-hero tech-commerce-hero">
       <div className="hero-main-copy">
-        <div className="hero-kicker"><span /> IP VIDEO / CCTV / SECURITY NETWORKS</div>
-        <h1>بنية مراقبة<br /><em>تبدأ من الموديل الصح.</em></h1>
-        <p>كاميرات شبكية، أجهزة تسجيل، تخزين مخصص للمراقبة وشبكات PoE. راجع رقم الموديل والمواصفات، وتأكد من توافق المكونات قبل تنفيذ النظام.</p>
+        <div className="hero-kicker"><span /> HIKVISION · كاميرات مراقبة وأنظمة أمنية</div>
+        <h1>أنظمة مراقبة<br /><em>احترافية للمنازل والمشروعات.</em></h1>
+        <p>كاميرات مراقبة، أجهزة تسجيل، هاردات تخزين وشبكات. اختار المكونات المناسبة للمكان، وراجع الموديلات قبل تأكيد الطلب.</p>
         <div className="commerce-hero-actions">
           <a className="commerce-button commerce-button-orange" href="#catalog">استكشف الكتالوج <span aria-hidden="true">←</span></a>
           <a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "مساعدة فنية على واتساب ↗" : "تواصل مع المتجر"}</a>
@@ -116,7 +116,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
 
     <section className="category-section" id="categories">
-      <div className="commerce-section-head"><div><span className="section-overline">SYSTEM COMPONENTS / 01</span><h2>اختار نوع المكوّن</h2><p className="section-subtitle">ابدأ بالفئة، ثم راجع الموديل والتوافق الفني قبل الطلب.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
+      <div className="commerce-section-head"><div><span className="section-overline">الأقسام</span><h2>تسوّق حسب القسم</h2><p className="section-subtitle">ابدأ بالفئة، ثم راجع الموديل والتوافق الفني قبل الطلب.</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
       <div className="category-card-grid">
         {shownCategories.map((category, index) => {
           const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" };
@@ -134,7 +134,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </section>
 
     <section className="catalog-section" id="catalog">
-      <div className="commerce-section-head"><div><span className="section-overline">PRODUCT CATALOG / BEIN STORE</span><h2>الكتالوج الفني</h2><p className="section-subtitle">ابحث بالماركة أو رقم الموديل أو كود المنتج.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
+      <div className="commerce-section-head"><div><span className="section-overline">منتجات Bein Store</span><h2>أفضل المنتجات</h2><p className="section-subtitle">تصفّح المنتجات حسب الماركة والموديل، وشوف السعر المعروض قبل الطلب.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
       {!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}
     </section>
 
