@@ -35,9 +35,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .select("slug,name_ar,name_en,brand,model,description_ar,description_en,image_urls,price_egp,is_active,specifications")
     .eq("slug", slug).eq("is_active", true).not("price_egp", "is", null).maybeSingle();
   if (!data) return { title: "المنتج غير متاح | بين ستور", robots: { index: false, follow: false } };
-  const description = [data.name_ar, data.brand, data.model, data.description_ar].filter(Boolean).join(" — ").slice(0, 300)
-    || "منتجات كاميرات المراقبة وأجهزة التسجيل والشبكات من Bein Store في 6 أكتوبر، الجيزة.";
-  const title = [data.name_ar, data.brand, data.model].filter((value): value is string => Boolean(value?.trim())).join(" | ") + " | بين ستور";
+  const description = [data.name_ar, data.brand, data.model, data.description_ar].filter(Boolean).join(" — ").slice(0, 180)
+    || "منتجات كاميرات المراقبة وأجهزة التسجيل والشبكات من Bein Store. اسأل عن السعر والتوافر والتوصيل.";
+  const titleParts = [data.name_ar];
+  if (data.brand && !data.name_ar.toLocaleLowerCase().includes(data.brand.toLocaleLowerCase())) titleParts.push(data.brand);
+  if (data.model && !data.name_ar.toLocaleLowerCase().includes(data.model.toLocaleLowerCase())) titleParts.push(data.model);
+  const title = titleParts.join(" | ") + " | بين ستور";
   const url = `${SITE_URL}/products/${encodeURIComponent(data.slug)}`;
   const indexable = Boolean(data.model?.trim())
     && Boolean(data.description_ar?.trim())
