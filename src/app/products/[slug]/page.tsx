@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/types";
@@ -24,6 +25,29 @@ const specificationLabels: Record<string, string> = {
   channels: "عدد القنوات"
 };
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\\/+$/, "");
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  if (!supabase) return { title: "منتجات كاميرات المراقبة | بين ستور", robots: { index: false, follow: false } };
+  const { data } = await supabase.from("products")
+    .select("slug,name_ar,name_en,brand,model,description_ar,description_en,image_urls,price_egp,is_active")
+    .eq("slug", slug).eq("is_active", true).not("price_egp", "is", null).maybeSingle();
+  if (!data) return { title: "المنتج غير متاح | بين ستور", robots: { index: false, follow: false } };
+  const description = [data.name_ar, data.brand, data.model, data.description_ar].filter(Boolean).join(" — ").slice(0, 300)
+    || "منتجات كاميرات المراقبة وأجهزة التسجيل والشبكات من Bein Store في 6 أكتوبر، الجيزة.";
+  const title = `${data.name_ar} | بين ستور`;
+  const url = `${SITE_URL}/products/${encodeURIComponent(data.slug)}`;
+  return {
+    title, description,
+    alternates: { canonical: url },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+    openGraph: { type: "website", locale: "ar_EG", siteName: "Bein Store", url, title, description, images: (data.image_urls ?? []).slice(0, 4).map((image: string) => ({ url: image, alt: data.name_ar })) },
+    twitter: { card: "summary_large_image", title, description, images: (data.image_urls ?? []).slice(0, 1) }
+  };
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
@@ -38,7 +62,19 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const priceNeedsConfirmation = typeof priceStatus === "string" && priceStatus !== "confirmed";
   const priceStatusLabel = priceStatus === "provisional_estimate" ? "سعر مبدئي — يُؤكَّد مع المتجر قبل الطلب" : priceStatus === "market_reference_variant" ? "سعر مرجعي لموديل مشابه — يُؤكَّد قبل الطلب" : "سعر مرجعي — يُؤكَّد مع المتجر قبل الطلب";
   const specifications = Object.entries(p.specifications ?? {}).filter(([key, value]) => !internalSpecificationKey(key) && key.trim() && value !== null && value !== undefined && String(value).trim() !== "");
-  return <main className="subpage product-page" dir="rtl"><header className="subpage-header"><SiteBrand className="brand" /><div className="subpage-header-actions"><Link href="/#catalog">مواصلة التسوق ←</Link><Link className="subpage-cart-link" href="/cart">عرض السلة</Link></div></header>
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.name_ar,
+    description: p.description_ar || `${p.name_ar} من Bein Store — كاميرات مراقبة وأجهزة تسجيل وشبكات في 6 أكتوبر، الجيزة.`,
+    sku: p.sku || undefined,
+    mpn: p.model || undefined,
+    image: p.image_urls?.length ? p.image_urls : undefined,
+    brand: p.brand ? { "@type": "Brand", name: p.brand } : undefined,
+    url: `${SITE_URL}/products/${encodeURIComponent(p.slug)}`,
+    ...(priceStatus === "confirmed" ? { offers: { "@type": "Offer", priceCurrency: "EGP", price: Number(p.price_egp).toFixed(2), url: `${SITE_URL}/products/${encodeURIComponent(p.slug)}`, itemCondition: "https://schema.org/NewCondition" } } : {})
+  };
+  return <main className="subpage product-page" dir="rtl"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData).replace(/</g, "\\u003c") }} /><header className="subpage-header"><SiteBrand className="brand" /><div className="subpage-header-actions"><Link href="/#catalog">مواصلة التسوق ←</Link><Link className="subpage-cart-link" href="/cart">عرض السلة</Link></div></header>
     <section className="section-wrap product-detail-wrap"><div className="breadcrumbs"><Link href="/">الرئيسية</Link> <span>›</span> <Link href="/#catalog">المنتجات</Link> <span>›</span> <span>{p.name_ar}</span></div>
       <article className="product-detail"><ProductGallery product={p} />
         <div className="detail-copy"><span className="product-brand-pill">{p.brand ?? "BEIN STORE"}</span><h1 className="page-title">{p.name_ar}</h1>{p.model && <p className="product-model">الموديل: <b dir="ltr">{p.model}</b></p>}{p.sku && <p className="product-model">كود المنتج: {p.sku}</p>}
