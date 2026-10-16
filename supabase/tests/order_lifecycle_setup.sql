@@ -160,4 +160,5 @@ BEGIN
 END;
 $function$;
 
+REVOKE ALL ON FUNCTION public.admin_update_order_status(uuid, text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_update_order_status(uuid, text) TO authenticated;
