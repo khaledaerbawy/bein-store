@@ -126,6 +126,7 @@ export async function POST(request: Request) {
   const { data, error } = await supabase
     .from("products")
     .select("id,slug,image_urls")
+    .eq("is_active", true)
     .order("id", { ascending: true })
     .limit(500);
   if (error) {
