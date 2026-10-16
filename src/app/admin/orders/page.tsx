@@ -35,8 +35,14 @@ export default function AdminOrdersPage(){
  async function changeStatus(id:string,status:string){
   setBusyId(id);setMessage("");
   const s=createClient();if(!s){setMessage("إعدادات Supabase ناقصة.");setBusyId("");return;}
-  const {error}=await s.from("orders").update({status,updated_at:new Date().toISOString()}).eq("id",id);
-  setMessage(error?"لم يتم تحديث الحالة: "+error.message:"تم تحديث حالة الطلب.");
+  const {error}=await s.rpc("admin_update_order_status",{p_order_id:id,p_new_status:status});
+  const message = error?.message ?? "";
+  const safeError = message.includes("ORDER_CANNOT_CANCEL_AFTER_SHIPMENT")
+    ? "لا يمكن إلغاء طلب تم شحنه أو إكماله."
+    : message.includes("ORDER_ALREADY_CANCELLED")
+      ? "الطلب ملغي بالفعل ولا يمكن إعادة تفعيله."
+      : "لم يتم تحديث الحالة. تأكد من صلاحيات الإدارة وحاول مرة أخرى.";
+  setMessage(error ? safeError : "تم تحديث حالة الطلب.");
   if(!error)setOrders(current=>current.map(o=>o.id===id?{...o,status}:o));
   setBusyId("");
  }
