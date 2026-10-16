@@ -155,6 +155,9 @@ export async function POST(request: Request) {
     } else if (error.message.includes("INSUFFICIENT_STOCK")) {
       message = "الكمية المطلوبة غير متاحة حاليًا.";
       status = 409;
+    } else if (error.message.includes("INVENTORY_NOT_CONFIGURED")) {
+      message = "لم يتم تسجيل رصيد هذا المنتج في المخزون بعد. تواصل مع المتجر قبل إتمام الطلب.";
+      status = 409;
     } else if (error.message.includes("ORDER_BELOW_MINIMUM:")) {
       const value = Number(error.message.split("ORDER_BELOW_MINIMUM:")[1]?.match(/^\s*([0-9.]+)/)?.[1]);
       message = Number.isFinite(value) ? "الحد الأدنى لقيمة الطلب " + new Intl.NumberFormat("ar-EG").format(value) + " جنيه." : "قيمة الطلب أقل من الحد الأدنى المسموح.";
