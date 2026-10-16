@@ -13,6 +13,18 @@ DECLARE
   v_status text;
   v_count integer;
 BEGIN
+  -- Public callers must not bypass the secret-checked wrapper via the legacy overload.
+  IF has_function_privilege('anon', 'public.create_public_order(jsonb,jsonb)', 'EXECUTE')
+     OR has_function_privilege('authenticated', 'public.create_public_order(jsonb,jsonb)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'TEST FAILED: legacy two-argument checkout RPC is still callable by public roles';
+  END IF;
+  IF NOT has_function_privilege('anon', 'public.create_public_order(jsonb,jsonb,text)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'TEST FAILED: secret-checked checkout wrapper must remain callable by the server anon client';
+  END IF;
+  IF has_function_privilege('anon', 'public.admin_update_order_status(uuid,text)', 'EXECUTE') THEN
+    RAISE EXCEPTION 'TEST FAILED: anonymous users must not execute the admin status RPC';
+  END IF;
+
   INSERT INTO public.products(id, name_ar, sku, price_egp, is_active)
   VALUES
     (v_untracked_product, 'منتج اختبار غير مسجل المخزون', 'CI-NO-STOCK', 250, true),
