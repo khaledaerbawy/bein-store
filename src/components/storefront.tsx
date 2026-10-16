@@ -7,7 +7,7 @@ import { useCart } from "@/components/cart-provider";
 import ProductImage from "@/components/product-image";
 
 const formatPrice = (price: number) => new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 2 }).format(price);
-export default function Storefront({ products, categories, initialQuery = "", initialCategoryId = "all" }: { products: Product[]; categories: Category[]; initialQuery?: string; initialCategoryId?: string }) {
+export default function Storefront({ products, categories, initialQuery = "", initialCategoryId = "all", showBrandFilter = true }: { products: Product[]; categories: Category[]; initialQuery?: string; initialCategoryId?: string; showBrandFilter?: boolean }) {
   const [query, setQuery] = useState(initialQuery);
   const [brand, setBrand] = useState("all");
   const [category, setCategory] = useState(initialCategoryId);
@@ -19,10 +19,10 @@ export default function Storefront({ products, categories, initialQuery = "", in
     return matches && (brand === "all" || p.brand === brand) && (category === "all" || p.category_id === category);
   });
   return <>
-    <div className="catalog-tools">
+    <div className={showBrandFilter ? "catalog-tools" : "catalog-tools catalog-tools-brand-context"}>
       <label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث عن المنتج أو الموديل" aria-label="البحث عن منتج" /></label>
       <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="تصفية حسب القسم"><option value="all">كل الأقسام</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name_ar}</option>)}</select>
-      <select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="تصفية حسب الماركة"><option value="all">كل الماركات</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}</select>
+      {showBrandFilter && <select value={brand} onChange={(e) => setBrand(e.target.value)} aria-label="تصفية حسب الماركة"><option value="all">كل الماركات</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}</select>}
       <span className="results-count">{filtered.length} منتج</span>
     </div>
     {filtered.length === 0 ? <div className="empty-state"><div className="empty-symbol">⌕</div><h3>{products.length ? "مفيش نتائج مطابقة" : "المنتجات غير متاحة حاليًا"}</h3><p>{products.length ? "جرّب كلمة بحث مختلفة أو اختار كل الماركات." : "جرّب تغيير البحث أو اختيار قسم آخر."}</p></div> : <div className="product-grid">
