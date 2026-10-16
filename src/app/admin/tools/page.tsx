@@ -180,7 +180,7 @@ export default function AdminToolsPage() {
         failed += Number(result.failed) || 0;
         skipped += Number(result.skipped) || 0;
         const nextOffset = Number(result.nextOffset);
-        if (!Number.isInteger(nextOffset) || nextOffset <= offset) break;
+        if (!Number.isInteger(nextOffset) || nextOffset <= offset) throw new Error("لم تتقدم عملية النقل؛ أعد الفحص قبل المحاولة مرة أخرى.");
         offset = nextOffset;
         setImageMigrationMessage(
           "تمت معالجة " + offset.toLocaleString("ar-EG") + " من " + total.toLocaleString("ar-EG") +
