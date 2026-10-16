@@ -69,6 +69,8 @@ jobs:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: |
           psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE anon;
+          CREATE ROLE authenticated;
           CREATE TABLE public.inventory (
             product_id uuid PRIMARY KEY,
             quantity_on_hand integer NOT NULL CHECK (quantity_on_hand >= 0)
