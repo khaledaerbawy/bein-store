@@ -134,7 +134,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
             <p>ابحث باسم المنتج أو رقم الموديل، أو صفِّ النتائج حسب القسم. الأسعار والتوافر النهائي يتم تأكيدهما قبل الطلب.</p>
           </div>
         </div>
-        {brandCategories.length > 0 && <div className="brand-page-category-chips" aria-label="الأقسام المتاحة">{brandCategories.map(category => <a key={category.id} href={"#brand-products"}>{category.name_ar}</a>)}</div>}
+        {brandCategories.length > 0 && <div className="brand-page-category-chips" aria-label="الأقسام المتاحة">{brandCategories.map(category => <Link key={category.id} href={"/categories/" + category.slug}>{category.name_ar} <span aria-hidden="true">↗</span></Link>)}</div>}
         {products.length
           ? <Storefront products={products} categories={categories} showBrandFilter={false} />
           : <div className="brand-page-empty"><h3>لا توجد منتجات متاحة لهذه الماركة حاليًا</h3><p>تقدر تستفسر عن الموديل المطلوب أو ترجع للكتالوج الرئيسي لمقارنة البدائل المتاحة.</p><div className="brand-page-actions"><a className="primary" href={contactHref} target={whatsapp ? "_blank" : undefined} rel={whatsapp ? "noreferrer" : undefined}>اسأل عن التوافر</a><a href="/#catalog">كل المنتجات</a></div></div>}
