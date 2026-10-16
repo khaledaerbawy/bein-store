@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     p_client_key: clientKey
   });
   if (limitError) {
-    console.error("Order rate limiter unavailable:", { code: limitError.code, status: limitError.status });
+    console.error("Order rate limiter unavailable:", { code: limitError.code });
     return NextResponse.json({ error: "تعذر التحقق من الطلب مؤقتًا. حاول بعد قليل." }, { status: 503 });
   }
   const limit = Array.isArray(limitData) ? limitData[0] : limitData;
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
       message = "راجع بيانات الطلب وحاول مرة أخرى.";
       status = 400;
     }
-    console.error("Order creation failed:", { code: error.code, status: error.status });
+    console.error("Order creation failed:", { code: error.code });
     return NextResponse.json({ error: message }, { status, headers: { "Cache-Control": "no-store" } });
   }
 
