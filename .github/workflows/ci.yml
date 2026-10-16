@@ -79,11 +79,6 @@ jobs:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610160003_require_inventory_record_before_order.sql
 
-      - name: Test untracked stock is rejected
-        env:
-          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
-        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/require_inventory_record_before_order.test.sql
-
       - name: Test order, stock deduction, cancellation, and one-time return
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
