@@ -40,7 +40,7 @@ jobs:
         run: npm run build
 
   inventory-guard:
-    name: Inventory guard migration test
+    name: Order inventory lifecycle test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -64,24 +64,17 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Create minimal test schema
+      - name: Create isolated test schema and lifecycle routines
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
-        run: |
-          psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
-          CREATE ROLE anon;
-          CREATE ROLE authenticated;
-          CREATE TABLE public.inventory (
-            product_id uuid PRIMARY KEY,
-            quantity_on_hand integer NOT NULL CHECK (quantity_on_hand >= 0)
-          );
-          CREATE TABLE public.order_items (
-            id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            product_id uuid NOT NULL
-          );
-          SQL
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/order_lifecycle_setup.sql
 
-      - name: Apply inventory guard migration
+      - name: Install checkout RPC
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610140002_secure_public_checkout.sql
+
+      - name: Apply inventory fail-closed migration
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610160003_require_inventory_record_before_order.sql
@@ -90,3 +83,8 @@ jobs:
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/require_inventory_record_before_order.test.sql
+
+      - name: Test order, stock deduction, cancellation, and one-time return
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/order_lifecycle.test.sql
