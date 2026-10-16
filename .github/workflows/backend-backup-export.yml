@@ -1,0 +1,94 @@
+name: Export Bein Store Backend Backup
+
+on:
+  push:
+    branches:
+      - backend-backup-export
+    paths:
+      - .github/workflows/backend-backup-export.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact deployed source
+        uses: actions/checkout@v4
+        with:
+          ref: ba0764d2463a1a6201b47e45f68afb953e2e68ba
+          persist-credentials: false
+
+      - name: Assemble backend source and database migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p backup/src/app backup/src/components backup/src/lib backup/supabase
+          cp -a src/app/admin backup/src/app/
+          cp -a src/app/api backup/src/app/
+          cp -a src/app/cart backup/src/app/
+          cp -a src/app/checkout backup/src/app/
+          cp -a src/app/products backup/src/app/
+          cp -a src/app/brands backup/src/app/
+          cp -a src/app/categories backup/src/app/
+          cp -a src/app/services backup/src/app/
+          cp -a src/app/layout.tsx src/app/page.tsx src/app/robots.ts src/app/sitemap.ts backup/src/app/
+          cp -a src/components/. backup/src/components/
+          cp -a src/lib/. backup/src/lib/
+          cp -a supabase/migrations backup/supabase/
+          cp -a package.json next.config.ts tsconfig.json eslint.config.mjs README.md PUBLISH_NOTES_AR.md backup/
+          if [ -f package-lock.json ]; then cp -a package-lock.json backup/; fi
+          if [ -f .npmrc ]; then cp -a .npmrc backup/; fi
+
+          cat > backup/.env.example <<'EOF'
+          # Fill these values locally from your own provider dashboards.
+          # No real keys or secrets are included in this backup.
+          NEXT_PUBLIC_SUPABASE_URL=
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=
+          SUPABASE_ANON_KEY=
+          NEXT_PUBLIC_SITE_URL=https://bein-store.vercel.app
+          NEXT_PUBLIC_STORE_ADDRESS=
+          NEXT_PUBLIC_STORE_WHATSAPP=
+          NEXT_PUBLIC_STORE_PHONE=
+          GOOGLE_SITE_VERIFICATION=
+          EOF
+
+          cat > backup/BACKUP_README_AR.md <<'EOF'
+          # نسخة احتياطية لباك إند Bein Store
+          
+          هذه نسخة كود من الإصدار المنشور، وتشمل صفحات الإدارة والـAPI والسلة وإتمام الطلبات وصفحات الكتالوج، ومكونات التطبيق ومكتبة Supabase وأنواع TypeScript وملفات migrations الخاصة بقاعدة البيانات.
+          
+          ## مهم
+          - هذه **نسخة من ملفات الكود والمigrations** وليست dump لبيانات قاعدة البيانات الفعلية.
+          - لم يتم تضمين ملفات .env أو مفاتيح سرية أو كلمات مرور.
+          - قبل التشغيل محليًا، انسخ .env.example إلى .env.local واملأ القيم بنفسك من لوحات Supabase وVercel.
+          - لا ترفع .env.local إلى GitHub أو تشارك مفاتيح service-role.
+          
+          ## الاستعادة
+          1. فك ضغط الأرشيف.
+          2. ثبّت نسخة Node.js متوافقة مع المشروع ثم شغّل npm install.
+          3. اضبط متغيرات البيئة محليًا.
+          4. افحص migrations قبل تطبيقها على مشروع Supabase جديد. لا تعِد تشغيل migrations على قاعدة الإنتاج القائمة.
+          
+          مصدر النسخة: commit ba0764d2463a1a6201b47e45f68afb953e2e68ba
+          EOF
+
+          cat > backup/BACKUP_MANIFEST.txt <<'EOF'
+          Bein Store backend source backup
+          Git repository: khaledaerbawy/bein-store
+          Source commit: ba0764d2463a1a6201b47e45f68afb953e2e68ba
+          Source branch at export: brand-catalog-layout
+          Contents: API/admin/cart/checkout/catalog source, shared components, Supabase client/server code, TypeScript types, SQL migrations, and project configuration.
+          Excludes: .env files, provider secrets, database contents/orders, generated build output, node_modules.
+          EOF
+
+          zip -qr bein-store-backend-backup.zip backup
+          unzip -t bein-store-backend-backup.zip
+      - name: Upload ZIP backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: bein-store-backend-backup
+          path: bein-store-backend-backup.zip
+          if-no-files-found: error
+          retention-days: 30
