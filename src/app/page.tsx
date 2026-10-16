@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import type { Category, Product, StoreSettings, StoreBrand, SiteBanner } from "@/lib/types";
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
@@ -6,6 +7,28 @@ import ProductImage from "@/components/product-image";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
+const LOCAL_SEO_DESCRIPTION = "Bein Store (بين ستور) متجر إلكتروني لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات. تصفح الموديلات واسأل عن السعر والتوافر وإمكانية التوصيل إلى 6 أكتوبر والجيزة.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = await createClient();
+  let title = "بين ستور | كاميرات مراقبة وDVR وNVR";
+  let description = LOCAL_SEO_DESCRIPTION;
+  if (supabase) {
+    const { data } = await supabase.from("store_settings").select("store_name,page_title,meta_description").eq("id", "main").maybeSingle();
+    if (data?.page_title?.trim()) title = data.page_title.trim();
+    if (data?.meta_description?.trim()) description = data.meta_description.trim();
+  }
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+    openGraph: { type: "website", locale: "ar_EG", url: SITE_URL, siteName: "Bein Store", title, description },
+    twitter: { card: "summary_large_image", title, description }
+  };
+}
 
 async function getCategories(): Promise<Category[]> {
   const supabase = await createClient();
@@ -69,8 +92,8 @@ const categoriesFallback: Category[] = [
 
 const defaultStoreSettings: StoreSettings = {
   id: "main", store_name: "Bein Store", logo_url: null, favicon_url: null,
-  page_title: "Bein Store | كاميرات المراقبة والشبكات",
-  meta_description: "متجر Bein Store لكاميرات المراقبة وأجهزة التسجيل والشبكات.",
+  page_title: "بين ستور | كاميرات مراقبة وDVR وNVR",
+  meta_description: "Bein Store (بين ستور) متجر إلكتروني لكاميرات المراقبة وأجهزة DVR وNVR وهيلوك وهيكفيجن والشبكات. تصفح الموديلات واسأل عن السعر والتوافر وإمكانية التوصيل إلى 6 أكتوبر والجيزة.",
   announcement_text: "مساعدة فنية في اختيار الموديل وتأكيد السعر قبل الطلب",
   categories_title: "تسوّق حسب القسم",
   categories_description: "وصل للقسم اللي محتاجه بسرعة.",
@@ -141,7 +164,52 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const heroProduct = products.find((product) => product.brand === "Hikvision" && product.model?.startsWith("DS-2CD") && product.image_urls?.length) ?? products.find((product) => product.category_id === categories.find((item) => item.slug === "security-cameras")?.id && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
   const heroRecorder = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "recorders" && product.image_urls?.length) ?? null;
   const heroStorage = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "storage" && product.image_urls?.length) ?? null;
-  return <main className="storefront-page" dir="rtl" style={{ "--store-primary": site.primary_color, "--store-accent": site.accent_color } as React.CSSProperties}>
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      "@id": `${SITE_URL}/#store`,
+      name: site.store_name || "Bein Store",
+      alternateName: ["بين ستور", "Bein Store"],
+      url: SITE_URL,
+      description: site.meta_description || LOCAL_SEO_DESCRIPTION,
+      ...(storePhone ? { telephone: storePhone } : {}),
+      ...(storeWhatsapp ? { contactPoint: { "@type": "ContactPoint", telephone: `+${storeWhatsapp}`, contactType: "customer service", availableLanguage: ["Arabic"] } } : {}),
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "كاميرات مراقبة وأجهزة تسجيل وشبكات",
+        itemListElement: categories.slice(0, 12).map((category) => ({
+          "@type": "OfferCatalog",
+          name: category.name_ar,
+          url: `${SITE_URL}/?category=${encodeURIComponent(category.slug)}#catalog`
+        }))
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: site.store_name || "Bein Store",
+      alternateName: "بين ستور",
+      inLanguage: "ar-EG",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/?q={search_term_string}` },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ];
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      { "@type": "Question", name: "فين أشتري كاميرات مراقبة في 6 أكتوبر؟", acceptedAnswer: { "@type": "Answer", text: "تقدر تتصفح منتجات Bein Store على الموقع وتتواصل مع المتجر لتأكيد الموديل والسعر والتوافر ومواعيد التوصيل قبل اعتماد الطلب." } },
+      { "@type": "Question", name: "هل عندكم كاميرات Hikvision وHiLook وأجهزة DVR وNVR؟", acceptedAnswer: { "@type": "Answer", text: "الموقع مخصص لعرض كاميرات المراقبة وأجهزة التسجيل والشبكات. راجع الكتالوج أو اسأل المتجر عن توافر الموديل المحدد قبل الطلب." } },
+      { "@type": "Question", name: "بدور على بتاع دش في أكتوبر أو مستلزمات شبكات، أعمل إيه؟", acceptedAnswer: { "@type": "Answer", text: "تواصل مع Bein Store لتأكيد توافر مستلزمات الدش والشبكات والموديل المطلوب قبل الزيارة أو الطلب." } }
+    ]
+  };
+  return <main className="storefront-page" dir="rtl" style={{ "--store-primary": site.primary_color, "--store-accent": site.accent_color } as React.CSSProperties}><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData).replace(/</g, "\\u003c") }} />
     {site.show_announcement && <div className="utility-bar">
       <div className="utility-inner">
         <div className="utility-service-points"><span>{site.announcement_text}</span></div>
@@ -233,13 +301,28 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
     {site.show_services && (
     <section className="service-section" id="services">
-      <div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a></div>
+      <div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a><Link className="local-seo-inline-link" href="/services/cameras-6-october">كاميرات مراقبة وشبكات في 6 أكتوبر ←</Link></div>
       <div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>حدّد عدد الكاميرات</b><p>والأماكن الداخلية والخارجية المطلوب تغطيتها.</p></div></div><div className="service-step"><span>03</span><div><b>اختار طريقة التسجيل</b><p>DVR أو NVR مع سعة تخزين مناسبة.</p></div></div><div className="service-step"><span>04</span><div><b>راجع توافق المكونات</b><p>نتأكد من التوصيلات والملحقات قبل التجهيز.</p></div></div></div>
     </section>
 
     )}
 
     {renderSiteBanners(banners, "before_footer")}
+
+    <section className="local-seo-section section-wrap" aria-labelledby="local-seo-heading">
+      <div className="section-heading"><div><span className="section-overline">BEIN STORE · ONLINE STORE</span><h2 id="local-seo-heading">كاميرات مراقبة وأجهزة تسجيل وشبكات — اسأل عن التوصيل إلى 6 أكتوبر</h2></div></div>
+      <p>بين ستور متجر إلكتروني لعرض كاميرات المراقبة وأجهزة التسجيل DVR وNVR والهاردات وسويتشات PoE وكابلات الشبكات. لو بتبحث عن كاميرا أو جهاز بموديل محدد، افتح صفحة المنتج لمراجعة المواصفات والصور، وتأكد من السعر والتوافر والتوصيل مع المتجر قبل اعتماد الطلب.</p>
+      <p>بتبحث عن «بتاع دش في أكتوبر» أو مستلزمات دش وشبكات؟ ابعت اسم القطعة أو صورة الموديل واسأل عن التوافر وإمكانية التوصيل لمنطقتك. الموقع متجر إلكتروني، وليس عنوان محل لاستقبال الزوار.</p>
+      <nav className="local-seo-link-groups" aria-label="تصفح الأقسام والماركات">
+        <div><h3>تصفح الأقسام</h3><ul>{categories.filter(category => category.is_active !== false).map(category => <li key={category.id}><Link href={"/categories/" + encodeURIComponent(category.slug)}>{category.name_ar}</Link></li>)}</ul></div>
+        <div><h3>تصفح الماركات</h3><ul>{brands.filter(brand => brand.is_active).map(brand => <li key={brand.id}><Link href={"/brands/" + encodeURIComponent(brand.slug)}>منتجات {brand.name}</Link></li>)}</ul></div>
+      </nav>
+      <div className="local-seo-faq">
+        <details><summary>إزاي أختار كاميرا مراقبة مناسبة؟</summary><p>حدد مكان التركيب، داخلي أو خارجي، الدقة المطلوبة، الرؤية الليلية وطريقة التسجيل. لو مش متأكد، ابعت تفاصيل المكان وعدد الكاميرات للمتجر.</p></details>
+        <details><summary>إيه الفرق بين DVR وNVR؟</summary><p>جهاز DVR غالبًا بيستخدم مع كاميرات الأنظمة التناظرية HD، أما NVR فبيستخدم لتسجيل كاميرات الشبكة IP. لازم تتأكد من توافق الكاميرات والمنافذ والطاقة قبل الشراء.</p></details>
+        <details><summary>هل الأسعار والتوافر نهائيين؟</summary><p>أي منتج سعره مبدئي أو مرجعي يحتاج تأكيد من المتجر. بنراجع رقم الموديل والسعر والتوافر ورسوم الشحن قبل اعتماد الطلب.</p></details>
+      </div>
+    </section>
 
     <footer className="commerce-footer" id="contact">
       <div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div>
