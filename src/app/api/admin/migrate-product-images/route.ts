@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 3;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const IMAGE_BUCKET = "product-images";
 const ALLOWED_HOSTS = new Set([
