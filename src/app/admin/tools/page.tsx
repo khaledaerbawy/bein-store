@@ -46,6 +46,8 @@ export default function AdminToolsPage() {
   const [message, setMessage] = useState("");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [lastChecked, setLastChecked] = useState("");
+  const [imageMigrationBusy, setImageMigrationBusy] = useState(false);
+  const [imageMigrationMessage, setImageMigrationMessage] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true); setMessage("");
@@ -138,6 +140,71 @@ export default function AdminToolsPage() {
     setMessage("تم تنزيل نسخة JSON من البيانات المتاحة لحساب الإدارة الحالي.");
   }
 
+  async function migrateExternalImages() {
+    if (imageMigrationBusy) return;
+    const approved = window.confirm(
+      "سيتم تنزيل صور المنتجات من مصادر معروفة ورفعها إلى product-images على دفعات. لن يتغير رابط أي صورة إلا بعد نجاح رفعها. ابدأ النقل الآن؟"
+    );
+    if (!approved) return;
+
+    setImageMigrationBusy(true);
+    setImageMigrationMessage("جارٍ فحص صور المنتجات...");
+    let offset = 0;
+    let total = 0;
+    let uploaded = 0;
+    let failed = 0;
+    let skipped = 0;
+    try {
+      const previewResponse = await fetch("/api/admin/migrate-product-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offset: 0, dryRun: true })
+      });
+      const preview = await previewResponse.json();
+      if (!previewResponse.ok) throw new Error(preview.error || "تعذر فحص الصور.");
+      total = Number(preview.total) || 0;
+      if (!total) {
+        setImageMigrationMessage("لا توجد صور مسجلة تحتاج إلى فحص أو نقل.");
+        return;
+      }
+
+      while (offset < total) {
+        const response = await fetch("/api/admin/migrate-product-images", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ offset })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "تعذر نقل دفعة الصور.");
+        uploaded += Number(result.uploaded) || 0;
+        failed += Number(result.failed) || 0;
+        skipped += Number(result.skipped) || 0;
+        const nextOffset = Number(result.nextOffset);
+        if (!Number.isInteger(nextOffset) || nextOffset <= offset) throw new Error("لم تتقدم عملية النقل؛ أعد الفحص قبل المحاولة مرة أخرى.");
+        offset = nextOffset;
+        setImageMigrationMessage(
+          "تمت معالجة " + offset.toLocaleString("ar-EG") + " من " + total.toLocaleString("ar-EG") +
+          " صورة · تم النقل " + uploaded.toLocaleString("ar-EG") +
+          " · فشل " + failed.toLocaleString("ar-EG") +
+          " · تم تخطي " + skipped.toLocaleString("ar-EG") + "."
+        );
+        if (result.done) break;
+      }
+
+      setImageMigrationMessage(
+        "انتهى فحص النقل: تم نقل " + uploaded.toLocaleString("ar-EG") +
+        " صورة، وتخطي " + skipped.toLocaleString("ar-EG") +
+        " صورة موجودة بالفعل، وفشل " + failed.toLocaleString("ar-EG") +
+        " صورة. يمكن إعادة التشغيل لمحاولة نقل الصور التي فشلت؛ الروابط الناجحة لن تتكرر."
+      );
+      await load();
+    } catch (error) {
+      setImageMigrationMessage("توقف نقل الصور: " + (error instanceof Error ? error.message : "خطأ غير معروف"));
+    } finally {
+      setImageMigrationBusy(false);
+    }
+  }
+
   async function signOut() {
     const supabase = createClient();
     await supabase?.auth.signOut();
@@ -164,6 +231,8 @@ export default function AdminToolsPage() {
           <article><small>رصيد مخزون</small><b>{counts.inventory}</b><span>{counts.lowStock} قريب من النفاد · {counts.noStock} رصيد صفر</span></article>
           <article><small>طلبات</small><b>{counts.orders}</b><span>{counts.newOrders} طلب جديد</span></article>
         </div>
+        <div className="admin-tools-section-heading"><div><h3>نقل الصور إلى التخزين</h3><p>ينقل الصور من مصادر صور المنتجات المسموحة إلى مساحة product-images، ثم يحفظ الرابط الجديد بعد نجاح الرفع. يتم النقل على دفعات صغيرة، دون إدخال أي روابط جديدة يدويًا.</p></div><button type="button" className="button button-secondary" disabled={imageMigrationBusy || loading} onClick={() => void migrateExternalImages()}>{imageMigrationBusy ? "جارٍ نقل الصور..." : "فحص ونقل الصور"}</button></div>
+        {imageMigrationMessage && <p className={imageMigrationMessage.startsWith("انتهى فحص النقل:") || imageMigrationMessage.startsWith("لا توجد صور") ? "form-success" : "form-error"} role="status">{imageMigrationMessage}</p>}
         <div className="admin-tools-section-heading"><div><h3>جاهزية المتجر</h3><p>نتائج محسوبة من قاعدة البيانات الحالية، بدون بيانات تجريبية.</p></div><button type="button" onClick={() => void load()}>إعادة الفحص ↻</button></div>
         <div className="admin-tools-quality-grid">{qualityItems.map(item=><article key={item.title} className={item.bad?"needs-attention":""}><div><b>{item.title}</b><strong>{item.value}</strong></div><p>{item.detail}</p></article>)}</div>
         <div className="admin-tools-section-heading"><div><h3>تصدير الجداول</h3><p>ملفات CSV مناسبة للمراجعة في Excel. الأعمدة المتداخلة تُحفظ كنص JSON داخل الخلية.</p></div><span>آخر فحص: {dateLabel(lastChecked)}</span></div>
