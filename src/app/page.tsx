@@ -328,7 +328,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div>
       <div className="footer-column"><b>تصفّح المتجر</b><a href="#categories">الأقسام</a><a href="#catalog">المنتجات والأسعار</a><a href="#services">حلول المشروعات</a></div>
       <div className="footer-column"><b>تواصل معانا</b>{storePhone && <a href={`tel:${storePhone.replace(/[^+\d]/g, "")}`} dir="ltr">{storePhone}</a>}{storeWhatsapp && <a href={whatsappUrl} target="_blank" rel="noreferrer">واتساب</a>}{storeAddress && <span>{storeAddress}</span>}{!storePhone && !storeWhatsapp && !storeAddress && <span>بيانات التواصل هتظهر هنا بعد إعدادها.</span>}</div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} {site.store_name}. جميع الحقوق محفوظة.</span><span>كاميرات · أجهزة تسجيل · شبكات · إكسسوارات</span><a href="/admin/login">دخول الإدارة</a></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} {site.store_name}. جميع الحقوق محفوظة.</span><span>كاميرات · أجهزة تسجيل · شبكات · إكسسوارات</span></div>
     </footer>
   </main>;
 }

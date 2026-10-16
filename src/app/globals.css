@@ -3761,3 +3761,7 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
   .storefront-page.brand-page .product-price-current { font-size: 12px; }
   .storefront-page.brand-page .product-bottom { gap: 7px; }
 }
+
+
+.turnstile-widget { margin: 14px 0; max-width: 100%; overflow: hidden; }
+.turnstile-widget iframe { max-width: 100%; }

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/cart-provider";
 import ProductImage from "@/components/product-image";
 import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget from "@/components/turnstile-widget";
 
 type CheckoutSettings = {
   orders_enabled: boolean;
@@ -39,6 +40,10 @@ export default function CheckoutForm() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [settings, setSettings] = useState<CheckoutSettings>(defaultSettings);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileGeneration, setTurnstileGeneration] = useState(0);
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+  const handleTurnstileToken = useCallback((token: string) => setTurnstileToken(token), []);
 
   useEffect(() => {
     let live = true;
@@ -64,6 +69,7 @@ export default function CheckoutForm() {
   async function submit(formData: FormData) {
     if (!settings.orders_enabled) { setError(settings.orders_paused_message || "استقبال الطلبات متوقف مؤقتًا."); return; }
     if (subtotal < minimumOrder) { setError("الحد الأدنى للطلب هو " + money(minimumOrder) + ". أضف منتجات أخرى للمتابعة."); return; }
+    if (turnstileSiteKey && !turnstileToken) { setError("أكمل خطوة التحقق الأمني قبل تسجيل الطلب."); return; }
     const whatsappWindow = whatsappEnabled ? window.open("about:blank", "_blank") : null;
     setBusy(true); setError("");
     const payload = {
@@ -73,12 +79,14 @@ export default function CheckoutForm() {
       shipping_address: String(formData.get("shipping_address") ?? "").trim(),
       city: String(formData.get("city") ?? "").trim(),
       notes: settings.allow_order_notes ? (String(formData.get("notes") ?? "").trim() || null) : null,
-      items: items.map((item) => ({ product_id: item.product.id, quantity: item.quantity }))
+      items: items.map((item) => ({ product_id: item.product.id, quantity: item.quantity })),
+      turnstile_token: turnstileToken || null
     };
     try {
       const response = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "تعذر تسجيل الطلب. حاول مرة أخرى.");
+      setTurnstileToken("");
       clear();
       const lines = items.map((x) => "• " + x.product.name_ar + " × " + x.quantity).join("\n");
       const actualTotal = Number(result.total_egp);
@@ -87,6 +95,8 @@ export default function CheckoutForm() {
       router.push("/checkout/success?order=" + encodeURIComponent(String(result.order_number)));
     } catch (e) {
       whatsappWindow?.close();
+      setTurnstileToken("");
+      if (turnstileSiteKey) setTurnstileGeneration(value => value + 1);
       setError(e instanceof Error ? e.message : "حصل خطأ غير متوقع.");
     } finally { setBusy(false); }
   }
@@ -103,8 +113,9 @@ export default function CheckoutForm() {
       <label>البريد الإلكتروني (اختياري)<input name="customer_email" type="email" maxLength={180} autoComplete="email" /></label>
       <div className="form-two"><label>المحافظة / المدينة<input name="city" required maxLength={100} autoComplete="address-level2" /></label><label>العنوان بالتفصيل<input name="shipping_address" required maxLength={500} autoComplete="street-address" /></label></div>
       {settings.allow_order_notes && <label>ملاحظات إضافية<textarea name="notes" rows={3} maxLength={1000} /></label>}
+      {turnstileSiteKey && <TurnstileWidget key={turnstileGeneration} siteKey={turnstileSiteKey} onToken={handleTurnstileToken} />}
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="button button-primary full-button" type="submit" disabled={busy || !settings.orders_enabled || subtotal < minimumOrder}>{busy ? "جارٍ تسجيل الطلب..." : !settings.orders_enabled ? "استقبال الطلبات متوقف مؤقتًا" : whatsappEnabled ? "تأكيد الطلب والمتابعة لواتساب" : "تأكيد الطلب"}</button>
+      <button className="button button-primary full-button" type="submit" disabled={busy || !settings.orders_enabled || subtotal < minimumOrder || Boolean(turnstileSiteKey && !turnstileToken)}>{busy ? "جارٍ تسجيل الطلب..." : !settings.orders_enabled ? "استقبال الطلبات متوقف مؤقتًا" : whatsappEnabled ? "تأكيد الطلب والمتابعة لواتساب" : "تأكيد الطلب"}</button>
     </form>
     <aside className="order-summary">
       <div className="order-summary-head"><span className="order-summary-icon">✓</span><div><h2>ملخص الطلب</h2><small>{items.length} أنواع منتجات · {items.reduce((n, item) => n + item.quantity, 0)} قطعة</small></div></div>
