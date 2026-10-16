@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [productsResult, categoriesResult, brandsResult] = await Promise.all([
     supabase.from("products")
-      .select("slug,model,description_ar,image_urls")
+      .select("slug")
       .eq("is_active", true)
       .not("price_egp", "is", null)
       .order("name_ar", { ascending: true }),
@@ -54,10 +54,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   for (const product of productsResult.data ?? []) {
-    const indexable = Boolean(product.model?.trim())
-      && Boolean(product.description_ar?.trim())
-      && Array.isArray(product.image_urls) && product.image_urls.length > 0;
-    if (!product.slug || !indexable) continue;
+    // Include every active, priced product with a slug, even when optional SEO fields are incomplete.
+    if (!product.slug) continue;
     entries.push({
       url: SITE_URL + "/products/" + encodeURIComponent(product.slug),
       lastModified: now,
