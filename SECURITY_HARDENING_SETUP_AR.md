@@ -1,16 +1,16 @@
 # إعدادات إصلاحات الأمان — Bein Store
 
 ## متغيرات Vercel
-- ORDER_RPC_SECRET: قيمة عشوائية طويلة (32 بايت على الأقل). يجب أن تطابق السر المحفوظ في Supabase Vault باسم bein_store_order_rpc_secret. الخادم فقط يستخدمها؛ لا تضف بادئة NEXT_PUBLIC_.
+- ORDER_RPC_SECRET: قيمة عشوائية طويلة (32 بايت على الأقل). يجب أن تطابق السر المحفوظ في Supabase Vault باسم bein_store_order_rpc_secret. أضفها إلى Vercel Production فقط؛ لا تضف بادئة NEXT_PUBLIC_. بيئات Preview/Development تستخدم قيمة مختلفة عمدًا حتى تفشل طلباتها بأمان لأنها لا يجب أن تتصل بقاعدة إنتاج الطلبات. لا تختبر إنشاء طلبات المعاينة على قاعدة إنتاج.
 - NEXT_PUBLIC_TURNSTILE_SITE_KEY و TURNSTILE_SECRET_KEY: مفتاح الموقع والسر من Cloudflare Turnstile. لا تفعّل مفتاحًا واحدًا دون الآخر؛ الكود يفشل بشكل آمن إذا كانت الإعدادات جزئية.
 - لا تضع أبدًا service_role أو أي سر في متغير NEXT_PUBLIC_*.
 
 ## تجهيز Vault قبل نشر الكود الجديد
 1. أنشئ قيمة عشوائية قوية في مدير أسرارك (لا تضعها في Git).
 2. احفظ نفس القيمة في Supabase Dashboard → Database → Vault باسم bein_store_order_rpc_secret.
-3. أضف القيمة نفسها إلى Vercel باسم ORDER_RPC_SECRET في Production وPreview.
+3. أضف القيمة نفسها إلى Vercel باسم ORDER_RPC_SECRET في Production فقط. لا تشارك سر الإنتاج مع Preview/Development؛ استخدم قاعدة بيانات وVault منفصلين إذا احتجت اختبار إنشاء الطلبات هناك.
 4. طبّق migration 202610160001_order_security_hardening.sql.
-5. اختبر معاينة الكود والطلبات الوهمية غير الصالحة، ثم انشر تحديث Next.js.
+5. اختبر المعاينة في الواجهة ومسارات الحماية؛ إرسال الطلبات من Preview يجب أن يفشل بأمان. بعد نجاح البناء والفحوصات، انشر تحديث Next.js إلى Production.
 6. بعد التأكد من أن إنشاء الطلبات يعمل عبر المسار الجديد، طبّق migration 202610160002_revoke_legacy_order_rpc.sql لإغلاق الاستدعاء المباشر القديم.
 
 ## ما يفعله التحديث
