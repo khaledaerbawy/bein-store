@@ -37,19 +37,57 @@ export default function SystemBuilder({ products, categories, whatsappUrl }: { p
   const candidates = useMemo(() => {
     const available = products.filter((product) => product.is_active && Number(product.price_egp) > 0);
     const searchable = (product: Product) => [product.name_ar, product.name_en, product.brand, product.model, JSON.stringify(product.specifications ?? {})].filter(Boolean).join(" ").toLowerCase();
-    const first = (kind: "camera" | "recorder" | "storage" | "cable") => available.find((product) => matches(product, categories, kind)) ?? null;
+    const readCapacityTb = (product: Product) => {
+      const specs = product.specifications ?? {};
+      for (const [key, value] of Object.entries(specs)) {
+        if (/capacity|storage|سعة|تخزين/i.test(key)) {
+          const numeric = Number(value);
+          if (Number.isFinite(numeric) && numeric > 0 && numeric <= 100) return numeric;
+          const match = String(value).match(/(\d+(?:\.\d+)?)\s*(tb|تيرا)/i);
+          if (match) return Number(match[1]);
+        }
+      }
+      const match = searchable(product).match(/(\d+(?:\.\d+)?)\s*(tb|تيرا)/i);
+      return match ? Number(match[1]) : null;
+    };
+    const readChannels = (product: Product) => {
+      const specs = product.specifications ?? {};
+      for (const [key, value] of Object.entries(specs)) {
+        if (/channel|channels|قنوات|عدد الكاميرات/i.test(key)) {
+          const numeric = Number(value);
+          if (Number.isInteger(numeric) && numeric > 0 && numeric <= 128) return numeric;
+        }
+      }
+      const match = searchable(product).match(/\b(4|8|16|32|64|128)\s*(?:ch|channels?|قناة|قنوات)\b/i);
+      return match ? Number(match[1]) : null;
+    };
+    const readPoePorts = (product: Product) => {
+      const text = searchable(product);
+      if (!/\bpoe\b|power over ethernet|طاقة عبر الإيثرنت/i.test(text)) return null;
+      const match = text.match(/\b(4|5|8|10|16|24|48)\s*(?:port|ports|منفذ|منافذ)\b/i);
+      return match ? Number(match[1]) : null;
+    };
     const qualityPattern = quality === "2MP" ? /2\s?mp|2\s?ميجا|2ميجا/ : /4\s?mp|4\s?ميجا|4ميجا/;
     const camera = available.find((product) => matches(product, categories, "camera") && qualityPattern.test(searchable(product))) ?? null;
-    const poeSwitch = available.find((product) => /\bpoe\b|power over ethernet|طاقة عبر الإيثرنت/i.test(searchable(product))) ?? null;
-    return { camera, recorder: first("recorder"), storage: first("storage"), poe: poeSwitch, cable: first("cable") };
-  }, [products, categories, quality]);
+    const recorder = available
+      .filter((product) => matches(product, categories, "recorder"))
+      .filter((product) => (readChannels(product) ?? 0) >= cameraCount)
+      .sort((a, b) => (readChannels(a) ?? Infinity) - (readChannels(b) ?? Infinity))[0] ?? null;
+    const storage = available
+      .filter((product) => matches(product, categories, "storage"))
+      .filter((product) => (readCapacityTb(product) ?? 0) >= storageTb)
+      .sort((a, b) => (readCapacityTb(a) ?? Infinity) - (readCapacityTb(b) ?? Infinity))[0] ?? null;
+    const poeSwitch = available
+      .filter((product) => matches(product, categories, "poe"))
+      .filter((product) => (readPoePorts(product) ?? 0) >= cameraCount)[0] ?? null;
+    return { camera, recorder, storage, poe: poeSwitch };
+  }, [products, categories, quality, cameraCount, storageTb]);
   const storageTb = Math.ceil(cameraCount * (quality === "2MP" ? 0.12 : 0.22) * days / 14 * 2) / 2;
   const parts = [
     candidates.camera ? { key: "camera", title: "كاميرات مراقبة", product: candidates.camera, quantity: cameraCount } : null,
-    candidates.recorder ? { key: "recorder", title: "جهاز تسجيل", product: candidates.recorder, quantity: 1 } : null,
-    candidates.storage ? { key: "storage", title: "هارد تسجيل", product: candidates.storage, quantity: Math.max(1, Math.ceil(storageTb / 2)) } : null,
-    poe && candidates.poe ? { key: "poe", title: "سويتش شبكة / PoE", product: candidates.poe, quantity: 1 } : null,
-    candidates.cable ? { key: "cable", title: "كابلات وملحقات", product: candidates.cable, quantity: 1 } : null
+    candidates.recorder ? { key: "recorder", title: "جهاز تسجيل بقنوات كافية", product: candidates.recorder, quantity: 1 } : null,
+    candidates.storage ? { key: "storage", title: "هارد بسعة معلومة", product: candidates.storage, quantity: 1 } : null,
+    poe && candidates.poe ? { key: "poe", title: "سويتش PoE بعدد منافذ مناسب", product: candidates.poe, quantity: 1 } : null
   ].filter((part): part is { key: string; title: string; product: Product; quantity: number } => Boolean(part));
   const estimate = parts.reduce((sum, part) => sum + Number(part.product.price_egp) * part.quantity, 0);
   const contactHref = whatsappUrl !== "#contact" ? whatsappUrl : "#contact";
@@ -108,12 +146,12 @@ export default function SystemBuilder({ products, categories, whatsappUrl }: { p
       </div>
       <div className="builder-result" id="builder-result">
         <div className="result-heading"><div><span className="builder-eyebrow">YOUR SYSTEM / 02</span><h2>{showResult ? "التكوين المقترح لاحتياجك" : "النظام المقترح لك"}</h2><p>{placeLabels[place]} · {cameraCount} كاميرات · تسجيل {days} يومًا · {quality}</p></div><div className="result-storage"><span>تقدير مبدئي للتخزين</span><b>{storageTb.toLocaleString("ar-EG")} TB</b></div></div>
-        {showResult && <div className="result-notice">تم تحديث التكوين حسب اختياراتك. {!candidates.camera ? "لم نعثر على كاميرا مسعّرة ومطابقة بوضوح لدقة " + quality + ". " : ""}{poe && !candidates.poe ? "لم نعثر على سويتش موصوف صراحةً بأنه PoE في الكتالوج. " : ""}راجع توافق الموديلات وسعة التخزين مع مختص قبل اعتماد الطلب.</div>}
+        {showResult && <div className="result-notice">تم تحديث التكوين حسب اختياراتك. {!candidates.camera ? "لم نعثر على كاميرا مسعّرة ومطابقة بوضوح لدقة " + quality + ". " : ""}{!candidates.recorder ? "لم نعثر على جهاز تسجيل موضح بعدد قنوات يكفي عدد الكاميرات المختار. " : ""}{!candidates.storage ? "لم نعثر على هارد بسعة معلومة تكفي مدة التسجيل التقديرية. " : ""}{poe && !candidates.poe ? "لم نعثر على سويتش PoE موضح بعدد منافذ كافٍ. " : ""}الكابلات والتركيب وتوافق الطاقة والتخزين النهائي تحتاج مراجعة فنية قبل اعتماد الطلب.</div>}
         <div className="result-layout"><div className="result-products">
           {parts.length ? parts.map((part) => <article className="result-product" key={part.key}><div className="result-product-image"><ProductImage product={part.product} className="result-product-photo" /></div><div className="result-product-copy"><small>{part.title}</small><Link href={"/products/" + part.product.slug}><b>{part.product.name_ar}</b></Link><span>{part.product.brand ?? "Bein Store"}{part.product.model ? " · " + part.product.model : ""}</span><strong>{money(Number(part.product.price_egp) * part.quantity)}</strong><em>الكمية المقترحة: {part.quantity}</em></div></article>) : <div className="builder-no-products">الكتالوج لا يحتوي حاليًا على منتجات كافية لتكوين قائمة آلية. تواصل مع الفريق لمراجعة احتياجك.</div>}
         </div><aside className="result-summary"><span className="summary-kicker">ESTIMATED CONFIGURATION</span><div className="summary-total-label">إجمالي المنتجات المتاحة المطابقة مبدئيًا</div><strong className="summary-total">{estimate ? money(estimate) : "يحتاج تسعيرًا"}</strong><small>لا يشمل التركيب أو الشحن، ولا يؤكد التوافق أو التوفر.</small><div className="summary-stats"><span><b>{cameraCount}</b><small>كاميرا</small></span><span><b>{storageTb.toLocaleString("ar-EG")} TB</b><small>تخزين تقديري</small></span><span><b>{poe ? (candidates.poe ? "PoE" : "غير مؤكد") : "عادي"}</b><small>الشبكة</small></span></div><button type="button" className="summary-add" disabled={!showResult || !parts.length} onClick={() => parts.forEach((part) => add(part.product, part.quantity))}>إضافة المكونات المتاحة للسلة</button><a className="summary-whatsapp" href={contactHref}>راجع التوافق مع فني ↗</a></aside></div>
       </div>
-      <div className="ad-slot" aria-label="عروض مختارة من شركائنا"><div className="ad-slot-mark">BS<span> / PLUS</span></div><div className="ad-slot-copy"><small>محتوى ترويجي من شركائنا</small><b>عروض مختارة وحلول من علامات موثوقة في عالم المراقبة والشبكات</b><span>اكتشف منتجات وعروضًا قد تساعدك في استكمال نظامك — مع بقاء اختيار المكونات بيدك.</span></div><a href={contactHref}>استكشف العروض <span>↗</span></a></div>
+      <div className="ad-slot" id="ad-space" aria-label="عروض مختارة من شركائنا"><div className="ad-slot-mark">BS<span> / PLUS</span></div><div className="ad-slot-copy"><small>محتوى ترويجي من شركائنا</small><b>عروض مختارة وحلول من علامات موثوقة في عالم المراقبة والشبكات</b><span>اكتشف منتجات وعروضًا قد تساعدك في استكمال نظامك — مع بقاء اختيار المكونات بيدك.</span></div><a href={contactHref}>استكشف العروض <span>↗</span></a></div>
     </section>
   );
 }
