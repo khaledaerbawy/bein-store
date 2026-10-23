@@ -4,6 +4,7 @@ import type { Category, Product, StoreSettings, StoreBrand, SiteBanner } from "@
 import Storefront from "@/components/storefront";
 import CartLink from "@/components/cart-link";
 import ProductImage from "@/components/product-image";
+import SystemBuilder from "@/components/system-builder";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -161,9 +162,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const whatsappUrl = storeWhatsapp ? `https://wa.me/${storeWhatsapp}` : "#contact";
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const shownCategories = categories.length ? categories : categoriesFallback;
-  const heroProduct = products.find((product) => product.brand === "Hikvision" && product.model?.startsWith("DS-2CD") && product.image_urls?.length) ?? products.find((product) => product.category_id === categories.find((item) => item.slug === "security-cameras")?.id && product.image_urls?.length) ?? products.find((product) => product.image_urls?.length) ?? null;
-  const heroRecorder = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "recorders" && product.image_urls?.length) ?? null;
-  const heroStorage = products.find((product) => categories.find((item) => item.id === product.category_id)?.slug === "storage" && product.image_urls?.length) ?? null;
   const structuredData = [
     {
       "@context": "https://schema.org",
@@ -209,126 +207,26 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       { "@type": "Question", name: "بدور على بتاع دش في أكتوبر أو مستلزمات شبكات، أعمل إيه؟", acceptedAnswer: { "@type": "Answer", text: "تواصل مع Bein Store لتأكيد توافر مستلزمات الدش والشبكات والموديل المطلوب قبل الزيارة أو الطلب." } }
     ]
   };
-  return <main className="storefront-page" dir="rtl" style={{ "--store-primary": site.primary_color, "--store-accent": site.accent_color } as React.CSSProperties}><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData).replace(/</g, "\\u003c") }} />
-    {site.show_announcement && <div className="utility-bar">
-      <div className="utility-inner">
-        <div className="utility-service-points"><span>{site.announcement_text}</span></div>
-        <div className="utility-links"><span>EGP · مصر</span><span className="utility-separator">|</span><a href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>خدمة العملاء {storeWhatsapp ? "عبر واتساب ↗" : "↗"}</a></div>
-      </div>
-    </div>}
-
+  return <main className="storefront-page" dir="rtl" style={{ "--store-primary": site.primary_color, "--store-accent": site.accent_color } as React.CSSProperties}>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData).replace(/</g, "\\u003c") }} />
+    {site.show_announcement && <div className="utility-bar"><div className="utility-inner"><div className="utility-service-points"><span>{site.announcement_text}</span></div><div className="utility-links"><span>EGP · مصر</span><span className="utility-separator">|</span><a href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>خدمة العملاء {storeWhatsapp ? "عبر واتساب ↗" : "↗"}</a></div></div></div>}
     <header className="store-header">
       <Link className="store-logo" href="/" aria-label={site.store_name + " الرئيسية"}>{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link>
-      <form className="header-search" action="/" method="get" role="search">
-        <span className="header-search-icon" aria-hidden="true">⌕</span>
-        <input type="search" name="q" defaultValue={q} placeholder="ابحث باسم المنتج أو الموديل…" aria-label="ابحث في منتجات Bein Store" />
-        <button type="submit">بحث</button>
-      </form>
-      <div className="header-actions">
-        {storeWhatsapp ? <a className="header-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="تواصل عبر واتساب"><span className="whatsapp-glyph">◔</span><span><small>تواصل معانا</small><b>واتساب</b></span></a> : null}
-        {storePhone ? <a className="header-phone" href={`tel:${storePhone.replace(/[^+\d]/g, "")}`}><span className="phone-mark" aria-hidden="true">☎</span><span><small>للاستفسارات والطلبات</small><b dir="ltr">{storePhone}</b></span></a> : !storeWhatsapp ? <a className="header-phone" href="#contact"><span className="phone-mark" aria-hidden="true">☎</span><span><small>خدمة العملاء</small><b>تواصل مع المتجر</b></span></a> : null}
-        <CartLink />
-      </div>
+      <form className="header-search" action="/" method="get" role="search"><span className="header-search-icon" aria-hidden="true">⌕</span><input type="search" name="q" defaultValue={q} placeholder="ابحث بالموديل أو اسم الجهاز أو الحل المطلوب…" aria-label="ابحث في منتجات Bein Store" /><button type="submit">بحث</button></form>
+      <div className="header-actions">{storeWhatsapp ? <a className="header-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="تواصل عبر واتساب"><span aria-hidden="true">◔</span><span><small>مساعدة فنية</small><b>تواصل معانا</b></span></a> : null}<CartLink /></div>
     </header>
-    <nav className="store-nav-row" aria-label="القائمة الرئيسية">
-      <a className="nav-all-categories" href="#categories"><span aria-hidden="true">☰</span> جميع الأقسام</a>
-      {shownCategories.slice(0, 6).map((category) => <a key={category.id} href={`/?category=${encodeURIComponent(category.slug)}#catalog`}>{category.name_ar}</a>)}
-      <a href="#services">حلول المشروعات</a>
-      <span className="nav-note"><i /> مساعدة فنية في اختيار الموديل</span>
-    </nav>
-
-    {site.show_hero && (
-    <section className="commerce-hero customer-commerce-hero">
-      <div className="hero-main-copy">
-        <div className="hero-kicker"><span /> {site.hero_badge}</div>
-        <h1>{site.hero_title}<br /><em>{site.hero_title_highlight}</em></h1>
-        <p>{site.hero_description}</p>
-        <div className="commerce-hero-actions">
-          <a className="commerce-button commerce-button-orange" href="#catalog">{site.hero_cta_text} <span aria-hidden="true">←</span></a>
-          <a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "اسألنا على واتساب" : "تواصل مع المتجر"}</a>
-        </div>
-        <div className="customer-hero-benefits"><span>اختيار الموديل المناسب</span><span>مراجعة التوافق قبل الطلب</span><span>تأكيد السعر والتوفر</span></div>
-      </div>
-      <div className="customer-hero-products" aria-label="منتجات من كتالوج Bein Store">
-        <div className="customer-hero-main-photo">
-          {site.hero_image_url ? <img className="customer-hero-camera" src={site.hero_image_url} alt={site.store_name} /> : heroProduct ? <ProductImage product={heroProduct} className="customer-hero-camera" /> : <div className="customer-hero-photo-empty">كاميرات مراقبة</div>}
-          <div className="customer-hero-photo-caption"><small>{heroProduct?.brand ?? site.store_name}</small><b>{heroProduct?.name_ar ?? site.store_name}</b></div>
-        </div>
-        <div className="customer-hero-secondary">
-          {heroRecorder ? <div className="customer-hero-secondary-photo"><ProductImage product={heroRecorder} className="customer-hero-small-image" /><span>أجهزة التسجيل</span></div> : null}
-          {heroStorage ? <div className="customer-hero-secondary-photo"><ProductImage product={heroStorage} className="customer-hero-small-image" /><span>هاردات التخزين</span></div> : null}
-        </div>
-      </div>
-    </section>
-    )}
-
+    <nav className="store-nav-row" aria-label="القائمة الرئيسية"><a className="nav-all-categories" href="#system-builder">✳ كوّن نظامك</a><a href="#catalog">الكتالوج</a><a href="#categories">الأقسام</a><a href="#brands">الماركات</a><a href="#services">حلول المشروعات</a><a href="#ad-space">مساحة إعلانية</a><span className="nav-note">مساعدة فنية في اختيار الموديل</span></nav>
     {renderSiteBanners(banners, "after_hero")}
-
-    {site.show_categories && (
-    <section className="category-section" id="categories">
-      <div className="commerce-section-head"><div><span className="section-overline">تسوّق بسهولة</span><h2>{site.categories_title}</h2><p className="section-subtitle">{site.categories_description}</p></div><a href="#catalog" className="section-text-link">عرض الكتالوج <span>←</span></a></div>
-      <div className="category-card-grid">
-        {shownCategories.map((category, index) => {
-          const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" };
-          const representativeProduct = products.find((product) => product.category_id === category.id && product.image_urls?.length) ?? null;
-          return <a className="category-tile" href={`/?category=${encodeURIComponent(category.slug)}#catalog`} key={category.id}>
-            <span className="category-tile-image">
-              {category.image_url ? <img className="category-photo" src={category.image_url} alt="" loading="lazy" /> : representativeProduct ? <ProductImage product={representativeProduct} className="category-photo" /> : <span className="category-image-fallback">BS</span>}
-            </span>
-            <span className="category-tile-copy"><b>{category.name_ar || detail.title}</b><small>{category.description_ar || detail.description}</small></span>
-            <span className="category-tile-link">عرض المنتجات <span>←</span></span>
-          </a>;
-        })}
-      </div>
-    </section>
-
-    )}
-
+    <SystemBuilder products={products} categories={shownCategories} whatsappUrl={whatsappUrl} />
     {renderSiteBanners(banners, "after_categories")}
-
-    {site.show_catalog && (
-    <section className="catalog-section" id="catalog">
-      <div className="commerce-section-head"><div><span className="section-overline">كتالوج Bein Store</span><h2>{site.catalog_title}</h2><p className="section-subtitle">{site.catalog_description}</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>
-      {!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}
-    </section>
-
-    )}
-
-    {site.show_brands && (
-    <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">{site.brands_title}</span><div className="brand-logo-list">{brands.map(brand => <div className="brand-logo-card" key={brand.id}>{brand.website_url ? <a href={brand.website_url} target="_blank" rel="noreferrer" aria-label={brand.name}>{brand.logo_url ? <img src={brand.logo_url} alt={brand.name} loading="lazy" /> : <span className="brand-managed-wordmark">{brand.name}</span>}</a> : brand.logo_url ? <img src={brand.logo_url} alt={brand.name} loading="lazy" /> : <span className="brand-managed-wordmark">{brand.name}</span>}</div>)}</div><span className="brands-note">توافر كل موديل وسعره بيتأكد قبل الطلب</span></section>
-
-    )}
-
-    {site.show_services && (
-    <section className="service-section" id="services">
-      <div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a><Link className="local-seo-inline-link" href="/services/cameras-6-october">كاميرات مراقبة وشبكات في 6 أكتوبر ←</Link></div>
-      <div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>حدّد عدد الكاميرات</b><p>والأماكن الداخلية والخارجية المطلوب تغطيتها.</p></div></div><div className="service-step"><span>03</span><div><b>اختار طريقة التسجيل</b><p>DVR أو NVR مع سعة تخزين مناسبة.</p></div></div><div className="service-step"><span>04</span><div><b>راجع توافق المكونات</b><p>نتأكد من التوصيلات والملحقات قبل التجهيز.</p></div></div></div>
-    </section>
-
-    )}
-
+    {site.show_categories && <section className="category-section" id="categories"><div className="commerce-section-head"><div><span className="section-overline">ابدأ من احتياجك</span><h2>{site.categories_title}</h2><p className="section-subtitle">تصفح المكونات إذا كنت تعرف ما تحتاجه، أو ارجع لأداة تكوين النظام لتجميعها معًا.</p></div><a href="#system-builder" className="section-text-link">كوّن نظامًا متكاملًا ←</a></div><div className="category-card-grid">{shownCategories.map((category, index) => { const detail = categoryDetails[category.slug] ?? { code: String(index + 1).padStart(2, "0"), title: category.name_ar, description: "منتجات ومستلزمات القسم" }; const representativeProduct = products.find((product) => product.category_id === category.id && product.image_urls?.length) ?? null; return <a className="category-tile" href={"/?category=" + encodeURIComponent(category.slug) + "#catalog"} key={category.id}><span className="category-tile-image">{category.image_url ? <img className="category-photo" src={category.image_url} alt="" loading="lazy" /> : representativeProduct ? <ProductImage product={representativeProduct} className="category-photo" /> : <span className="category-image-fallback">BS</span>}</span><span className="category-tile-copy"><b>{category.name_ar || detail.title}</b><small>{category.description_ar || detail.description}</small></span><span className="category-tile-link">عرض المنتجات ←</span></a>; })}</div></section>}
+    {site.show_catalog && <section className="catalog-section" id="catalog"><div className="commerce-section-head"><div><span className="section-overline">المكونات المتاحة</span><h2>{site.catalog_title}</h2><p className="section-subtitle">المنتجات المعروضة لا تعني وحدها أن كل المكونات متوافقة؛ راجع المواصفات قبل الطلب.</p></div><div className="catalog-meta"><span className="catalog-live-dot" /> {products.length} منتج · EGP</div></div>{!configured ? <div className="empty-state"><div className="empty-symbol">BS</div><h3>الكتالوج قيد التجهيز</h3><p>قاعدة بيانات المتجر لم تُربط بعد. بعد إعداد الربط ونشر المنتجات الفعلية، ستظهر هنا الأسعار والموديلات المتاحة.</p></div> : <Storefront products={products} categories={categories} initialQuery={q} initialCategoryId={initialCategoryId} />}</section>}
+    {site.show_brands && <section className="brands-strip" id="brands" aria-label="الماركات المتاحة"><span className="brands-title">{site.brands_title}</span><div className="brand-logo-list">{brands.map((brand) => <div className="brand-logo-card" key={brand.id}>{brand.website_url ? <a href={brand.website_url} target="_blank" rel="noreferrer" aria-label={brand.name}>{brand.logo_url ? <img src={brand.logo_url} alt={brand.name} loading="lazy" /> : <span className="brand-managed-wordmark">{brand.name}</span>}</a> : brand.logo_url ? <img src={brand.logo_url} alt={brand.name} loading="lazy" /> : <span className="brand-managed-wordmark">{brand.name}</span>}</div>)}</div><span className="brands-note">تأكد من الموديل والتوافق قبل اعتماد الطلب</span></section>}
+    {site.show_services && <section className="service-section" id="services"><div className="service-intro"><span className="section-overline">{site.services_kicker}</span><h2>{site.services_title}<br /><em>{site.services_highlight}</em></h2><p>{site.services_description}</p><a className="commerce-button commerce-button-orange" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "ناقش احتياجك معانا ↗" : "تواصل مع المتجر"}</a><Link className="local-seo-inline-link" href="/services/cameras-6-october">كاميرات مراقبة وشبكات في 6 أكتوبر ←</Link></div><div className="service-steps"><div className="service-step"><span>01</span><div><b>حدّد المكان والتغطية</b><p>بيت، محل، مكتب أو مشروع أكبر.</p></div></div><div className="service-step"><span>02</span><div><b>اختار الكاميرات والتسجيل</b><p>الدقة وعدد القنوات وطريقة التسجيل المناسبة.</p></div></div><div className="service-step"><span>03</span><div><b>احسب التخزين والشبكة</b><p>راجع مدة التسجيل ومتطلبات PoE والكابلات.</p></div></div><div className="service-step"><span>04</span><div><b>راجع التوافق مع مختص</b><p>نتأكد من المكونات قبل تجهيز الطلب.</p></div></div></div></section>}
+    <section className="ad-slot" id="ad-space" aria-label="مساحة إعلانية للماركات والشركاء"><div className="ad-slot-mark">AD<span> / 02</span></div><div className="ad-slot-copy"><small>مساحة إعلانية للشركاء</small><b>ضع منتجك أو عرضك أمام جمهور يبحث عن حلول المراقبة والشبكات</b><span>مساحة منفصلة عن أداة تكوين النظام، جاهزة لربط بانرات معتمدة من لوحة الإدارة.</span></div><a href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>استفسر عن الإعلان ↗</a></section>
     {renderSiteBanners(banners, "before_footer")}
-
-    <section className="local-seo-section section-wrap" aria-labelledby="local-seo-heading">
-      <div className="section-heading"><div><span className="section-overline">BEIN STORE · ONLINE STORE</span><h2 id="local-seo-heading">كاميرات مراقبة وأجهزة تسجيل وشبكات — اسأل عن التوصيل إلى 6 أكتوبر</h2></div></div>
-      <p>بين ستور متجر إلكتروني لعرض كاميرات المراقبة وأجهزة التسجيل DVR وNVR والهاردات وسويتشات PoE وكابلات الشبكات. لو بتبحث عن كاميرا أو جهاز بموديل محدد، افتح صفحة المنتج لمراجعة المواصفات والصور، وتأكد من السعر والتوافر والتوصيل مع المتجر قبل اعتماد الطلب.</p>
-      <p>بتبحث عن «بتاع دش في أكتوبر» أو مستلزمات دش وشبكات؟ ابعت اسم القطعة أو صورة الموديل واسأل عن التوافر وإمكانية التوصيل لمنطقتك. الموقع متجر إلكتروني، وليس عنوان محل لاستقبال الزوار.</p>
-      <nav className="local-seo-link-groups" aria-label="تصفح الأقسام والماركات">
-        <div><h3>تصفح الأقسام</h3><ul>{categories.filter(category => category.is_active !== false).map(category => <li key={category.id}><Link href={"/categories/" + encodeURIComponent(category.slug)}>{category.name_ar}</Link></li>)}</ul></div>
-        <div><h3>تصفح الماركات</h3><ul>{brands.filter(brand => brand.is_active).map(brand => <li key={brand.id}><Link href={"/brands/" + encodeURIComponent(brand.slug)}>منتجات {brand.name}</Link></li>)}</ul></div>
-      </nav>
-      <div className="local-seo-faq">
-        <details><summary>إزاي أختار كاميرا مراقبة مناسبة؟</summary><p>حدد مكان التركيب، داخلي أو خارجي، الدقة المطلوبة، الرؤية الليلية وطريقة التسجيل. لو مش متأكد، ابعت تفاصيل المكان وعدد الكاميرات للمتجر.</p></details>
-        <details><summary>إيه الفرق بين DVR وNVR؟</summary><p>جهاز DVR غالبًا بيستخدم مع كاميرات الأنظمة التناظرية HD، أما NVR فبيستخدم لتسجيل كاميرات الشبكة IP. لازم تتأكد من توافق الكاميرات والمنافذ والطاقة قبل الشراء.</p></details>
-        <details><summary>هل الأسعار والتوافر نهائيين؟</summary><p>أي منتج سعره مبدئي أو مرجعي يحتاج تأكيد من المتجر. بنراجع رقم الموديل والسعر والتوافر ورسوم الشحن قبل اعتماد الطلب.</p></details>
-      </div>
-    </section>
-
-    <footer className="commerce-footer" id="contact">
-      <div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div>
-      <div className="footer-column"><b>تصفّح المتجر</b><a href="#categories">الأقسام</a><a href="#catalog">المنتجات والأسعار</a><a href="#services">حلول المشروعات</a></div>
-      <div className="footer-column"><b>تواصل معانا</b>{storePhone && <a href={`tel:${storePhone.replace(/[^+\d]/g, "")}`} dir="ltr">{storePhone}</a>}{storeWhatsapp && <a href={whatsappUrl} target="_blank" rel="noreferrer">واتساب</a>}{storeAddress && <span>{storeAddress}</span>}{!storePhone && !storeWhatsapp && !storeAddress && <span>بيانات التواصل هتظهر هنا بعد إعدادها.</span>}</div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} {site.store_name}. جميع الحقوق محفوظة.</span><span>كاميرات · أجهزة تسجيل · شبكات · إكسسوارات</span></div>
-    </footer>
+    <section className="local-seo-section" aria-labelledby="local-seo-heading"><div className="section-heading"><div><span className="section-overline">BEIN STORE · ONLINE STORE</span><h2 id="local-seo-heading">كاميرات مراقبة وأجهزة تسجيل وشبكات</h2></div></div><p>بين ستور متجر إلكتروني لعرض كاميرات المراقبة وأجهزة التسجيل DVR وNVR والهاردات وسويتشات PoE وكابلات الشبكات. استخدم أداة تكوين النظام للحصول على قائمة أولية، ثم أكد رقم الموديل والسعر والتوافق والتوصيل مع المتجر قبل اعتماد الطلب.</p><nav className="local-seo-link-groups" aria-label="تصفح الأقسام والماركات"><div><h3>تصفح الأقسام</h3><ul>{categories.filter((category) => category.is_active !== false).map((category) => <li key={category.id}><Link href={"/categories/" + encodeURIComponent(category.slug)}>{category.name_ar}</Link></li>)}</ul></div><div><h3>تصفح الماركات</h3><ul>{brands.filter((brand) => brand.is_active).map((brand) => <li key={brand.id}><Link href={"/brands/" + encodeURIComponent(brand.slug)}>منتجات {brand.name}</Link></li>)}</ul></div></nav><div className="local-seo-faq"><details><summary>هل تكوين النظام يضمن التوافق؟</summary><p>لا، التكوين توصية أولية تعتمد على بيانات الكتالوج. يجب مراجعة الموديل وعدد القنوات والطاقة وسعة التخزين مع مختص قبل اعتماد المكونات.</p></details><details><summary>هل حساب التخزين نهائي؟</summary><p>التقدير تقريبي ويتغير حسب الترميز ومعدل الإطارات والحركة ونمط التسجيل وإعدادات الكاميرات. لا تعتمد عليه كحساب هندسي نهائي.</p></details><details><summary>هل السعر الظاهر عرض سعر نهائي؟</summary><p>راجع المتجر لتأكيد السعر والتوفر ورسوم الشحن قبل اعتماد الطلب.</p></details></div></section>
+    <footer className="commerce-footer" id="contact"><div className="footer-main"><Link className="store-logo footer-store-logo" href="/">{site.logo_url ? <img className="logo-image" src={site.logo_url} alt={site.store_name} /> : <span className="logo-symbol">B<span>.</span></span>}<span className="logo-wordmark">{site.store_name}<small>SECURITY SYSTEMS</small></span></Link><p>{site.footer_text}</p></div><div className="footer-column"><b>تصفّح المتجر</b><a href="#system-builder">كوّن نظامك</a><a href="#catalog">المنتجات والأسعار</a><a href="#services">حلول المشروعات</a></div><div className="footer-column"><b>تواصل معانا</b>{storePhone && <a href={"tel:" + storePhone.replace(/[^+\d]/g, "")} dir="ltr">{storePhone}</a>}{storeWhatsapp && <a href={whatsappUrl} target="_blank" rel="noreferrer">واتساب</a>}{storeAddress && <span>{storeAddress}</span>}{!storePhone && !storeWhatsapp && !storeAddress && <span>بيانات التواصل هتظهر هنا بعد إعدادها.</span>}</div><div className="footer-bottom"><span>© {new Date().getFullYear()} {site.store_name}. جميع الحقوق محفوظة.</span><span>كاميرات · أجهزة تسجيل · شبكات · إكسسوارات</span></div></footer>
   </main>;
 }
