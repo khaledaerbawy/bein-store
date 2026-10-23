@@ -5,8 +5,9 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/cart", "/checkout"] }
+      { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/cart", "/checkout"] },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`
+    sitemap: SITE_URL + "/sitemap.xml",
+    host: SITE_URL,
   };
 }
