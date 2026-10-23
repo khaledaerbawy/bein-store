@@ -36,9 +36,13 @@ export default function SystemBuilder({ products, categories, whatsappUrl }: { p
   const { add } = useCart();
   const candidates = useMemo(() => {
     const available = products.filter((product) => product.is_active && Number(product.price_egp) > 0);
-    const first = (kind: "camera" | "recorder" | "storage" | "poe" | "cable") => available.find((product) => matches(product, categories, kind)) ?? null;
-    return { camera: first("camera"), recorder: first("recorder"), storage: first("storage"), poe: first("poe"), cable: first("cable") };
-  }, [products, categories]);
+    const searchable = (product: Product) => [product.name_ar, product.name_en, product.brand, product.model, JSON.stringify(product.specifications ?? {})].filter(Boolean).join(" ").toLowerCase();
+    const first = (kind: "camera" | "recorder" | "storage" | "cable") => available.find((product) => matches(product, categories, kind)) ?? null;
+    const qualityPattern = quality === "2MP" ? /2\s?mp|2\s?ميجا|2ميجا/ : /4\s?mp|4\s?ميجا|4ميجا/;
+    const camera = available.find((product) => matches(product, categories, "camera") && qualityPattern.test(searchable(product))) ?? null;
+    const poeSwitch = available.find((product) => /\bpoe\b|power over ethernet|طاقة عبر الإيثرنت/i.test(searchable(product))) ?? null;
+    return { camera, recorder: first("recorder"), storage: first("storage"), poe: poeSwitch, cable: first("cable") };
+  }, [products, categories, quality]);
   const storageTb = Math.ceil(cameraCount * (quality === "2MP" ? 0.12 : 0.22) * days / 14 * 2) / 2;
   const parts = [
     candidates.camera ? { key: "camera", title: "كاميرات مراقبة", product: candidates.camera, quantity: cameraCount } : null,
@@ -105,10 +109,10 @@ export default function SystemBuilder({ products, categories, whatsappUrl }: { p
       <div className="ad-slot" aria-label="مساحة إعلانية"><div className="ad-slot-mark">AD<span> / 01</span></div><div className="ad-slot-copy"><small>مساحة إعلانية مخصصة</small><b>اعرض علامتك التجارية أمام عملاء أنظمة المراقبة والشبكات</b><span>بانر أفقي للماركات والعروض المعتمدة — بدون مقاطعة تجربة تكوين النظام.</span></div><a href={contactHref}>تواصل للإعلان <span>↗</span></a></div>
       <div className="builder-result" id="builder-result">
         <div className="result-heading"><div><span className="builder-eyebrow">YOUR SYSTEM / 02</span><h2>{showResult ? "التكوين المقترح لاحتياجك" : "النظام المقترح لك"}</h2><p>{placeLabels[place]} · {cameraCount} كاميرات · تسجيل {days} يومًا · {quality}</p></div><div className="result-storage"><span>تقدير مبدئي للتخزين</span><b>{storageTb.toLocaleString("ar-EG")} TB</b></div></div>
-        {showResult && <div className="result-notice">تم تحديث التكوين حسب اختياراتك. راجع توافق كل موديل وسعة التخزين مع مختص قبل اعتماد الطلب.</div>}
+        {showResult && <div className="result-notice">تم تحديث التكوين حسب اختياراتك. {!candidates.camera ? "لم نعثر على كاميرا مسعّرة ومطابقة بوضوح لدقة " + quality + ". " : ""}{poe && !candidates.poe ? "لم نعثر على سويتش موصوف صراحةً بأنه PoE في الكتالوج. " : ""}راجع توافق الموديلات وسعة التخزين مع مختص قبل اعتماد الطلب.</div>}
         <div className="result-layout"><div className="result-products">
           {parts.length ? parts.map((part) => <article className="result-product" key={part.key}><div className="result-product-image"><ProductImage product={part.product} className="result-product-photo" /></div><div className="result-product-copy"><small>{part.title}</small><Link href={"/products/" + part.product.slug}><b>{part.product.name_ar}</b></Link><span>{part.product.brand ?? "Bein Store"}{part.product.model ? " · " + part.product.model : ""}</span><strong>{money(Number(part.product.price_egp) * part.quantity)}</strong><em>الكمية المقترحة: {part.quantity}</em></div></article>) : <div className="builder-no-products">الكتالوج لا يحتوي حاليًا على منتجات كافية لتكوين قائمة آلية. تواصل مع الفريق لمراجعة احتياجك.</div>}
-        </div><aside className="result-summary"><span className="summary-kicker">ESTIMATED CONFIGURATION</span><div className="summary-total-label">إجمالي المنتجات المتاحة المطابقة مبدئيًا</div><strong className="summary-total">{estimate ? money(estimate) : "يحتاج تسعيرًا"}</strong><small>لا يشمل التركيب أو الشحن، ولا يؤكد التوافق أو التوفر.</small><div className="summary-stats"><span><b>{cameraCount}</b><small>كاميرا</small></span><span><b>{storageTb.toLocaleString("ar-EG")} TB</b><small>تخزين تقديري</small></span><span><b>{poe ? "PoE" : "عادي"}</b><small>الشبكة</small></span></div><button type="button" className="summary-add" disabled={!showResult || !parts.length} onClick={() => parts.forEach((part) => add(part.product, part.quantity))}>إضافة المكونات المتاحة للسلة</button><a className="summary-whatsapp" href={contactHref}>راجع التوافق مع فني ↗</a></aside></div>
+        </div><aside className="result-summary"><span className="summary-kicker">ESTIMATED CONFIGURATION</span><div className="summary-total-label">إجمالي المنتجات المتاحة المطابقة مبدئيًا</div><strong className="summary-total">{estimate ? money(estimate) : "يحتاج تسعيرًا"}</strong><small>لا يشمل التركيب أو الشحن، ولا يؤكد التوافق أو التوفر.</small><div className="summary-stats"><span><b>{cameraCount}</b><small>كاميرا</small></span><span><b>{storageTb.toLocaleString("ar-EG")} TB</b><small>تخزين تقديري</small></span><span><b>{poe ? (candidates.poe ? "PoE" : "غير مؤكد") : "عادي"}</b><small>الشبكة</small></span></div><button type="button" className="summary-add" disabled={!showResult || !parts.length} onClick={() => parts.forEach((part) => add(part.product, part.quantity))}>إضافة المكونات المتاحة للسلة</button><a className="summary-whatsapp" href={contactHref}>راجع التوافق مع فني ↗</a></aside></div>
       </div>
     </section>
   );
