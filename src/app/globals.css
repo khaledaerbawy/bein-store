@@ -4054,3 +4054,11 @@ html { scroll-padding-top: 24px; }
   .site-promo-banner img { display: none; }
   .commerce-footer { grid-template-columns: 1fr 1fr; gap: 20px 12px; padding: 28px 14px 16px; }
 }
+
+
+/* Accessibility refinements for the technical storefront */
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid #ff9a57; outline-offset: 3px; }
+.price-confirmation-label { display: block; margin-top: 4px; color: #ffb27f; font-size: 9px; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
