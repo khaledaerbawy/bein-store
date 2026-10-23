@@ -9,6 +9,12 @@ import ProductImage from "@/components/product-image";
 type Place = "home" | "shop" | "office" | "warehouse";
 type Quality = "2MP" | "4MP";
 const placeLabels: Record<Place, string> = { home: "منزل / فيلا", shop: "محل تجاري", office: "شركة / مكتب", warehouse: "مصنع / مخزن" };
+const cameraPositions: Array<[number, number]> = [
+  [57,80],[300,18],[490,96],[280,185],[68,220],[510,215],[190,132],[412,130],
+  [100,115],[150,140],[220,100],[260,65],[340,55],[390,75],[440,110],[470,145],
+  [440,175],[390,200],[340,220],[300,250],[240,240],[200,210],[150,190],[100,175],
+  [120,145],[180,115],[240,150],[320,130],[360,160],[420,150],[250,200],[330,190]
+];
 const money = (value: number) => new Intl.NumberFormat("ar-EG", { style: "currency", currency: "EGP", maximumFractionDigits: 0 }).format(value);
 
 function categorySlug(product: Product, categories: Category[]) {
@@ -119,12 +125,7 @@ export default function SystemBuilder({ products, categories, whatsappUrl, showP
               <path d="M118 102 L188 76 L241 98 L171 124 Z" fill="#294454" stroke="#5a7783"/><path d="M119 102 L171 124 L171 174 L119 151 Z" fill="#213b4a" stroke="#496775"/><path d="M171 124 L241 98 L241 149 L171 174 Z" fill="#1b3342" stroke="#496775"/>
               <path d="M298 72 L359 50 L412 71 L351 94 Z" fill="#2c4757" stroke="#5a7783"/><path d="M298 72 L351 94 L351 138 L298 116 Z" fill="#1e3747" stroke="#496775"/><path d="M351 94 L412 71 L412 116 L351 138 Z" fill="#182f3e" stroke="#496775"/>
               <path d="M100 181 L166 209 L166 247 L100 219 Z" fill="#263f4d" stroke="#53717d"/><path d="M312 197 L385 171 L385 211 L312 237 Z" fill="#1f3948" stroke="#53717d"/>
-              <g filter="url(#glow)"><path d="M57 80 L133 148 L39 172 Z" fill="#ff6a21" opacity=".15"/><circle cx="57" cy="80" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="57" cy="80" r="4" fill="#fff"/>
-              <path d="M300 18 L376 86 L282 110 Z" fill="#ff6a21" opacity=".15"/><circle cx="300" cy="18" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="300" cy="18" r="4" fill="#fff"/>
-              <path d="M490 96 L566 164 L472 188 Z" fill="#ff6a21" opacity=".15"/><circle cx="490" cy="96" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="490" cy="96" r="4" fill="#fff"/>
-              <path d="M280 185 L356 253 L262 277 Z" fill="#ff6a21" opacity=".15"/><circle cx="280" cy="185" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="280" cy="185" r="4" fill="#fff"/>
-              <circle cx="68" cy="220" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="68" cy="220" r="4" fill="#fff"/><circle cx="510" cy="215" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="510" cy="215" r="4" fill="#fff"/>
-              <circle cx="190" cy="132" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="190" cy="132" r="4" fill="#fff"/><circle cx="412" cy="130" r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx="412" cy="130" r="4" fill="#fff"/></g>
+              <g filter="url(#glow)">{cameraPositions.slice(0, cameraCount).map(([x, y], index) => <g key={index}><path d={`M ${x} ${y} L ${x+42} ${y+48} L ${x-18} ${y+58} Z`} fill="#ff6a21" opacity=".15"/><circle cx={x} cy={y} r="13" fill="#ff641f" stroke="#ffb17f" strokeWidth="2"/><circle cx={x} cy={y} r="4" fill="#fff"/></g>)}</g>
               <text x="130" y="292" fill="#9fb7c1" fontSize="13">ZONE A / داخلي</text><text x="375" y="282" fill="#9fb7c1" fontSize="13">ZONE B / خارجي</text>
             </g>
           </svg>
