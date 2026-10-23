@@ -97,6 +97,7 @@ export default function SystemBuilder({ products, categories, whatsappUrl, showP
   ].filter((part): part is { key: string; title: string; product: Product; quantity: number } => Boolean(part));
   const estimate = parts.reduce((sum, part) => sum + Number(part.product.price_egp) * part.quantity, 0);
   const contactHref = whatsappUrl !== "#contact" ? whatsappUrl : "#contact";
+  const contactIsExternal = /^https?:\/\//i.test(contactHref);
 
   return (
     <section className="system-builder" id="system-builder" aria-labelledby="builder-title">
@@ -152,7 +153,7 @@ export default function SystemBuilder({ products, categories, whatsappUrl, showP
           {parts.length ? parts.map((part) => <article className="result-product" key={part.key}><div className="result-product-image"><ProductImage product={part.product} className="result-product-photo" /></div><div className="result-product-copy"><small>{part.title}</small><Link href={"/products/" + part.product.slug}><b>{part.product.name_ar}</b></Link><span>{part.product.brand ?? "Bein Store"}{part.product.model ? " · " + part.product.model : ""}</span><strong>{money(Number(part.product.price_egp) * part.quantity)}</strong><em>الكمية المقترحة: {part.quantity}</em></div></article>) : <div className="builder-no-products">الكتالوج لا يحتوي حاليًا على منتجات كافية لتكوين قائمة آلية. تواصل مع الفريق لمراجعة احتياجك.</div>}
         </div><aside className="result-summary"><span className="summary-kicker">ESTIMATED CONFIGURATION</span><div className="summary-total-label">إجمالي المنتجات المتاحة المطابقة مبدئيًا</div><strong className="summary-total">{estimate ? money(estimate) : "يحتاج تسعيرًا"}</strong><small>لا يشمل التركيب أو الشحن، ولا يؤكد التوافق أو التوفر.</small><div className="summary-stats"><span><b>{cameraCount}</b><small>كاميرا</small></span><span><b>{storageTb.toLocaleString("ar-EG")} TB</b><small>تخزين تقديري</small></span><span><b>{poe ? (candidates.poe ? "PoE" : "غير مؤكد") : "عادي"}</b><small>الشبكة</small></span></div><button type="button" className="summary-add" disabled={!showResult || !parts.length} onClick={() => parts.forEach((part) => add(part.product, part.quantity))}>إضافة المكونات المتاحة للسلة</button><a className="summary-whatsapp" href={contactHref}>راجع التوافق مع فني ↗</a></aside></div>
       </div>
-      {showPartnerOffers &&       <div className="ad-slot" id="ad-space" aria-label="عروض مختارة من شركائنا"><div className="ad-slot-mark">BS<span> / PLUS</span></div><div className="ad-slot-copy"><small>محتوى ترويجي من شركائنا</small><b>عروض مختارة وحلول من علامات موثوقة في عالم المراقبة والشبكات</b><span>اكتشف منتجات وعروضًا قد تساعدك في استكمال نظامك — مع بقاء اختيار المكونات بيدك.</span></div><a href={contactHref}>استكشف العروض <span>↗</span></a></div>}
+      {showPartnerOffers &&       <div className="ad-slot" id="ad-space" aria-label="عروض مختارة من شركائنا"><div className="ad-slot-mark">BS<span> / PLUS</span></div><div className="ad-slot-copy"><small>محتوى ترويجي من شركائنا</small><b>حلول مختارة من علامات موثوقة في عالم المراقبة والشبكات</b><span>اسألنا عن العروض المتاحة وكيفية استكمال نظامك — مع بقاء اختيار المكونات بيدك.</span></div><a href={contactHref} target={contactIsExternal ? "_blank" : undefined} rel={contactIsExternal ? "noreferrer" : undefined}>اسألنا عن العروض <span>↗</span></a></div>}
     </section>
   );
 }
