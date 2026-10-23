@@ -4062,3 +4062,29 @@ html { scroll-padding-top: 24px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+
+/* Final layout refinements: keep the system builder at the page end and align its accents with Bein Store blue. */
+.system-builder .builder-brand-mark { border-color: #1766bf; color: #8fc1ff; box-shadow: inset 0 0 22px #1766bf24; }
+.system-builder .builder-proof i,
+.system-builder .scene-live-dot,
+.system-builder .legend-camera { background: #4c9cff; box-shadow: 0 0 0 4px #1766bf26; }
+.system-builder .builder-eyebrow,
+.system-builder .builder-intro h1 em,
+.system-builder .result-heading h2 em,
+.system-builder .builder-steps span.active,
+.system-builder .control-output,
+.system-builder .result-storage b,
+.system-builder .result-product-copy small,
+.system-builder .result-product-copy strong,
+.system-builder .summary-kicker,
+.system-builder .summary-total { color: #78b5ff; }
+.system-builder .place-option.selected,
+.system-builder .segmented-options button.selected { border-color: #438fdf; background: #102b45; color: #a7d1ff; box-shadow: inset 0 0 0 1px #438fdf38; }
+.system-builder .builder-range,
+.system-builder .poe-toggle input { accent-color: #438fdf; }
+.system-builder .builder-primary-action,
+.system-builder .summary-add { background: linear-gradient(100deg,#1459a6,#287bd0); box-shadow: 0 10px 28px #1766bf25; }
+.system-builder .result-summary { border-color: #2c5275; background: linear-gradient(155deg,#102b45,#0b1925 78%); }
+.system-builder .result-notice { border-color: #315c83; background: #10263a; color: #b9d9f8; }
+.system-builder .summary-whatsapp { border-color: #315c83; color: #b9d9f8; }
