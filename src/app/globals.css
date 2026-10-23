@@ -3780,8 +3780,7 @@ body { font-family:"Tajawal",Tahoma,Arial,sans-serif; }
   --bs-orange-light: #ff9a57;
 }
 html { scroll-padding-top: 24px; }
-body { background: var(--bs-bg); color: var(--bs-text); }
-.storefront-page { min-height: 100vh; background: radial-gradient(ellipse at 50% -15%, #173246 0, #07131e 46rem, #050d15 100%); color: var(--bs-text); }
+.storefront-page { min-height: 100vh; font-family: "Tajawal", Tahoma, Arial, sans-serif; background: radial-gradient(ellipse at 50% -15%, #173246 0, #07131e 46rem, #050d15 100%); color: var(--bs-text); }
 .store-header { min-height: 76px; height: auto; padding: 14px clamp(16px,3.4vw,54px); gap: 22px; border-bottom: 1px solid #1b3040; background: rgba(5,15,24,.94); color: var(--bs-text); }
 .store-logo { display: flex; align-items: center; gap: 10px; min-width: max-content; }
 .logo-symbol { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(145deg,#ff8a36,#ff4e14); color: #08121b; font-size: 24px; font-weight: 900; }
