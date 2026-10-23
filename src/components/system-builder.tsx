@@ -34,6 +34,7 @@ export default function SystemBuilder({ products, categories, whatsappUrl, showP
   const [poe, setPoe] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const { add } = useCart();
+  const storageTb = Math.ceil(cameraCount * (quality === "2MP" ? 0.12 : 0.22) * days / 14 * 2) / 2;
   const candidates = useMemo(() => {
     const available = products.filter((product) => product.is_active && Number(product.price_egp) > 0);
     const searchable = (product: Product) => [product.name_ar, product.name_en, product.brand, product.model, JSON.stringify(product.specifications ?? {})].filter(Boolean).join(" ").toLowerCase();
@@ -82,7 +83,6 @@ export default function SystemBuilder({ products, categories, whatsappUrl, showP
       .filter((product) => (readPoePorts(product) ?? 0) >= cameraCount)[0] ?? null;
     return { camera, recorder, storage, poe: poeSwitch };
   }, [products, categories, quality, cameraCount, storageTb]);
-  const storageTb = Math.ceil(cameraCount * (quality === "2MP" ? 0.12 : 0.22) * days / 14 * 2) / 2;
   const parts = [
     candidates.camera ? { key: "camera", title: "كاميرات مراقبة", product: candidates.camera, quantity: cameraCount } : null,
     candidates.recorder ? { key: "recorder", title: "جهاز تسجيل بقنوات كافية", product: candidates.recorder, quantity: 1 } : null,
