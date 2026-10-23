@@ -65,7 +65,13 @@ async function getBanners(): Promise<SiteBanner[]> {
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
   if (error) { console.error("Site banners query failed:", error.message); return []; }
-  return (data ?? []) as SiteBanner[];
+  const now = Date.now();
+  return ((data ?? []) as SiteBanner[]).filter((banner) => {
+    const startsAt = banner.starts_at ? Date.parse(banner.starts_at) : null;
+    const endsAt = banner.ends_at ? Date.parse(banner.ends_at) : null;
+    return (startsAt === null || (Number.isFinite(startsAt) && startsAt <= now)) &&
+      (endsAt === null || (Number.isFinite(endsAt) && endsAt > now));
+  });
 }
 
 const categoryDetails: Record<string, { code: string; title: string; description: string }> = {
@@ -137,7 +143,7 @@ async function getStoreSettings(): Promise<StoreSettings> {
 function renderSiteBanners(banners: SiteBanner[], placement: SiteBanner["placement"]) {
   const items = banners.filter((banner) => banner.placement === placement);
   if (!items.length) return null;
-  return <section className={`site-promo-banners site-promo-banners-${placement}`} aria-label="عروض المتجر">
+  return <section id={placement === "after_hero" ? "ad-space" : undefined} className={`site-promo-banners site-promo-banners-${placement}`} aria-label="عروض المتجر">
     {items.map((banner) => {
       const external = /^https?:\/\//i.test(banner.button_url ?? "");
       return <article className="site-promo-banner" key={banner.id} style={{ backgroundColor: banner.background_color, color: banner.text_color }}>
