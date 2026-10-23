@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!supabase) return entries;
 
   const [products, categories, brands] = await Promise.all([
-    supabase.from("products").select("slug,updated_at").eq("is_active", true).not("slug", "is", null),
+    supabase.from("products").select("slug,updated_at").eq("is_active", true).gt("price_egp", 0).not("slug", "is", null),
     supabase.from("categories").select("slug").eq("is_active", true).not("slug", "is", null),
     supabase.from("store_brands").select("slug").eq("is_active", true).not("slug", "is", null),
   ]);
