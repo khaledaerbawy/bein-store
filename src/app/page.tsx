@@ -234,6 +234,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <a className="nav-all-categories" href="#categories"><span aria-hidden="true">☰</span> جميع الأقسام</a>
       {shownCategories.slice(0, 6).map((category) => <a key={category.id} href={`/?category=${encodeURIComponent(category.slug)}#catalog`}>{category.name_ar}</a>)}
       <Link href="/cctv-database">دليل الكاميرات</Link>
+      <Link href="/system-planner">حاسبة تصميم النظام</Link>
       <a href="#services">حلول المشروعات</a>
       <span className="nav-note"><i /> مساعدة فنية في اختيار الموديل</span>
     </nav>
