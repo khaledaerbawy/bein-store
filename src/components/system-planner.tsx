@@ -193,8 +193,8 @@ export default function SystemPlanner({
           </label>
           <div className="planner-fields-grid">
             <label className="planner-field"><span>عدد الكاميرات</span><input type="number" min="1" max="256" value={quantity} onChange={(e) => setQuantity(Math.max(1, Math.min(256, Number(e.target.value) || 1)))} /></label>
-            <label className="planner-field"><span>الدقة</span><select value={resolution} onChange={(e) => setResolution(e.target.value)}>{StorageCalc.RESOLUTIONS.filter((item: any) => !item.coax).map((item: any) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
-            <label className="planner-field"><span>ضغط الفيديو</span><select value={codec} onChange={(e) => setCodec(e.target.value)}>{StorageCalc.CODECS.filter((item: any) => item.id !== "mjpeg").map((item: any) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+            <label className="planner-field"><span>الدقة</span><select value={resolution} onChange={(e) => setResolution(e.target.value)}>{StorageCalc.RESOLUTIONS.filter((item) => !item.coax).map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+            <label className="planner-field"><span>ضغط الفيديو</span><select value={codec} onChange={(e) => setCodec(e.target.value)}>{StorageCalc.CODECS.filter((item) => item.id !== "mjpeg").map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
             <label className="planner-field"><span>معدل الإطارات FPS</span><select value={fps} onChange={(e) => setFps(Number(e.target.value))}>{[10,12,15,20,25,30].map((v) => <option key={v} value={v}>{v} FPS</option>)}</select></label>
             <label className="planner-field"><span>معدل البت المقاس (اختياري Mbps)</span><input type="number" min="0" step="0.1" value={measuredMbps} onChange={(e) => setMeasuredMbps(e.target.value)} placeholder="اتركه فارغًا للتقدير" /></label>
             <label className="planner-field"><span>ميزانية PoE للسويتش</span><select value={poeBudgetW} onChange={(e) => setPoeBudgetW(Number(e.target.value))}>{[65,90,120,150,250,370,500].map((v) => <option key={v} value={v}>{v} W</option>)}</select></label>
@@ -203,7 +203,7 @@ export default function SystemPlanner({
             <label className="planner-field"><span>حركة المشهد</span><select value={scene} onChange={(e) => setScene(e.target.value)}><option value="low">منخفضة — ممرات ومخازن</option><option value="medium">متوسطة — مكاتب ومحلات</option><option value="high">مرتفعة — شارع ومداخل</option></select></label>
             <label className="planner-field"><span>الاحتفاظ بالتسجيل</span><select value={retentionDays} onChange={(e) => setRetentionDays(Number(e.target.value))}>{[7,15,30,45,60,90,120].map((v) => <option key={v} value={v}>{v} يوم</option>)}</select></label>
             <label className="planner-field"><span>حجم الهارد الواحد</span><select value={diskSize} onChange={(e) => setDiskSize(Number(e.target.value))}>{[2,4,6,8,10,12,14,16,18,20,22,24].map((v) => <option key={v} value={v}>{v} TB</option>)}</select></label>
-            <label className="planner-field"><span>نظام الأقراص</span><select value={raid} onChange={(e) => setRaid(e.target.value)}>{StorageCalc.RAID_LEVELS.map((item: any) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+            <label className="planner-field"><span>نظام الأقراص</span><select value={raid} onChange={(e) => setRaid(e.target.value)}>{StorageCalc.RAID_LEVELS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
           </div>
           <label className="planner-check"><input type="checkbox" checked={nightIr} onChange={(e) => setNightIr(e.target.checked)} /><span>تشغيل الرؤية الليلية بالأشعة تحت الحمراء</span></label>
         </div>
