@@ -7,7 +7,7 @@ import AdminShell from "@/components/admin/admin-shell";
 
 type ProductRow={id:string;name_ar:string;brand:string|null;model:string|null;sku:string|null;price_egp:number|null;is_active:boolean};
 type InventoryRow={product_id:string;quantity_on_hand:number;low_stock_threshold:number;updated_at:string};
-type Movement={id:string;product_id:string;quantity_delta:number;reason:string;reference:string|null;created_at:string};
+type Movement={id:string;product_id:string;quantity_delta:number;reason:string;reference:string|null;created_at:string;movement_type:string;source_type:string;source_id:string};
 const money=(n:number)=>new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n)+" ج.م";
 const reasons=[{value:"توريد",label:"توريد / إضافة مخزون"},{value:"تسوية جرد",label:"تسوية جرد"},{value:"تالف أو مرتجع",label:"تالف أو مرتجع"},{value:"تصحيح رصيد",label:"تصحيح رصيد"}];
 
@@ -37,7 +37,7 @@ export default function AdminInventoryPage(){
   const [pr,ir,mr]=await Promise.all([
    s.from("products").select("id,name_ar,brand,model,sku,price_egp,is_active").order("name_ar",{ascending:true}),
    s.from("inventory").select("product_id,quantity_on_hand,low_stock_threshold,updated_at"),
-   s.from("inventory_movements").select("id,product_id,quantity_delta,reason,reference,created_at").order("created_at",{ascending:false}).limit(25)
+   s.from("inventory_movements").select("id,product_id,quantity_delta,reason,reference,created_at,movement_type,source_type,source_id").order("created_at",{ascending:false}).limit(25)
   ]);
   if(pr.error){setMessage("تعذر تحميل المنتجات: "+pr.error.message);setLoading(false);return;}
   if(ir.error){setMessage("تعذر تحميل المخزون: "+ir.error.message);setLoading(false);return;}
@@ -97,6 +97,8 @@ export default function AdminInventoryPage(){
  const productById=useMemo(()=>Object.fromEntries(products.map(p=>[p.id,p])),[products]);
  const formatDate=(value:string)=>new Intl.DateTimeFormat("ar-EG",{dateStyle:"medium",timeStyle:"short"}).format(new Date(value));
  const delta=(value:number)=>(value>0?"+":"")+new Intl.NumberFormat("ar-EG").format(value);
+ const movementTypeLabel=(value:string)=>({legacy:"حركة تاريخية",opening:"رصيد افتتاحي",purchase_receipt:"استلام مشتريات",sale_delivery:"بيع",sales_return:"مرتجع مبيعات",purchase_return:"مرتجع مورد",adjustment_in:"إضافة مخزون",adjustment_out:"خصم مخزون",transfer_in:"تحويل وارد",transfer_out:"تحويل صادر"}[value]??value);
+ const movementSourceLabel=(value:string)=>({legacy:"سجل تاريخي",stock_adjustment:"تسوية مخزون",sales_order:"طلب بيع",sales_order_cancellation:"إلغاء طلب",opening_balance:"رصيد افتتاحي",purchase_receipt:"استلام مشتريات",purchase_return:"مرتجع مورد",stock_transfer:"تحويل مخزون"}[value]??value);
 
  return <AdminShell title="المخزون وحركاته" subtitle="أدخل الكميات الفعلية، وحدد تنبيهات النقص، وراجع سجل كل تعديل على المخزون." userEmail={email} onSignOut={signOut}>
   <div className="admin-inventory-page">
@@ -132,7 +134,7 @@ export default function AdminInventoryPage(){
    </section>
    <section className="admin-inventory-panel">
     <div className="admin-inventory-toolbar"><div><h2>آخر حركات المخزون</h2><p>تسجيل آلي لكل رصيد افتتاحي أو تسوية يتم حفظها من هذه الصفحة.</p></div></div>
-    {loading?<div className="admin-inventory-empty">جارٍ تحميل سجل الحركات...</div>:movements.length===0?<div className="admin-inventory-empty">لم يتم تسجيل حركات مخزون بعد. أدخل رصيدًا فعليًا لبدء التتبع.</div>:<div className="admin-inventory-table-wrap"><table className="admin-inventory-table admin-movement-table"><thead><tr><th>التاريخ</th><th>المنتج</th><th>تغير الكمية</th><th>السبب</th><th>المرجع</th></tr></thead><tbody>{movements.map(m=><tr key={m.id}><td>{formatDate(m.created_at)}</td><td>{productById[m.product_id]?.name_ar??"منتج محذوف"}</td><td><strong className={m.quantity_delta>0?"inventory-positive":m.quantity_delta<0?"inventory-negative":""}>{delta(m.quantity_delta)}</strong></td><td>{m.reason}</td><td>{m.reference||"—"}</td></tr>)}</tbody></table></div>}
+    {loading?<div className="admin-inventory-empty">جارٍ تحميل سجل الحركات...</div>:movements.length===0?<div className="admin-inventory-empty">لم يتم تسجيل حركات مخزون بعد. أدخل رصيدًا فعليًا لبدء التتبع.</div>:<div className="admin-inventory-table-wrap"><table className="admin-inventory-table admin-movement-table"><thead><tr><th>التاريخ</th><th>المنتج</th><th>تغير الكمية</th><th>نوع الحركة</th><th>السبب</th><th>المصدر</th><th>المرجع</th></tr></thead><tbody>{movements.map(m=><tr key={m.id}><td>{formatDate(m.created_at)}</td><td>{productById[m.product_id]?.name_ar??"منتج محذوف"}</td><td><strong className={m.quantity_delta>0?"inventory-positive":m.quantity_delta<0?"inventory-negative":""}>{delta(m.quantity_delta)}</strong></td><td>{movementTypeLabel(m.movement_type)}</td><td>{m.reason}</td><td>{movementSourceLabel(m.source_type)} · {m.source_id}</td><td>{m.reference||"—"}</td></tr>)}</tbody></table></div>}
    </section>
   </div>
  </AdminShell>;

@@ -69,6 +69,8 @@ CREATE TABLE public.inventory_movements (
   created_by uuid,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+GRANT INSERT, UPDATE, DELETE, TRUNCATE ON public.inventory_movements TO authenticated;
+
 
 CREATE TABLE public.admin_roles (
   user_id uuid PRIMARY KEY,

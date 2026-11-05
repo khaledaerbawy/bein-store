@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, feat/erp-domain-foundation, feat/inventory-ledger-foundation]
+    branches: [main, feat/erp-domain-foundation, feat/inventory-ledger-foundation, feat/inventory-adjustment-idempotency]
   push:
     branches: [main]
 
@@ -108,6 +108,11 @@ jobs:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202611050003_inventory_adjustment_idempotency.sql
 
+      - name: Restrict direct inventory ledger writes
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202611050004_restrict_inventory_ledger_writes.sql
+
       - name: Test order, stock deduction, cancellation, and one-time return
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
@@ -122,3 +127,8 @@ jobs:
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/inventory_adjustment_idempotency.test.sql
+
+      - name: Test restricted inventory ledger writes
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/inventory_ledger_write_permissions.test.sql
