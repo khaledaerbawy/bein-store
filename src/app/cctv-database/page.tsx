@@ -23,7 +23,7 @@ const MEGAPIXEL_FILTERS = [2, 4, 5, 8, 12];
 const DESCRIPTION = "ابحث في دليل يضم آلاف موديلات كاميرات المراقبة ومواصفاتها الفنية، مع فلاتر للماركة والنوع والدقة ومصادر بيانات كل موديل.";
 
 function safeFilter(value: string) {
-  return value.replace(/[,%()"'\\\\]/g, " ").replace(/\\s+/g, " ").trim().slice(0, 80);
+  return value.replace(/[,%()"'\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -65,7 +65,7 @@ export default async function CctvDatabasePage({ searchParams }: { searchParams:
       .select("id,brand,model,camera_type,megapixels,resolution_label,power_source,connectivity,night_vision", { count: "exact" })
       .order("brand")
       .order("model");
-    if (q) query = query.or(`brand.ilike.%${q}%,model.ilike.%${q}%,id.ilike.%${q}%`);
+    if (q) query = query.or(\`brand.ilike.%\${q}%,model.ilike.%\${q}%,id.ilike.%\${q}%\`);
     if (brand) query = query.eq("brand", brand);
     if (type) query = query.eq("camera_type", type);
     if (mp > 0) query = query.gte("megapixels", mp);
@@ -87,7 +87,7 @@ export default async function CctvDatabasePage({ searchParams }: { searchParams:
     if (type) next.set("type", type);
     if (mp > 0) next.set("mp", String(mp));
     next.set("page", String(nextPage));
-    return `/cctv-database?${next.toString()}`;
+    return \`/cctv-database?\${next.toString()}\`;
   }
 
   return <main className="cctv-page" dir="rtl">
@@ -113,7 +113,7 @@ export default async function CctvDatabasePage({ searchParams }: { searchParams:
       cameras.length === 0 ? <div className="cctv-empty"><h2>لا توجد موديلات مطابقة</h2><p>جرّب تغيير كلمة البحث أو إزالة أحد الفلاتر.</p></div> :
       <>
         <div className="cctv-results-head"><span>نتائج البحث</span><b>{total.toLocaleString("en-US")} موديل</b></div>
-        <div className="cctv-grid">{cameras.map((camera) => <Link className="cctv-camera-card" href={`/cctv-database/${encodeURIComponent(camera.id)}`} key={camera.id}>
+        <div className="cctv-grid">{cameras.map((camera) => <Link className="cctv-camera-card" href={\`/cctv-database/\${encodeURIComponent(camera.id)}\`} key={camera.id}>
           <div className="cctv-card-top"><span>{camera.brand}</span><small>{camera.camera_type || "كاميرا مراقبة"}</small></div>
           <h2>{camera.model}</h2>
           <div className="cctv-card-specs">
