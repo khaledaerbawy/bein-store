@@ -25,6 +25,7 @@ export default function AdminInventoryPage(){
  const [filter,setFilter]=useState<"all"|"low"|"out"|"untracked">("all");
  const [loading,setLoading]=useState(true);
  const [savingId,setSavingId]=useState("");
+ const [adjustmentKeys,setAdjustmentKeys]=useState<Record<string,{signature:string;key:string}>>({});
  const [message,setMessage]=useState("");
 
  const load=useCallback(async()=>{
@@ -69,16 +70,24 @@ export default function AdminInventoryPage(){
   if(!Number.isInteger(qty)||qty<0){setMessage("الكمية لازم تكون رقمًا صحيحًا غير سالب.");return;}
   if(!Number.isInteger(threshold)||threshold<0){setMessage("حد التنبيه لازم يكون رقمًا صحيحًا غير سالب.");return;}
   const s=createClient();if(!s)return;
+  const reason=reasonsByProduct[p.id]??"تصحيح رصيد";
+  const reference=references[p.id]?.trim()||null;
+  const signature=JSON.stringify([qty,threshold,reason,reference]);
+  const previous=adjustmentKeys[p.id];
+  const idempotencyKey=previous?.signature===signature?previous.key:crypto.randomUUID();
+  setAdjustmentKeys(old=>({...old,[p.id]:{signature,key:idempotencyKey}}));
   setSavingId(p.id);setMessage("");
-  const {data,error}=await s.rpc("admin_adjust_inventory",{
+  const {data,error}=await s.rpc("admin_adjust_inventory_idempotent",{
    p_product_id:p.id,
    p_new_quantity:qty,
    p_low_stock_threshold:threshold,
-   p_reason:reasonsByProduct[p.id]??"تصحيح رصيد",
-   p_reference:references[p.id]?.trim()||null
+   p_reason:reason,
+   p_reference:reference,
+   p_idempotency_key:idempotencyKey
   });
   if(error){setMessage("لم يتم حفظ المخزون: "+error.message);setSavingId("");return;}
   setMessage("تم تحديث مخزون «"+p.name_ar+"» وتسجيل حركة المخزون.");
+  setAdjustmentKeys(old=>{const next={...old};delete next[p.id];return next;});
   setReferences(old=>({...old,[p.id]:""}));
   setSavingId("");
   await load();
