@@ -39,6 +39,9 @@ jobs:
       - name: CCTV calculator regression tests
         run: npm run test:cctv
 
+      - name: ERP domain invariant tests
+        run: npm run test:erp-domain
+
       - name: Production build
         run: npm run build
 
