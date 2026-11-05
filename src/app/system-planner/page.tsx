@@ -21,6 +21,8 @@ type StoreProduct = {
   model: string | null;
   price_egp: number;
   quantity_on_hand?: number;
+  category_slug?: string | null;
+  category_id?: string | null;
 };
 
 export const metadata: Metadata = {
@@ -53,11 +55,17 @@ export default async function SystemPlannerPage({ searchParams }: { searchParams
     }
 
     const productResult = await supabase.from("products")
-      .select("id,slug,name_ar,brand,model,price_egp")
+      .select("id,slug,name_ar,brand,model,price_egp,category_id")
       .eq("is_active", true).not("price_egp", "is", null)
       .order("name_ar").limit(200);
     products = (productResult.data ?? []) as StoreProduct[];
     if (productResult.error) console.error("Planner product lookup failed:", productResult.error.message);
+    const categoryIds = Array.from(new Set(products.map((product) => product.category_id).filter((id): id is string => Boolean(id))));
+    if (categoryIds.length) {
+      const categoryResult = await supabase.from("categories").select("id,slug").in("id", categoryIds);
+      const categorySlugs = new Map((categoryResult.data ?? []).map((category) => [category.id, category.slug]));
+      products = products.map((product) => ({ ...product, category_slug: product.category_id ? categorySlugs.get(product.category_id) ?? null : null }));
+    }
 
     const { data: authData } = await supabase.auth.getUser();
     if (authData.user) {
