@@ -2,12 +2,14 @@ import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
+const CCTV_BATCH_SIZE = 1000;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: now, changeFrequency: "daily", priority: 1 },
-    { url: SITE_URL + "/services/cameras-6-october", lastModified: now, changeFrequency: "monthly", priority: 0.85 }
+    { url: SITE_URL + "/services/cameras-6-october", lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    { url: SITE_URL + "/cctv-database", lastModified: now, changeFrequency: "weekly", priority: 0.85 }
   ];
 
   const supabase = await createClient();
@@ -54,7 +56,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   for (const product of productsResult.data ?? []) {
-    // Include every active, priced product with a slug, even when optional SEO fields are incomplete.
     if (!product.slug) continue;
     entries.push({
       url: SITE_URL + "/products/" + encodeURIComponent(product.slug),
@@ -62,6 +63,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7
     });
+  }
+
+  // Supabase returns at most 1,000 rows by default; page through the complete
+  // technical reference catalog so every model detail page can be discovered.
+  for (let offset = 0; offset < 50000; offset += CCTV_BATCH_SIZE) {
+    const { data, error } = await supabase.from("cctv_cameras")
+      .select("id")
+      .order("id", { ascending: true })
+      .range(offset, offset + CCTV_BATCH_SIZE - 1);
+    if (error) {
+      console.error("Sitemap CCTV query failed:", error.message);
+      break;
+    }
+    for (const camera of data ?? []) {
+      if (!camera.id) continue;
+      entries.push({
+        url: SITE_URL + "/cctv-database/" + encodeURIComponent(camera.id),
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.55
+      });
+    }
+    if (!data || data.length < CCTV_BATCH_SIZE) break;
   }
 
   return entries;
