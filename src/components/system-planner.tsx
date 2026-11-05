@@ -20,6 +20,7 @@ type StoreProduct = {
   model: string | null;
   price_egp: number;
   quantity_on_hand?: number;
+  category_slug?: string | null;
 };
 
 const formatNumber = (value: number, digits = 1) =>
@@ -57,6 +58,8 @@ export default function SystemPlanner({
   const [hours, setHours] = useState(12);
   const [scene, setScene] = useState("medium");
   const [nightIr, setNightIr] = useState(true);
+  const [measuredMbps, setMeasuredMbps] = useState("");
+  const [poeBudgetW, setPoeBudgetW] = useState(120);
   const [retentionDays, setRetentionDays] = useState(30);
   const [diskSize, setDiskSize] = useState(8);
   const [raid, setRaid] = useState("raid6");
@@ -79,7 +82,7 @@ export default function SystemPlanner({
       hours: recordingMode === "scheduled" ? hours : 24,
       nightIR: nightIr,
       audio: false,
-      measuredMbps: "",
+      measuredMbps,
       switch: "",
       poeW: "",
       target: "recorder",
@@ -114,7 +117,7 @@ export default function SystemPlanner({
       }]
     };
     return StorageCalc.calculateProject(project, [group]);
-  }, [selectedCamera, quantity, resolution, codec, fps, recordingMode, hours, scene, nightIr, retentionDays, diskSize, raid]);
+  }, [selectedCamera, quantity, resolution, codec, fps, recordingMode, hours, scene, nightIr, measuredMbps, retentionDays, diskSize, raid]);
 
   const matchedProducts = useMemo(() => {
     if (!selectedCamera) return [];
@@ -123,7 +126,7 @@ export default function SystemPlanner({
     return products.filter((product) => {
       const productBrand = (product.brand ?? "").trim().toLocaleLowerCase();
       const productModel = (product.model ?? "").trim().toLocaleLowerCase();
-      return productBrand === brand || (productModel && (productModel === model || model.includes(productModel)));
+      return productBrand === brand || (productModel && (productModel === model || model.includes(productModel))) || ["recorders", "storage", "networking"].includes(product.category_slug ?? "");
     }).slice(0, 8);
   }, [selectedCamera, products]);
 
@@ -137,6 +140,7 @@ export default function SystemPlanner({
     "السعة المطلوبة بالاحتياطي: " + formatNumber(projectResult.totals.requiredTB, 2) + " TB",
     "التوصية: " + projectResult.recorders[0].array.totalDisks + " × " + diskSize + " TB (" + projectResult.recorders[0].array.raidLabel + ")",
     "معدل البيانات: " + formatNumber(projectResult.totals.aggregateMbps, 2) + " Mbps",
+    "استهلاك PoE التقديري: " + formatNumber(row.totalPoeW, 1) + " W",
     "سرعة التسجيل المطلوبة: " + formatNumber(projectResult.totals.minRecorderMbps, 2) + " Mbps"
   ].join("\n");
 
@@ -158,6 +162,7 @@ export default function SystemPlanner({
   const row = projectResult.rows[0];
   const recorder = projectResult.recorders[0];
   const array = recorder.array;
+  const suggestedSwitches = row.totalPoeW > 0 ? Math.ceil(row.totalPoeW / (poeBudgetW * 0.8)) : 0;
 
   return (
     <main className="planner-page" dir="rtl">
@@ -191,6 +196,8 @@ export default function SystemPlanner({
             <label className="planner-field"><span>الدقة</span><select value={resolution} onChange={(e) => setResolution(e.target.value)}>{StorageCalc.RESOLUTIONS.filter((item: any) => !item.coax).map((item: any) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
             <label className="planner-field"><span>ضغط الفيديو</span><select value={codec} onChange={(e) => setCodec(e.target.value)}>{StorageCalc.CODECS.filter((item: any) => item.id !== "mjpeg").map((item: any) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
             <label className="planner-field"><span>معدل الإطارات FPS</span><select value={fps} onChange={(e) => setFps(Number(e.target.value))}>{[10,12,15,20,25,30].map((v) => <option key={v} value={v}>{v} FPS</option>)}</select></label>
+            <label className="planner-field"><span>معدل البت المقاس (اختياري Mbps)</span><input type="number" min="0" step="0.1" value={measuredMbps} onChange={(e) => setMeasuredMbps(e.target.value)} placeholder="اتركه فارغًا للتقدير" /></label>
+            <label className="planner-field"><span>ميزانية PoE للسويتش</span><select value={poeBudgetW} onChange={(e) => setPoeBudgetW(Number(e.target.value))}>{[65,90,120,150,250,370,500].map((v) => <option key={v} value={v}>{v} W</option>)}</select></label>
             <label className="planner-field"><span>طريقة التسجيل</span><select value={recordingMode} onChange={(e) => setRecordingMode(e.target.value)}><option value="continuous">مستمر 24 ساعة</option><option value="scheduled">حسب جدول</option><option value="motion-medium">حركة — نشاط متوسط</option><option value="motion-low">حركة — نشاط منخفض</option><option value="motion-high">حركة — نشاط مرتفع</option></select></label>
             {recordingMode === "scheduled" && <label className="planner-field"><span>ساعات التسجيل يوميًا</span><input type="number" min="1" max="24" value={hours} onChange={(e) => setHours(Math.max(1, Math.min(24, Number(e.target.value) || 1)))} /></label>}
             <label className="planner-field"><span>حركة المشهد</span><select value={scene} onChange={(e) => setScene(e.target.value)}><option value="low">منخفضة — ممرات ومخازن</option><option value="medium">متوسطة — مكاتب ومحلات</option><option value="high">مرتفعة — شارع ومداخل</option></select></label>
@@ -209,19 +216,22 @@ export default function SystemPlanner({
             <div><small>تخزين يومي</small><b>{formatNumber(row.gbPerDay, 1)} GB</b></div>
             <div><small>الترافيك الكلي</small><b>{formatNumber(projectResult.totals.aggregateMbps, 1)} Mbps</b></div>
             <div><small>معدل التسجيل المطلوب</small><b>{formatNumber(projectResult.totals.minRecorderMbps, 1)} Mbps</b></div>
+            <div><small>استهلاك PoE التقديري</small><b>{formatNumber(row.totalPoeW, 1)} W</b></div>
+            <div><small>عدد السويتشات التقديري</small><b>{suggestedSwitches || "—"}</b></div>
           </div>
           <div className="planner-disk-recommendation">
             <small>توصية الأقراص حسب RAID</small>
             <strong>{array.totalDisks} × {diskSize} TB</strong>
             <span>{array.raidLabel} · سعة فعلية {formatNumber(array.usableTB, 1)} TB ({formatNumber(array.usableTiB, 1)} TiB)</span>
             <span>احتفاظ متوقع تقريبي: {formatNumber(recorder.expectedRetentionDays, 0)} يوم</span>
+            <span>حساب السويتش يفترض استخدام 80% من ميزانية PoE فقط.</span>
           </div>
           <button type="button" className="planner-copy" onClick={copySummary}>{copied ? "✓ تم نسخ ملخص التصميم" : "نسخ ملخص التصميم"}</button>
         </aside>
       </section>
 
       <section className="planner-products">
-        <div className="planner-section-heading"><span>03</span><div><h2>منتجات Bein Store المرتبطة</h2><p>مطابقة اسم الماركة أو الموديل مع المنتجات المسعّرة في المتجر</p></div></div>
+        <div className="planner-section-heading"><span>03</span><div><h2>منتجات Bein Store المرتبطة</h2><p>منتجات بنفس الماركة أو من أقسام أجهزة التسجيل والتخزين والشبكات</p></div></div>
         {!selectedCamera ? <p className="planner-empty">ابحث عن موديل كاميرا بالأعلى لعرض المنتجات التجارية المرتبطة به.</p> :
           matchedProducts.length === 0 ? <p className="planner-empty">لا يوجد حاليًا منتج نشط ومسعّر مطابق لهذا الموديل في المتجر. موديل الدليل مرجع فني فقط وليس منتجًا للبيع.</p> :
           <div className="planner-product-grid">{matchedProducts.map((product) => <article className="planner-product" key={product.id}>
@@ -230,7 +240,7 @@ export default function SystemPlanner({
             <strong>{formatPrice(Number(product.price_egp))}</strong>
             {isAdmin ? <span className={Number(product.quantity_on_hand ?? 0) > 0 ? "planner-stock-ok" : "planner-stock-out"}>{Number(product.quantity_on_hand ?? 0) > 0 ? "المخزون: " + product.quantity_on_hand + " قطعة" : "نفد المخزون"}</span> : <span className="planner-stock-private">يتم تأكيد التوافر مع المتجر</span>}
           </article>)}</div>}
-        <p className="planner-inventory-note">{isAdmin ? "بيانات المخزون المعروضة هنا للمدير فقط، وتُقرأ من جدول inventory دون تعديل." : "كميات المخزون الداخلية غير معروضة للزوار؛ لا يتم كشف أرقام المخزون العامة."}</p>
+        <p className="planner-inventory-note">{isAdmin ? "بيانات المخزون المعروضة هنا للمدير فقط، وتُقرأ من جدول inventory دون تعديل." : "كميات المخزون الداخلية غير معروضة للزوار؛ لا يتم كشف أرقام المخزون العامة."} راجع توافق الـNVR والهارد والسويتش مع الموديل قبل اعتماد العرض.</p>
       </section>
       <footer className="planner-disclaimer">الحاسبة أداة تقدير أولي وليست اعتمادًا هندسيًا نهائيًا. استخدم معدل البت المقاس من الكاميرا أو حاسبة الشركة المصنّعة عند توفره، وراجع قدرة الـNVR والسويتش ومواصفات الهارد قبل الشراء.</footer>
     </main>
