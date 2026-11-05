@@ -49,10 +49,12 @@ export function calculateDocumentTotals(items, options = {}) {
   }
 
   const taxableMinor = subtotalMinor - discountMinor;
-  const taxMinor = Math.floor((taxableMinor * taxRateBps + 5000) / 10000);
-  if (!Number.isSafeInteger(taxMinor)) {
-    throw new RangeError("Tax amount exceeds safe integer precision");
+  const taxNumerator = taxableMinor * taxRateBps;
+  if (!Number.isSafeInteger(taxNumerator)) {
+    throw new RangeError("Tax calculation exceeds safe integer precision");
   }
+  // Round half up without adding 5,000 to a potentially near-limit integer.
+  const taxMinor = Math.floor(taxNumerator / 10000) + (taxNumerator % 10000 >= 5000 ? 1 : 0);
 
   const totalMinor = taxableMinor + taxMinor + shippingMinor;
   if (!Number.isSafeInteger(totalMinor)) {
