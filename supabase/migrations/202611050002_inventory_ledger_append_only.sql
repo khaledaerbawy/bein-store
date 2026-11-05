@@ -110,6 +110,7 @@ AS $function$
 DECLARE
   v_reference text := COALESCE(NULLIF(BTRIM(NEW.reference), ''), '');
   v_reason text := COALESCE(NULLIF(BTRIM(NEW.reason), ''), 'Inventory movement');
+  v_original_movement_id uuid;
 BEGIN
   IF NEW.movement_type IS NULL THEN
     IF v_reason = 'بيع عبر المتجر' AND v_reference LIKE 'Order #%'
@@ -156,7 +157,7 @@ BEGIN
      AND NEW.reverses_movement_id IS NULL
      AND v_reference LIKE 'Return for Order #%'
   THEN
-    SELECT im.id INTO NEW.reverses_movement_id
+    SELECT im.id INTO v_original_movement_id
     FROM public.inventory_movements im
     WHERE im.product_id = NEW.product_id
       AND im.reference = replace(v_reference, 'Return for Order #', 'Order #')
@@ -164,6 +165,7 @@ BEGIN
       AND im.quantity_delta < 0
     ORDER BY im.created_at DESC
     LIMIT 1;
+    NEW.reverses_movement_id := v_original_movement_id;
   END IF;
 
   NEW.reason := v_reason;
