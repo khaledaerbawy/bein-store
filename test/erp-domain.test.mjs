@@ -32,9 +32,13 @@ test("document totals use integer minor units", () => {
   });
 });
 
-test("document totals reject invalid quantities and excessive discounts", () => {
+test("document totals reject invalid quantities, excessive discounts, and unsafe tax precision", () => {
   assert.throws(() => calculateDocumentTotals([{ quantity: 0, unitPriceMinor: 100 }]));
   assert.throws(() => calculateDocumentTotals([{ quantity: 1, unitPriceMinor: 100 }], { discountMinor: 101 }));
+  assert.throws(
+    () => calculateDocumentTotals([{ quantity: 1, unitPriceMinor: Number.MAX_SAFE_INTEGER }], { taxRateBps: 10000 }),
+    /Tax calculation exceeds safe integer precision/
+  );
 });
 
 test("journal validation requires equal debit and credit totals", () => {
