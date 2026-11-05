@@ -63,7 +63,7 @@ export default async function SystemPlannerPage({ searchParams }: { searchParams
     const categoryIds = Array.from(new Set(products.map((product) => product.category_id).filter((id): id is string => Boolean(id))));
     if (categoryIds.length) {
       const categoryResult = await supabase.from("categories").select("id,slug").in("id", categoryIds);
-      const categorySlugs = new Map((categoryResult.data ?? []).map((category) => [category.id, category.slug]));
+      const categorySlugs = new Map<string, string>((categoryResult.data ?? []).map((category) => [category.id, category.slug] as [string, string]));
       products = products.map((product) => ({ ...product, category_slug: product.category_id ? categorySlugs.get(product.category_id) ?? null : null }));
     }
 
@@ -81,7 +81,7 @@ export default async function SystemPlannerPage({ searchParams }: { searchParams
       if (inventoryResult.error) {
         console.error("Planner inventory lookup failed:", inventoryResult.error.message);
       } else {
-        const quantities = new Map((inventoryResult.data ?? []).map((row) => [row.product_id, row.quantity_on_hand]));
+        const quantities = new Map<string, number>((inventoryResult.data ?? []).map((row) => [row.product_id, row.quantity_on_hand] as [string, number]));
         products = products.map((product) => ({ ...product, quantity_on_hand: quantities.get(product.id) ?? 0 }));
       }
     }
