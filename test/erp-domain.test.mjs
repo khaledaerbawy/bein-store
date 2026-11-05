@@ -53,7 +53,10 @@ test("journal validation requires equal debit and credit totals", () => {
     /not balanced/
   );
   assert.throws(
-    () => assertBalancedJournal([{ debitMinor: 100, creditMinor: 100 }]),
+    () => assertBalancedJournal([
+      { debitMinor: 100, creditMinor: 100 },
+      { debitMinor: 0, creditMinor: 100 }
+    ]),
     /either a debit or a credit/
   );
 });
