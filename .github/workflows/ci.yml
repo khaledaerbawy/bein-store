@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, feat/erp-domain-foundation]
+    branches: [main, feat/erp-domain-foundation, feat/inventory-ledger-foundation]
   push:
     branches: [main]
 
