@@ -25,12 +25,11 @@ export default async function CctvDatabasePage({ searchParams }: { searchParams:
   let unavailable = !supabase;
   if (supabase) {
     const [brandResult, countResult] = await Promise.all([
-      supabase.from("cctv_camera_brands").select("slug,name,camera_count").order("name").limit(500),
-      supabase.from("cctv_cameras").select("id", { count: "exact", head: true })
+      supabase.from("cctv_camera_brands").select("slug,name,camera_count").order("name").limit(500)
     ]);
     brands = brandResult.data ?? [];
     let query = supabase.from("cctv_cameras")
-      .select("id,brand,model,camera_type,megapixels,resolution_label,power_source,connectivity,night_vision")
+      .select("id,brand,model,camera_type,megapixels,resolution_label,power_source,connectivity,night_vision", { count: "exact" })
       .order("brand").order("model");
     if (q) query = query.or(`brand.ilike.%${q}%,model.ilike.%${q}%,id.ilike.%${q}%`);
     if (brand) query = query.eq("brand", brand);
@@ -38,8 +37,8 @@ export default async function CctvDatabasePage({ searchParams }: { searchParams:
     if (mp > 0) query = query.gte("megapixels", mp);
     const result = await query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
     cameras = result.data ?? [];
-    if (result.error || brandResult.error || countResult.error) unavailable = true;
-    total = countResult.count ?? 0;
+    if (result.error || brandResult.error) unavailable = true;
+    total = result.count ?? 0;
   }
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
