@@ -130,6 +130,11 @@ export default function SystemPlanner({
     }).slice(0, 8);
   }, [selectedCamera, products]);
 
+  const row = projectResult.rows[0];
+  const recorder = projectResult.recorders[0];
+  const array = recorder.array;
+  const suggestedSwitches = row.totalPoeW > 0 ? Math.ceil(row.totalPoeW / (poeBudgetW * 0.8)) : 0;
+
   const summary = [
     "Bein Store — ملخص تصميم نظام مراقبة",
     "الكاميرا: " + (selectedCamera ? selectedCamera.brand + " " + selectedCamera.model : "مواصفات عامة"),
@@ -158,11 +163,6 @@ export default function SystemPlanner({
     const camera = cameras.find((item) => item.id === id);
     if (camera) setResolution(resolutionFromMegapixels(camera.megapixels));
   }
-
-  const row = projectResult.rows[0];
-  const recorder = projectResult.recorders[0];
-  const array = recorder.array;
-  const suggestedSwitches = row.totalPoeW > 0 ? Math.ceil(row.totalPoeW / (poeBudgetW * 0.8)) : 0;
 
   return (
     <main className="planner-page" dir="rtl">
