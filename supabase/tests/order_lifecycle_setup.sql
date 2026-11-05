@@ -25,6 +25,7 @@ CREATE TABLE public.products (
 CREATE TABLE public.inventory (
   product_id uuid PRIMARY KEY REFERENCES public.products(id) ON DELETE CASCADE,
   quantity_on_hand integer NOT NULL CHECK (quantity_on_hand >= 0),
+  low_stock_threshold integer NOT NULL DEFAULT 2 CHECK (low_stock_threshold >= 0),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 

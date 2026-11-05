@@ -59,7 +59,9 @@ BEGIN
   PERFORM * FROM public.admin_adjust_inventory_idempotent(
     v_product, 12, 2, 'مراجعة رصيد', 'CI-INV-002', 'ci-adjustment-zero-1'
   );
-  UPDATE public.inventory SET quantity_on_hand = 14 WHERE product_id = v_product;
+  PERFORM * FROM public.admin_adjust_inventory_idempotent(
+    v_product, 14, 2, 'توريد', 'CI-INV-003', 'ci-adjustment-key-2'
+  );
   SELECT quantity_on_hand, quantity_delta
   INTO v_quantity, v_delta
   FROM public.admin_adjust_inventory_idempotent(
