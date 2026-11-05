@@ -111,5 +111,16 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'TEST FAILED: sales return is not linked to its original sale';
   END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.inventory_movements
+    WHERE product_id = '55555555-5555-4555-8555-555555555555'
+      AND movement_type = 'legacy'
+      AND source_type = 'legacy'
+      AND source_id = id::text
+      AND idempotency_key = 'legacy:' || id::text
+  ) THEN
+    RAISE EXCEPTION 'TEST FAILED: historical movement was not safely backfilled';
+  END IF;
 END;
 $test$;

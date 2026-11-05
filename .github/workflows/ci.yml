@@ -93,6 +93,11 @@ jobs:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
         run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610160004_secure_legacy_checkout_rpc_permissions.sql
 
+      - name: Seed a legacy inventory movement before ledger migration
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/inventory_ledger_legacy_seed.sql
+
       - name: Apply append-only inventory ledger migration
         env:
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/inventory_guard_test
