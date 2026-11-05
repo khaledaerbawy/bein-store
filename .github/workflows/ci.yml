@@ -36,6 +36,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: CCTV calculator regression tests
+        run: npm run test:cctv
+
       - name: Production build
         run: npm run build
 
