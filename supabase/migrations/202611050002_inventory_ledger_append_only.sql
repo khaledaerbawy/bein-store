@@ -152,6 +152,20 @@ BEGIN
     END;
   END IF;
 
+  IF NEW.movement_type = 'sales_return'
+     AND NEW.reverses_movement_id IS NULL
+     AND v_reference LIKE 'Return for Order #%'
+  THEN
+    SELECT im.id INTO NEW.reverses_movement_id
+    FROM public.inventory_movements im
+    WHERE im.product_id = NEW.product_id
+      AND im.reference = replace(v_reference, 'Return for Order #', 'Order #')
+      AND im.movement_type = 'sale_delivery'
+      AND im.quantity_delta < 0
+    ORDER BY im.created_at DESC
+    LIMIT 1;
+  END IF;
+
   NEW.reason := v_reason;
   RETURN NEW;
 END;
