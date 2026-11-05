@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "import:cctv": "node scripts/import-cctv-database.mjs",
-    "test:cctv": "node --test test/cctv-calculator.test.mjs"
+    "test:cctv": "node --test test/cctv-calculator.test.mjs",
+    "test:erp-domain": "node --test test/erp-domain.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.6.1",
