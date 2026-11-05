@@ -103,5 +103,13 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'TEST FAILED: cancellation movement was not classified';
   END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM public.inventory_movements
+    WHERE movement_type = 'sales_return'
+      AND reverses_movement_id IS NULL
+  ) THEN
+    RAISE EXCEPTION 'TEST FAILED: sales return is not linked to its original sale';
+  END IF;
 END;
 $test$;
