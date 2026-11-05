@@ -5,17 +5,17 @@ import { createClient } from "@/lib/supabase/server";
 import "./../catalog.css";
 
 type Params = Promise<{ id: string }>;
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\\/+$/, "");
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://bein-store.vercel.app").replace(/\/+$/, "");
 
 function pretty(value: string) {
-  return value.replace(/_/g, " ").replace(/\\b\\w/g, (match) => match.toUpperCase());
+  return value.replaceAll("_", " ");
 }
 
 function display(value: unknown): string {
   if (value === null || value === undefined || value === "") return "غير متوفر في المصدر";
   if (typeof value === "boolean") return value ? "نعم" : "لا";
   if (Array.isArray(value)) return value.length ? value.map((item) => typeof item === "object" ? JSON.stringify(item) : String(item)).join("، ") : "غير متوفر في المصدر";
-  if (typeof value === "object") return Object.entries(value as Record<string, unknown>).map(([key, item]) => `${pretty(key)}: ${display(item)}`).join(" · ");
+  if (typeof value === "object") return Object.entries(value as Record<string, unknown>).map(([key, item]) => pretty(key) + ": " + display(item)).join(" · ");
   return String(value);
 }
 
@@ -36,14 +36,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { id } = await params;
   const camera = await getCamera(id);
   if (!camera) return { title: "الموديل غير موجود | دليل كاميرات Bein Store", robots: { index: false, follow: true } };
-  const title = `${camera.brand} ${camera.model} | المواصفات الفنية - Bein Store`;
+  const title = camera.brand + " " + camera.model + " | المواصفات الفنية - Bein Store";
   const description = [camera.brand, camera.model, camera.resolution_label, camera.camera_type, "مواصفات كاميرا المراقبة ومصادرها"].filter(Boolean).join(" · ").slice(0, 180);
   return {
     title,
     description,
-    alternates: { canonical: `/cctv-database/${encodeURIComponent(camera.id)}` },
+    alternates: { canonical: "/cctv-database/" + encodeURIComponent(camera.id) },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
-    openGraph: { type: "article", locale: "ar_EG", siteName: "Bein Store", title, description }
+    openGraph: { type: "article", locale: "ar_EG", siteName: "Bein Store", url: SITE_URL + "/cctv-database/" + encodeURIComponent(camera.id), title, description }
   };
 }
 
@@ -53,7 +53,7 @@ export default async function CctvCameraDetail({ params }: { params: Params }) {
   if (!camera) notFound();
   const specs = (camera.specs ?? {}) as Record<string, unknown>;
   const sources = (Array.isArray(camera.sources) ? camera.sources : [])
-    .filter((value: unknown): value is string => typeof value === "string" && /^https?:\\/\\//i.test(value));
+    .filter((value: unknown): value is string => typeof value === "string" && (value.startsWith("https://") || value.startsWith("http://")));
   const groups = Object.entries(specs).filter(([key, value]) =>
     !["id", "brand", "model", "type", "resolution", "sources", "last_verified"].includes(key)
     && value !== null && value !== undefined && value !== ""
