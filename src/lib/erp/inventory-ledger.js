@@ -1,9 +1,8 @@
 /**
  * Pure inventory-ledger invariants.
  *
- * This module deliberately does not read or write Supabase. Persisted,
- * append-only movements and database idempotency are introduced separately
- * after the migration has been reviewed and tested against a disposable DB.
+ * This module deliberately does not read or write Supabase. Persistence is
+ * handled by database functions and the append-only migration in this branch.
  */
 
 export const INVENTORY_MOVEMENT_KINDS = Object.freeze([
