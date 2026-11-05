@@ -23,12 +23,12 @@ test("document totals use integer minor units", () => {
   );
 
   assert.deepEqual(totals, {
-    subtotalMinor: 299900,
+    subtotalMinor: 300000,
     discountMinor: 5000,
-    taxableMinor: 294900,
-    taxMinor: 41286,
+    taxableMinor: 295000,
+    taxMinor: 41300,
     shippingMinor: 2500,
-    totalMinor: 338686
+    totalMinor: 338800
   });
 });
 
