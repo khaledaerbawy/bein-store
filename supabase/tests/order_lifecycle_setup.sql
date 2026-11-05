@@ -5,6 +5,7 @@ CREATE ROLE anon;
 CREATE ROLE authenticated;
 
 CREATE SCHEMA auth;
+CREATE TABLE auth.users (id uuid PRIMARY KEY);
 CREATE OR REPLACE FUNCTION auth.uid()
 RETURNS uuid
 LANGUAGE sql
