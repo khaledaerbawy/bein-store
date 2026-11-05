@@ -30,6 +30,16 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint
     WHERE conrelid = 'public.inventory_movements'::regclass
+      AND conname = 'inventory_movements_source_type_check'
+  ) THEN
+    ALTER TABLE public.inventory_movements
+      ADD CONSTRAINT inventory_movements_source_type_check
+      CHECK (length(btrim(source_type)) > 0 AND length(btrim(source_id)) > 0 AND length(btrim(idempotency_key)) > 0);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.inventory_movements'::regclass
       AND conname = 'inventory_movements_type_check'
   ) THEN
     ALTER TABLE public.inventory_movements
@@ -68,6 +78,24 @@ BEGIN
   END IF;
 END
 $migration$;
+
+-- Preserve immutable audit references when an auth user is deleted.
+-- SET NULL would attempt to UPDATE an append-only ledger row.
+DO $foreign_key$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.inventory_movements'::regclass
+      AND conname = 'inventory_movements_created_by_fkey'
+  ) THEN
+    ALTER TABLE public.inventory_movements
+      DROP CONSTRAINT inventory_movements_created_by_fkey;
+    ALTER TABLE public.inventory_movements
+      ADD CONSTRAINT inventory_movements_created_by_fkey
+      FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE RESTRICT;
+  END IF;
+END
+$foreign_key$;
 
 CREATE UNIQUE INDEX IF NOT EXISTS inventory_movements_idempotency_key_uidx
   ON public.inventory_movements(idempotency_key);
