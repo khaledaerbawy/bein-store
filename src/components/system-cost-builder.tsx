@@ -9,13 +9,13 @@ type Product = {
   specifications: Record<string, unknown> | null;
 };
 type Kind = "camera" | "recorder" | "storage" | "poe" | "cable";
-const labels: Record<Kind,string> = { camera:"الكاميرات", recorder:"جهاز التسجيل", storage:"الهارد", poe:"سويتش الشبكة / PoE", cable:"الكابلات والإكسسوارات" };
+const labels: Record<Kind,string> = { camera:"الكاميرات", recorder:"جهاز التسجيل", storage:"الهارد", poe:"سويتش PoE", cable:"كابل الشبكة" };
 const patterns: Record<Kind,RegExp> = {
   camera:/كاميرا|camera|cctv|security cam|ip cam/i,
   recorder:/dvr|nvr|جهاز تسجيل|مسجل|recorder/i,
   storage:/هارد|hard.?disk|hdd|storage|تخزين/i,
-  poe:/poe|سويتش|switch|network/i,
-  cable:/كابل|كيبل|cable|accessor|إكسسوار|ملحق/i
+  poe:/\bpoe\b|power.?over.?ethernet|سويتش\s*poe|poe\s*switch/i,
+  cable:/كابل|كيبل|\bcable\b|\bcat\s*[568]\b|\bcat[568]\b/i
 };
 const money = (n:number) => new Intl.NumberFormat("ar-EG",{style:"currency",currency:"EGP",maximumFractionDigits:0}).format(n);
 const positions = [[9,12],[91,12],[9,88],[91,88],[50,7],[50,93],[7,50],[93,50],[28,7],[72,7],[28,93],[72,93],[7,28],[93,28],[7,72],[93,72],[36,18],[64,18],[36,82],[64,82],[18,36],[82,36],[18,64],[82,64],[50,30],[50,70],[30,50],[70,50],[42,42],[58,42],[42,58],[58,58]];
