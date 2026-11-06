@@ -26,7 +26,7 @@ export default async function SystemBuilderPage() {
       .order("name_ar").limit(300);
     if (error) console.error("System builder product lookup failed:", error.message);
     const rows = data ?? [];
-    const ids = Array.from(new Set(rows.map((p) => p.category_id).filter((id): id is string => Boolean(id)));
+    const ids = Array.from(new Set(rows.map((p) => p.category_id).filter((id): id is string => Boolean(id))));
     const { data: categories } = ids.length
       ? await supabase.from("categories").select("id,slug").in("id", ids)
       : { data: [] as {id:string;slug:string}[] };
