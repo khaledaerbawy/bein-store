@@ -36,7 +36,8 @@ export default function SystemCostBuilder({products}:{products:Product[]}) {
  const [showDetails,setShowDetails]=useState(false);
  const choices=useMemo(()=>Object.fromEntries((Object.keys(patterns) as Kind[]).map(k=>[k,products.filter(p=>patterns[k].test([p.name_ar,p.brand,p.model,p.category_slug,JSON.stringify(p.specifications??{})].filter(Boolean).join(" ")))])) as Record<Kind,Product[]>,[products]);
  const chosen=(kind:Kind)=>products.find(p=>p.id===selected[kind])??null;
- const storageTb=Math.ceil(count*(quality === "2MP" ? 0.12 : quality === "4MP" ? 0.22)*days/14*2)/2;
+ const bitrateTbPerCameraPer14Days = quality === "2MP" ? 0.12 : quality === "4MP" ? 0.22 : quality === "5MP" ? 0.28 : 0.45;
+ const storageTb=Math.ceil(count*bitrateTbPerCameraPer14Days*days/14*2)/2;
  const recorder=chosen("recorder");
  const channelCount=recorder?capacity(recorder):null;
  const compatibleRecorder=!recorder||!channelCount||channelCount>=count;
