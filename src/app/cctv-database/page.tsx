@@ -23,7 +23,7 @@ const MEGAPIXEL_FILTERS = [2, 4, 5, 8, 12];
 const DESCRIPTION = "ابحث في دليل يضم آلاف موديلات كاميرات المراقبة ومواصفاتها الفنية، مع فلاتر للماركة والنوع والدقة ومصادر بيانات كل موديل.";
 
 function safeFilter(value: string) {
-  return value.replace(/[,%()"'\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+  return value.replace(/[^\\p{L}\\p{N} _-]/gu, " ").replace(/\\s+/g, " ").trim().slice(0, 80);
 }
 
 export async function generateMetadata(): Promise<Metadata> {
