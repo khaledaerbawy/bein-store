@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 type Product = {
-  id: string; slug: string; name_ar: string; brand: string | null; model: string | null;
+  id: string; slug: string; name_ar: string; name_en?: string | null; brand: string | null; model: string | null;
   price_egp: number; image_urls: string[] | null; category_slug: string | null;
   specifications: Record<string, unknown> | null;
 };
