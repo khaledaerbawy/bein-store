@@ -18,12 +18,12 @@ type CameraCard = {
 type CameraBrand = { slug: string; name: string; camera_count: number };
 
 const PAGE_SIZE = 24;
-const TYPES = ["bullet", "dome", "turret", "ptz", "fisheye", "box", "thermal", "doorbell", "cube"];
+const TYPES = ["bullet", "dome", "ptz", "turret", "box", "panoramic", "fisheye", "dual-lens", "doorbell", "covert", "floodlight"];
 const MEGAPIXEL_FILTERS = [2, 4, 5, 8, 12];
 const DESCRIPTION = "ابحث في دليل يضم آلاف موديلات كاميرات المراقبة ومواصفاتها الفنية، مع فلاتر للماركة والنوع والدقة ومصادر بيانات كل موديل.";
 
 function safeFilter(value: string) {
-  return value.replace(/[,%()"'\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+  return value.replace(/[^\p{L}\p{N} _-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 80);
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -100,7 +100,7 @@ export default async function CctvDatabasePage({ searchParams }: { searchParams:
       <form className="cctv-filters" action="/cctv-database">
         <label className="cctv-search">ابحث بالماركة أو الموديل<input name="q" defaultValue={q} placeholder="مثال: Hikvision DS-2CD..." /></label>
         <label>الماركة<select name="brand" defaultValue={brand}><option value="">كل الماركات</option>{brands.map((item) => <option key={item.slug} value={item.name}>{item.name} ({item.camera_count})</option>)}</select></label>
-        <label>نوع الكاميرا<select name="type" defaultValue={type}><option value="">كل الأنواع</option>{TYPES.map((item) => <option key={item} value={item}>{item.toUpperCase()}</option>)}</select></label>
+        <label>نوع الكاميرا<select name="type" defaultValue={type}><option value="">كل الأنواع</option>{TYPES.map((item) => <option key={item} value={item}>{({ bullet: "Bullet", dome: "Dome", ptz: "PTZ", turret: "Turret", box: "Box", panoramic: "Panoramic", fisheye: "Fisheye", "dual-lens": "Dual Lens", doorbell: "Doorbell", covert: "Covert", floodlight: "Floodlight" } as Record<string, string>)[item]}</option>)}</select></label>
         <label>الدقة من<select name="mp" defaultValue={mp || ""}><option value="">كل الدقات</option><option value="2">2 MP فأعلى</option><option value="4">4 MP فأعلى</option><option value="5">5 MP فأعلى</option><option value="8">8 MP / 4K فأعلى</option><option value="12">12 MP فأعلى</option></select></label>
         <button type="submit">عرض النتائج <span>←</span></button>
       </form>
