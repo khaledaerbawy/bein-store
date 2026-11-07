@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
+import "./bein-identity.css";
 import { CartProvider } from "@/components/cart-provider";
 import CartFeedback from "@/components/cart-feedback";
 import { createClient } from "@/lib/supabase/server";
