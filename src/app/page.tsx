@@ -243,18 +243,25 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     {site.show_hero && (
     <section className="commerce-hero customer-commerce-hero">
       <div className="hero-main-copy">
-        <div className="hero-kicker"><span /> {site.hero_badge}</div>
+        <div className="hero-kicker"><span /> {site.hero_badge}<small className="hero-signal-label">BEIN · SMART SECURITY</small></div>
         <h1>{site.hero_title}<br /><em>{site.hero_title_highlight}</em></h1>
         <p>{site.hero_description}</p>
         <div className="commerce-hero-actions">
-          <a className="commerce-button commerce-button-orange" href="#catalog">{site.hero_cta_text} <span aria-hidden="true">←</span></a>
+          <a className="commerce-button commerce-button-orange cinematic-discover-button" href="#catalog"><span className="discover-button-pulse" aria-hidden="true" />{site.hero_cta_text} <span aria-hidden="true">←</span></a>
           <a className="commerce-button commerce-button-outline" href={whatsappUrl} target={storeWhatsapp ? "_blank" : undefined} rel={storeWhatsapp ? "noreferrer" : undefined}>{storeWhatsapp ? "اسألنا على واتساب" : "تواصل مع المتجر"}</a>
         </div>
         <div className="customer-hero-benefits"><span>اختيار الموديل المناسب</span><span>مراجعة التوافق قبل الطلب</span><span>تأكيد السعر والتوفر</span></div>
       </div>
       <div className="customer-hero-products" aria-label="منتجات من كتالوج Bein Store">
         <div className="customer-hero-main-photo">
-          {site.hero_image_url ? <img className="customer-hero-camera" src={site.hero_image_url} alt={site.store_name} /> : heroProduct ? <ProductImage product={heroProduct} className="customer-hero-camera" /> : <div className="customer-hero-photo-empty">كاميرات مراقبة</div>}
+          <div className="cinematic-camera-stage">
+            <div className="cinematic-stage-grid" aria-hidden="true" />
+            <div className="cinematic-scan-line" aria-hidden="true" />
+            {site.hero_image_url ? <img className="customer-hero-camera" src={site.hero_image_url} alt={site.store_name} /> : heroProduct ? <ProductImage product={heroProduct} className="customer-hero-camera" /> : <div className="customer-hero-photo-empty">كاميرات مراقبة</div>}
+            <div className="cinematic-camera-hud" aria-hidden="true"><span><i /> LIVE SYSTEM</span><b>4K <small>ULTRA HD</small></b><span>BEIN / OPTICS</span></div>
+            <span className="cinematic-focus cinematic-focus-a" aria-hidden="true" />
+            <span className="cinematic-focus cinematic-focus-b" aria-hidden="true" />
+          </div>
           <div className="customer-hero-photo-caption"><small>{heroProduct?.brand ?? site.store_name}</small><b>{heroProduct?.name_ar ?? site.store_name}</b></div>
         </div>
         <div className="customer-hero-secondary">
