@@ -260,3 +260,210 @@ hr { border:0; border-top:1px solid rgba(116,137,153,.2); }
   html { scroll-behavior:auto; }
   *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
 }
+
+
+/* BEIN STORE — final unified surface system
+   One continuous charcoal/navy canvas across storefront, catalog, tools and admin.
+   Orange is reserved for actions and small emphasis; no isolated white-page themes. */
+:root {
+  color-scheme: dark;
+  --bein-canvas: #0b121a;
+  --bein-surface: #121e29;
+  --bein-surface-raised: #182735;
+  --bein-border: rgba(180, 199, 214, .14);
+  --bein-text: #edf2f6;
+  --bein-text-muted: #a7b5c1;
+  --bein-accent: #f07832;
+}
+html, body { background: var(--bein-canvas) !important; color: var(--bein-text); }
+body { color-scheme: dark; }
+.storefront-page,
+.subpage,
+.cctv-page,
+.builder-page,
+.system-builder-page,
+.planner-page,
+.system-planner-page,
+.admin-shell,
+.admin-layout,
+.admin-page {
+  background: var(--bein-canvas) !important;
+  color: var(--bein-text) !important;
+}
+.storefront-page .category-section,
+.storefront-page .catalog-section,
+.storefront-page .brands-strip,
+.storefront-page .service-section,
+.storefront-page .local-seo-section,
+.subpage main,
+.subpage .section-wrap,
+.cctv-page .cctv-browser,
+.builder-page main,
+.system-builder-page main,
+.planner-page main,
+.system-planner-page main,
+.admin-shell main,
+.admin-content,
+.admin-main {
+  background: transparent !important;
+  color: var(--bein-text) !important;
+}
+.storefront-page .category-section,
+.storefront-page .catalog-section,
+.storefront-page .brands-strip,
+.storefront-page .service-section,
+.storefront-page .local-seo-section { border-color: var(--bein-border); }
+.storefront-page .commerce-section-head h2,
+.storefront-page .category-tile-copy b,
+.storefront-page .product-info h3,
+.subpage .page-title,
+.subpage h1, .subpage h2, .subpage h3,
+.cctv-page h1, .cctv-page h2,
+.admin-shell h1, .admin-shell h2, .admin-shell h3 {
+  color: var(--bein-text) !important;
+}
+.storefront-page .section-subtitle,
+.storefront-page .category-tile-copy small,
+.storefront-page .product-model,
+.subpage .subpage-lead,
+.subpage .detail-description,
+.admin-shell p { color: var(--bein-text-muted) !important; }
+.storefront-page .category-tile,
+.storefront-page .product-card,
+.storefront-page .product-image,
+.storefront-page .brand-logo-card,
+.storefront-page .service-step,
+.storefront-page .local-seo-faq details,
+.subpage .cart-row,
+.subpage .order-summary,
+.subpage .checkout-form,
+.subpage .product-detail-card,
+.subpage .product-detail-panel,
+.subpage .empty-state,
+.cctv-page .cctv-filters,
+.cctv-page .cctv-camera-card,
+.cctv-page .cctv-empty,
+.planner-search-strip,
+.admin-stat-card,
+.admin-card,
+.admin-panel,
+.admin-table-wrap {
+  background: var(--bein-surface) !important;
+  color: var(--bein-text) !important;
+  border: 1px solid var(--bein-border) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.16);
+}
+.storefront-page .product-image,
+.storefront-page .category-tile-image,
+.storefront-page .art-frame { background: transparent !important; }
+.storefront-page .category-tile:hover,
+.storefront-page .product-card:hover,
+.cctv-page .cctv-camera-card:hover {
+  background: var(--bein-surface-raised) !important;
+  border-color: rgba(240,120,50,.5) !important;
+}
+.storefront-page .product-info,
+.storefront-page .category-tile-copy,
+.storefront-page .brands-title,
+.storefront-page .brands-note,
+.storefront-page .service-intro,
+.storefront-page .service-steps,
+.storefront-page .local-seo-section p,
+.storefront-page .local-seo-section li,
+.subpage label,
+.subpage .breadcrumbs,
+.cctv-page .cctv-count { color: var(--bein-text-muted); }
+.storefront-page .product-price,
+.storefront-page .product-brand,
+.storefront-page .section-overline,
+.subpage .breadcrumbs a,
+.cctv-page .cctv-card-top span,
+.cctv-page .cctv-card-foot b { color: #ff9958 !important; }
+.storefront-page .product-card button,
+.storefront-page .add-cart,
+.subpage .button-primary,
+.subpage .full-button,
+.cctv-page .cctv-filters button,
+.planner-search-strip button,
+.admin-shell button[type="submit"],
+.admin-shell .primary-button {
+  background: var(--bein-orange) !important;
+  border-color: var(--bein-orange) !important;
+  color: #fff !important;
+}
+.storefront-page input,
+.storefront-page select,
+.storefront-page textarea,
+.subpage input,
+.subpage select,
+.subpage textarea,
+.cctv-page input,
+.cctv-page select,
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea {
+  background: #0d1721 !important;
+  color: var(--bein-text) !important;
+  border-color: var(--bein-border) !important;
+}
+.storefront-page input::placeholder,
+.subpage input::placeholder,
+.subpage textarea::placeholder,
+.admin-shell input::placeholder { color: #8495a3; }
+.storefront-page .customer-commerce-hero { background: linear-gradient(115deg,#080e15 0%,#101b26 55%,#142331 100%) !important; }
+.storefront-page .customer-hero-main-photo {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+.storefront-page .cinematic-camera-stage {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+.storefront-page .cinematic-camera-stage:after,
+.storefront-page .cinematic-stage-grid,
+.storefront-page .cinematic-scan-line,
+.storefront-page .cinematic-camera-hud,
+.storefront-page .cinematic-focus { display: none !important; }
+.storefront-page .customer-hero-camera {
+  display: block;
+  width: 100%;
+  height: clamp(250px, 32vw, 430px);
+  object-fit: contain;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 22px 36px rgba(0,0,0,.35));
+}
+.storefront-page .customer-hero-photo-caption {
+  margin-top: 12px;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: center;
+}
+.storefront-page .customer-hero-secondary-photo {
+  background: transparent !important;
+  border: 1px solid var(--bein-border) !important;
+}
+.storefront-page footer,
+.storefront-page .about-section,
+.cctv-page .cctv-intro,
+.admin-dashboard-welcome { background: var(--bein-surface) !important; }
+.storefront-page .product-card *,
+.storefront-page .category-tile *,
+.subpage .cart-row *,
+.subpage .order-summary *,
+.admin-card * { color: inherit; }
+.storefront-page a:focus-visible,
+.subpage a:focus-visible,
+.admin-shell a:focus-visible { outline-color: var(--bein-orange); }
+@media (prefers-reduced-motion: reduce) {
+  .storefront-page .customer-commerce-hero:before { animation: none !important; }
+}
